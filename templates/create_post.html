@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}Create Post - PSRA Forum{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container" style="max-width: 600px; margin: 0 auto;">
+        <h1>Start New Discussion</h1>
+        <form method="post" style="display: flex; flex-direction: column; gap: 20px;">
+            {{ form.hidden_tag() }}
+            <div>
+                {{ form.title.label }}
+                {{ form.title(style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 5px;") }}
+                {% if form.title.errors %}
+                    <div style="color: red; font-size: 14px;">
+                        {% for error in form.title.errors %}{{ error }}{% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            <div>
+                {{ form.category.label }}
+                {{ form.category(style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 5px;") }}
+                {% if form.category.errors %}
+                    <div style="color: red; font-size: 14px;">
+                        {% for error in form.category.errors %}{{ error }}{% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            <div>
+                {{ form.content.label }}
+                {{ form.content(rows=10, style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 5px;") }}
+                {% if form.content.errors %}
+                    <div style="color: red; font-size: 14px;">
+                        {% for error in form.content.errors %}{{ error }}{% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            {{ form.submit(class="btn") }}
+        </form>
+    </div>
+</section>
+{% endblock %}

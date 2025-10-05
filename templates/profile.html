@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block title %}Profile - {{ current_user.name }}{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+        <div style="max-width: 600px; margin: 0 auto;">
+            <h1>My Profile</h1>
+
+            <div style="background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px;">
+                <h2 style="margin-bottom: 20px; color: var(--primary);">Profile Information</h2>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div>
+                        <label style="font-weight: bold; color: var(--text);">Name:</label>
+                        <p style="margin: 5px 0; padding: 10px; background: var(--background); border-radius: 5px;">{{ current_user.name }}</p>
+                    </div>
+
+                    <div>
+                        <label style="font-weight: bold; color: var(--text);">Batch Number:</label>
+                        <p style="margin: 5px 0; padding: 10px; background: var(--background); border-radius: 5px;">
+                            {% if current_user.batch_number %}
+                                {{ current_user.batch_number }}
+                            {% else %}
+                                Not set
+                            {% endif %}
+                        </p>
+                    </div>
+
+                    <div>
+                        <label style="font-weight: bold; color: var(--text);">Email:</label>
+                        <p style="margin: 5px 0; padding: 10px; background: var(--background); border-radius: 5px;">{{ current_user.email }}</p>
+                    </div>
+
+                    <div>
+                        <label style="font-weight: bold; color: var(--text);">Phone Number:</label>
+                        <p style="margin: 5px 0; padding: 10px; background: var(--background); border-radius: 5px;">
+                            {% if current_user.phone_number %}
+                                {{ current_user.phone_number }}
+                            {% else %}
+                                Not set
+                            {% endif %}
+                        </p>
+                    </div>
+
+                    <div style="grid-column: span 2;">
+                        <label style="font-weight: bold; color: var(--text);">WhatsApp Number:</label>
+                        <p style="margin: 5px 0; padding: 10px; background: var(--background); border-radius: 5px;">
+                            {% if current_user.whatsapp_number %}
+                                {{ current_user.whatsapp_number }}
+                            {% else %}
+                                Not set
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+
+                <div style="margin-top: 30px;">
+                    <a href="{{ url_for('forum.edit_profile') }}" class="btn" style="background: var(--primary); color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">
+                        Edit Profile
+                    </a>
+                </div>
+            </div>
+
+            <div style="background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                <h3 style="margin-bottom: 15px; color: var(--primary);">Account Statistics</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; text-align: center;">
+                    <div>
+                        <div style="font-size: 24px; font-weight: bold; color: var(--primary);">{{ current_user.posts|length }}</div>
+                        <div style="color: var(--text-secondary);">Posts</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 24px; font-weight: bold; color: var(--primary);">{{ current_user.comments|length }}</div>
+                        <div style="color: var(--text-secondary);">Comments</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 24px; font-weight: bold; color: var(--primary);">{{ current_user.likes|length }}</div>
+                        <div style="color: var(--text-secondary);">Likes</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - PSRA{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+        <h2>Admin Dashboard</h2>
+
+        <!-- Statistics Cards -->
+        <div class="grid" style="margin-bottom: 40px;">
+            <div class="card">
+                <h3>Total Users</h3>
+                <p style="font-size: 2rem; font-weight: bold; color: var(--text-secondary);">{{ total_users }}</p>
+            </div>
+            <div class="card">
+                <h3>Total Posts</h3>
+                <p style="font-size: 2rem; font-weight: bold; color: var(--text-secondary);">{{ total_posts }}</p>
+            </div>
+            <div class="card">
+                <h3>Total Comments</h3>
+                <p style="font-size: 2rem; font-weight: bold; color: var(--text-secondary);">{{ total_comments }}</p>
+            </div>
+            <div class="card">
+                <h3>Total Events</h3>
+                <p style="font-size: 2rem; font-weight: bold; color: var(--text-secondary);">{{ total_events }}</p>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="card" style="margin-bottom: 40px;">
+            <h3>Quick Actions</h3>
+            <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-top: 20px;">
+                <a href="{{ url_for('admin.manage_posts') }}" class="btn">Manage Posts</a>
+                <a href="{{ url_for('admin.manage_comments') }}" class="btn">Manage Comments</a>
+                <a href="{{ url_for('admin.manage_events') }}" class="btn">Manage Events</a>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="grid">
+            <div class="card">
+                <h3>Recent Posts</h3>
+                {% if recent_posts %}
+                    <ul style="list-style: none; padding: 0;">
+                        {% for post in recent_posts %}
+                        <li style="padding: 10px 0; border-bottom: 1px solid var(--border);">
+                            <strong><a href="{{ url_for('forum.post_detail', post_id=post.id) }}" style="text-decoration: none; color: var(--text-primary);">{{ post.title }}</a></strong>
+                            <br><small style="color: var(--text-muted);">by {{ post.author.name }} on {{ post.created_at.strftime('%B %d, %Y') }}</small>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>No recent posts.</p>
+                {% endif %}
+            </div>
+
+            <div class="card">
+                <h3>Recent Comments</h3>
+                {% if recent_comments %}
+                    <ul style="list-style: none; padding: 0;">
+                        {% for comment in recent_comments %}
+                        <li style="padding: 10px 0; border-bottom: 1px solid var(--border);">
+                            <strong>{{ comment.author.name }}</strong> commented on
+                            <a href="{{ url_for('forum.post_detail', post_id=comment.post.id) }}" style="text-decoration: none; color: var(--text-primary);">{{ comment.post.title }}</a>
+                            <br><small style="color: var(--text-muted);">{{ comment.created_at.strftime('%B %d, %Y') }}</small>
+                            <br><small style="color: var(--text-secondary);">{{ comment.content[:100] }}{% if comment.content|length > 100 %}...{% endif %}</small>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>No recent comments.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

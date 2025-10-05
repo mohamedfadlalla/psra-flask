@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Posts - Admin - PSRA{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+            <h2>Manage Posts</h2>
+            <a href="{{ url_for('admin.admin_dashboard') }}" class="btn btn-outline">Back to Dashboard</a>
+        </div>
+
+        <!-- Filters -->
+        <div class="card" style="margin-bottom: 30px;">
+            <h3>Filters</h3>
+            <form method="GET" style="display: flex; gap: 20px; flex-wrap: wrap; margin-top: 20px;">
+                <div>
+                    <label for="search">Search:</label>
+                    <input type="text" id="search" name="search" value="{{ search }}" placeholder="Search title or content" style="padding: 8px; border: 1px solid var(--border); border-radius: 4px;">
+                </div>
+                <div>
+                    <label for="category">Category:</label>
+                    <select id="category" name="category" style="padding: 8px; border: 1px solid var(--border); border-radius: 4px;">
+                        <option value="">All Categories</option>
+                        {% for cat in categories %}
+                        <option value="{{ cat }}" {% if category == cat %}selected{% endif %}>{{ cat }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label for="author">Author:</label>
+                    <input type="text" id="author" name="author" value="{{ author }}" placeholder="Search by author" style="padding: 8px; border: 1px solid var(--border); border-radius: 4px;">
+                </div>
+                <div style="display: flex; align-items: end;">
+                    <button type="submit" class="btn">Filter</button>
+                    <a href="{{ url_for('admin.manage_posts') }}" class="btn btn-outline" style="margin-left: 10px;">Clear</a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Posts Table -->
+        <div class="card">
+            <h3>Posts ({{ posts.total }} total)</h3>
+            {% if posts.items %}
+                <div style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+                        <thead>
+                            <tr style="background-color: var(--bg-secondary);">
+                                <th style="padding: 12px; text-align: left; border-bottom: 1px solid var(--border);">Title</th>
+                                <th style="padding: 12px; text-align: left; border-bottom: 1px solid var(--border);">Author</th>
+                                <th style="padding: 12px; text-align: left; border-bottom: 1px solid var(--border);">Category</th>
+                                <th style="padding: 12px; text-align: left; border-bottom: 1px solid var(--border);">Created</th>
+                                <th style="padding: 12px; text-align: left; border-bottom: 1px solid var(--border);">Comments</th>
+                                <th style="padding: 12px; text-align: left; border-bottom: 1px solid var(--border);">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for post in posts.items %}
+                            <tr style="border-bottom: 1px solid var(--border);">
+                                <td style="padding: 12px;">
+                                    <a href="{{ url_for('forum.post_detail', post_id=post.id) }}" style="text-decoration: none; color: var(--text-primary); font-weight: bold;">{{ post.title }}</a>
+                                    {% if post.content|length > 100 %}
+                                    <br><small style="color: var(--text-muted);">{{ post.content[:100] }}...</small>
+                                    {% endif %}
+                                </td>
+                                <td style="padding: 12px;">{{ post.author.name }}</td>
+                                <td style="padding: 12px;">{{ post.category }}</td>
+                                <td style="padding: 12px;">{{ post.created_at.strftime('%B %d, %Y') }}</td>
+                                <td style="padding: 12px;">{{ post.comments|length }}</td>
+                                <td style="padding: 12px;">
+                                    <a href="{{ url_for('admin.edit_post', post_id=post.id) }}" class="btn" style="padding: 6px 12px; font-size: 14px;">Edit</a>
+                                    <form method="POST" action="{{ url_for('admin.delete_post', post_id=post.id) }}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this post?')">
+                                        <button type="submit" class="btn" style="padding: 6px 12px; font-size: 14px; background-color: #dc3545; margin-left: 5px;">Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                {% if posts.pages > 1 %}
+                <div style="display: flex; justify-content: center; margin-top: 30px;">
+                    {% if posts.has_prev %}
+                    <a href="{{ url_for('admin.manage_posts', page=posts.prev_num, search=search, category=category, author=author) }}" class="btn btn-outline">Previous</a>
+                    {% endif %}
+
+                    {% for page_num in posts.iter_pages() %}
+                        {% if page_num %}
+                            {% if page_num == posts.page %}
+                            <span style="padding: 8px 12px; background-color: var(--text-secondary); color: var(--bg-primary); margin: 0 5px; border-radius: 4px;">{{ page_num }}</span>
+                            {% else %}
+                            <a href="{{ url_for('admin.manage_posts', page=page_num, search=search, category=category, author=author) }}" style="padding: 8px 12px; margin: 0 5px; text-decoration: none; color: var(--text-primary); border: 1px solid var(--border); border-radius: 4px;">{{ page_num }}</a>
+                            {% endif %}
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if posts.has_next %}
+                    <a href="{{ url_for('admin.manage_posts', page=posts.next_num, search=search, category=category, author=author) }}" class="btn btn-outline">Next</a>
+                    {% endif %}
+                </div>
+                {% endif %}
+            {% else %}
+                <p style="margin-top: 20px;">No posts found matching your criteria.</p>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}

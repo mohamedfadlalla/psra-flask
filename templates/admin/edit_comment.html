@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Comment - Admin - PSRA{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+            <h2>Edit Comment</h2>
+            <a href="{{ url_for('admin.manage_comments') }}" class="btn btn-outline">Back to Comments</a>
+        </div>
+
+        <div class="card">
+            <form method="POST" style="max-width: 800px;">
+                <div style="margin-bottom: 20px;">
+                    <label for="content" style="display: block; margin-bottom: 8px; font-weight: bold;">Comment Content:</label>
+                    <textarea id="content" name="content" rows="8" required style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 4px; font-size: 16px; font-family: inherit;">{{ comment.content }}</textarea>
+                </div>
+
+                <div style="margin-bottom: 20px; padding: 15px; background-color: var(--bg-secondary); border-radius: 4px;">
+                    <h4 style="margin-bottom: 10px;">Comment Information</h4>
+                    <p><strong>Author:</strong> {{ comment.author.name }} ({{ comment.author.email }})</p>
+                    <p><strong>Post:</strong> <a href="{{ url_for('forum.post_detail', post_id=comment.post.id) }}" style="color: var(--text-primary);">{{ comment.post.title }}</a></p>
+                    <p><strong>Created:</strong> {{ comment.created_at.strftime('%B %d, %Y at %I:%M %p') }}</p>
+                </div>
+
+                <div style="display: flex; gap: 15px;">
+                    <button type="submit" class="btn">Update Comment</button>
+                    <a href="{{ url_for('admin.manage_comments') }}" class="btn btn-outline">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}

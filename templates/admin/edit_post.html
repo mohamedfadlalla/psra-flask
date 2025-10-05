@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Post - Admin - PSRA{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+            <h2>Edit Post</h2>
+            <a href="{{ url_for('admin.manage_posts') }}" class="btn btn-outline">Back to Posts</a>
+        </div>
+
+        <div class="card">
+            <form method="POST" style="max-width: 800px;">
+                <div style="margin-bottom: 20px;">
+                    <label for="title" style="display: block; margin-bottom: 8px; font-weight: bold;">Title:</label>
+                    <input type="text" id="title" name="title" value="{{ post.title }}" required style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 4px; font-size: 16px;">
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <label for="category" style="display: block; margin-bottom: 8px; font-weight: bold;">Category:</label>
+                    <select id="category" name="category" required style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 4px; font-size: 16px;">
+                        <option value="Pharmacology" {% if post.category == 'Pharmacology' %}selected{% endif %}>Pharmacology</option>
+                        <option value="Clinical Pharmacy" {% if post.category == 'Clinical Pharmacy' %}selected{% endif %}>Clinical Pharmacy</option>
+                        <option value="Research Skills" {% if post.category == 'Research Skills' %}selected{% endif %}>Research Skills</option>
+                    </select>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <label for="content" style="display: block; margin-bottom: 8px; font-weight: bold;">Content:</label>
+                    <textarea id="content" name="content" rows="15" required style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 4px; font-size: 16px; font-family: inherit;">{{ post.content }}</textarea>
+                </div>
+
+                <div style="margin-bottom: 20px; padding: 15px; background-color: var(--bg-secondary); border-radius: 4px;">
+                    <h4 style="margin-bottom: 10px;">Post Information</h4>
+                    <p><strong>Author:</strong> {{ post.author.name }} ({{ post.author.email }})</p>
+                    <p><strong>Created:</strong> {{ post.created_at.strftime('%B %d, %Y at %I:%M %p') }}</p>
+                    <p><strong>Comments:</strong> {{ post.comments|length }}</p>
+                    <p><strong>Likes:</strong> {{ post.likes|length }}</p>
+                </div>
+
+                <div style="display: flex; gap: 15px;">
+                    <button type="submit" class="btn">Update Post</button>
+                    <a href="{{ url_for('admin.manage_posts') }}" class="btn btn-outline">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}

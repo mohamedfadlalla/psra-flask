@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}Register - PSRA Forum{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container" style="max-width: 400px; margin: 0 auto;">
+        <h1>Create Account</h1>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div style="padding: 10px; margin-bottom: 20px; border: 1px solid {% if category == 'error' %}red{% else %}green{% endif %}; background-color: {% if category == 'error' %}#ffe6e6{% else %}#e6ffe6{% endif %};">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        <form method="post" style="display: flex; flex-direction: column; gap: 20px;">
+            {{ form.hidden_tag() }}
+            <div>
+                {{ form.email.label }}
+                {{ form.email(style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 5px;") }}
+                {% if form.email.errors %}
+                    <div style="color: red; font-size: 14px;">
+                        {% for error in form.email.errors %}{{ error }}{% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            <div>
+                {{ form.name.label }}
+                {{ form.name(style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 5px;") }}
+                {% if form.name.errors %}
+                    <div style="color: red; font-size: 14px;">
+                        {% for error in form.name.errors %}{{ error }}{% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            <div>
+                {{ form.batch_number.label }}
+                {{ form.batch_number(style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 5px;") }}
+                {% if form.batch_number.errors %}
+                    <div style="color: red; font-size: 14px;">
+                        {% for error in form.batch_number.errors %}{{ error }}{% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            <div>
+                {{ form.phone_number.label }}
+                {{ form.phone_number(style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 5px;") }}
+                {% if form.phone_number.errors %}
+                    <div style="color: red; font-size: 14px;">
+                        {% for error in form.phone_number.errors %}{{ error }}{% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            <div>
+                {{ form.whatsapp_number.label }}
+                {{ form.whatsapp_number(style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 5px;") }}
+                {% if form.whatsapp_number.errors %}
+                    <div style="color: red; font-size: 14px;">
+                        {% for error in form.whatsapp_number.errors %}{{ error }}{% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            <div>
+                {{ form.password.label }}
+                {{ form.password(style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 5px;") }}
+                {% if form.password.errors %}
+                    <div style="color: red; font-size: 14px;">
+                        {% for error in form.password.errors %}{{ error }}{% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            <div>
+                {{ form.confirm_password.label }}
+                {{ form.confirm_password(style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 5px;") }}
+                {% if form.confirm_password.errors %}
+                    <div style="color: red; font-size: 14px;">
+                        {% for error in form.confirm_password.errors %}{{ error }}{% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            <div>
+                {{ form.agree_terms() }} {{ form.agree_terms.label }}
+                {% if form.agree_terms.errors %}
+                    <div style="color: red; font-size: 14px;">
+                        {% for error in form.agree_terms.errors %}{{ error }}{% endfor %}
+                    </div>
+                {% endif %}
+                <br><small>By registering, you agree to our <a href="{{ url_for('forum.terms') }}" target="_blank">Terms and Conditions</a>.</small>
+            </div>
+            {{ form.submit(class="btn") }}
+        </form>
+        <p style="text-align: center; margin-top: 20px;">
+            Already have an account? <a href="{{ url_for('forum.login') }}">Login</a>
+        </p>
+    </div>
+</section>
+{% endblock %}

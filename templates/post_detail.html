@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}{{ post.title }} - PSRA Forum{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container" style="max-width: 800px; margin: 0 auto;">
+        <!-- Breadcrumb -->
+        <p><a href="{{ url_for('forum.forum_main') }}">Forum</a> > <a href="{{ url_for('forum.forum_main', category=post.category) }}">{{ post.category }}</a> > {{ post.title }}</p>
+
+        <!-- Post -->
+        <div class="card" style="margin-bottom: 40px;">
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                <img src="{{ url_for('static', filename='images/' + (post.author.profile_picture_url or 'default-avatar.png')) }}" alt="Avatar" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;">
+                <div>
+                    <strong>{{ post.author.name }}</strong>
+                    <br><small style="color: var(--text-muted);">{{ post.created_at.strftime('%B %d, %Y at %I:%M %p') }}</small>
+                </div>
+            </div>
+            <h1>{{ post.title }}</h1>
+            <p>{{ post.content }}</p>
+            {% if post.image_url %}
+                <img src="{{ url_for('static', filename='images/' + post.image_url) }}" alt="Post Image" style="max-width: 100%; margin-top: 20px;">
+            {% endif %}
+            <div style="display: flex; gap: 20px; margin-top: 20px; align-items: center;">
+                {% if current_user.is_authenticated %}
+                <button id="like-btn" class="btn" onclick="toggleLike({{ post.id }})">👍 {{ post.likes|length }}</button>
+                {% else %}
+                <span>👍 {{ post.likes|length }}</span>
+                {% endif %}
+                <span>💬 {{ post.comments|length }}</span>
+            </div>
+        </div>
+
+        <!-- Comments -->
+        <h2>Comments</h2>
+        {% for comment in comments %}
+        <div class="card" style="margin-bottom: 20px;">
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                <img src="{{ url_for('static', filename='images/' + (comment.author.profile_picture_url or 'default-avatar.png')) }}" alt="Avatar" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+                <div>
+                    <strong>{{ comment.author.name }}</strong>
+                    <br><small style="color: var(--text-muted);">{{ comment.created_at.strftime('%B %d, %Y at %I:%M %p') }}</small>
+                </div>
+            </div>
+            <p>{{ comment.content }}</p>
+        </div>
+        {% endfor %}
+
+        <!-- Add Comment -->
+        {% if current_user.is_authenticated %}
+        <div class="card">
+            <h3>Write a message...</h3>
+            <form action="{{ url_for('forum.add_comment', post_id=post.id) }}" method="post" style="display: flex; flex-direction: column; gap: 10px;">
+                {{ form.hidden_tag() }}
+                {{ form.content(rows=4, style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 5px;") }}
+                {% if form.content.errors %}
+                    <div style="color: red; font-size: 14px;">
+                        {% for error in form.content.errors %}{{ error }}{% endfor %}
+                    </div>
+                {% endif %}
+                {{ form.submit(class="btn") }}
+            </form>
+        </div>
+        {% else %}
+        <div class="card">
+            <p><a href="{{ url_for('forum.login') }}">Login</a> or <a href="{{ url_for('forum.register') }}">Register</a> to comment on this discussion.</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<script>
+function toggleLike(postId) {
+    // Placeholder for AJAX like toggle
+    alert('Like functionality coming soon!');
+}
+</script>
+{% endblock %}

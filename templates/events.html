@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title %}Upcoming Events - PSRA{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+        <h2>Upcoming Events</h2>
+
+        {% if events %}
+            <div class="events-list">
+                {% for event in events %}
+                <div class="card event-card" style="margin-bottom: 30px;">
+                    <div class="event-header" style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
+                        <h3 style="margin: 0; color: var(--text-primary);">{{ event.title }}</h3>
+                        <div class="event-date" style="text-align: right; background-color: var(--bg-secondary); padding: 10px; border-radius: 8px; min-width: 150px;">
+                            <div style="font-size: 1.2rem; font-weight: bold; color: var(--text-primary);">
+                                {{ event.event_date.strftime('%B %d, %Y') }}
+                            </div>
+                            {% if event.event_time %}
+                            <div style="font-size: 1rem; color: var(--text-secondary); margin-top: 5px;">
+                                {{ event.event_time.strftime('%I:%M %p') }}
+                            </div>
+                            {% else %}
+                            <div style="font-size: 1rem; color: var(--text-secondary); margin-top: 5px;">
+                                All Day
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    {% if event.image_url %}
+                    <div class="event-image" style="margin-bottom: 15px;">
+                        <img src="{{ url_for('static', filename='images/' + event.image_url) }}" alt="{{ event.title }} Image" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);">
+                    </div>
+                    {% endif %}
+
+                    {% if event.description %}
+                    <div class="event-description" style="color: var(--text-secondary); line-height: 1.6; margin-bottom: 15px;">
+                        {{ event.description }}
+                    </div>
+                    {% endif %}
+
+                    <div class="event-meta" style="font-size: 0.9rem; color: var(--text-muted); border-top: 1px solid var(--border); padding-top: 10px;">
+                        Created by {{ event.creator.name }} on {{ event.created_at.strftime('%B %d, %Y') }}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="card" style="text-align: center; padding: 60px 20px;">
+                <h3 style="color: var(--text-secondary); margin-bottom: 20px;">No Upcoming Events</h3>
+                <p style="color: var(--text-muted); margin-bottom: 30px;">There are currently no upcoming events scheduled. Check back later for updates!</p>
+                {% if current_user.is_authenticated and current_user.is_admin %}
+                <a href="{{ url_for('admin.create_event') }}" class="btn">Create First Event</a>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+<style>
+.event-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.event-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.event-header {
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+@media (max-width: 768px) {
+    .event-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .event-date {
+        min-width: auto;
+        width: 100%;
+        text-align: left;
+    }
+}
+</style>
+{% endblock %}

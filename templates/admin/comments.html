@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Comments - Admin - PSRA{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+            <h2>Manage Comments</h2>
+            <a href="{{ url_for('admin.admin_dashboard') }}" class="btn btn-outline">Back to Dashboard</a>
+        </div>
+
+        <!-- Filters -->
+        <div class="card" style="margin-bottom: 30px;">
+            <h3>Filters</h3>
+            <form method="GET" style="display: flex; gap: 20px; flex-wrap: wrap; margin-top: 20px;">
+                <div>
+                    <label for="search">Search:</label>
+                    <input type="text" id="search" name="search" value="{{ search }}" placeholder="Search comment content" style="padding: 8px; border: 1px solid var(--border); border-radius: 4px;">
+                </div>
+                <div>
+                    <label for="author">Author:</label>
+                    <input type="text" id="author" name="author" value="{{ author }}" placeholder="Search by author" style="padding: 8px; border: 1px solid var(--border); border-radius: 4px;">
+                </div>
+                <div style="display: flex; align-items: end;">
+                    <button type="submit" class="btn">Filter</button>
+                    <a href="{{ url_for('admin.manage_comments') }}" class="btn btn-outline" style="margin-left: 10px;">Clear</a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Comments Table -->
+        <div class="card">
+            <h3>Comments ({{ comments.total }} total)</h3>
+            {% if comments.items %}
+                <div style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+                        <thead>
+                            <tr style="background-color: var(--bg-secondary);">
+                                <th style="padding: 12px; text-align: left; border-bottom: 1px solid var(--border);">Comment</th>
+                                <th style="padding: 12px; text-align: left; border-bottom: 1px solid var(--border);">Author</th>
+                                <th style="padding: 12px; text-align: left; border-bottom: 1px solid var(--border);">Post</th>
+                                <th style="padding: 12px; text-align: left; border-bottom: 1px solid var(--border);">Created</th>
+                                <th style="padding: 12px; text-align: left; border-bottom: 1px solid var(--border);">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for comment in comments.items %}
+                            <tr style="border-bottom: 1px solid var(--border);">
+                                <td style="padding: 12px;">
+                                    <div style="max-width: 400px; word-wrap: break-word;">
+                                        {{ comment.content }}
+                                    </div>
+                                </td>
+                                <td style="padding: 12px;">{{ comment.author.name }}</td>
+                                <td style="padding: 12px;">
+                                    <a href="{{ url_for('forum.post_detail', post_id=comment.post.id) }}" style="text-decoration: none; color: var(--text-primary);">
+                                        {{ comment.post.title[:50] }}{% if comment.post.title|length > 50 %}...{% endif %}
+                                    </a>
+                                </td>
+                                <td style="padding: 12px;">{{ comment.created_at.strftime('%B %d, %Y') }}</td>
+                                <td style="padding: 12px;">
+                                    <a href="{{ url_for('admin.edit_comment', comment_id=comment.id) }}" class="btn" style="padding: 6px 12px; font-size: 14px;">Edit</a>
+                                    <form method="POST" action="{{ url_for('admin.delete_comment', comment_id=comment.id) }}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this comment?')">
+                                        <button type="submit" class="btn" style="padding: 6px 12px; font-size: 14px; background-color: #dc3545; margin-left: 5px;">Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                {% if comments.pages > 1 %}
+                <div style="display: flex; justify-content: center; margin-top: 30px;">
+                    {% if comments.has_prev %}
+                    <a href="{{ url_for('admin.manage_comments', page=comments.prev_num, search=search, author=author) }}" class="btn btn-outline">Previous</a>
+                    {% endif %}
+
+                    {% for page_num in comments.iter_pages() %}
+                        {% if page_num %}
+                            {% if page_num == comments.page %}
+                            <span style="padding: 8px 12px; background-color: var(--text-secondary); color: var(--bg-primary); margin: 0 5px; border-radius: 4px;">{{ page_num }}</span>
+                            {% else %}
+                            <a href="{{ url_for('admin.manage_comments', page=page_num, search=search, author=author) }}" style="padding: 8px 12px; margin: 0 5px; text-decoration: none; color: var(--text-primary); border: 1px solid var(--border); border-radius: 4px;">{{ page_num }}</a>
+                            {% endif %}
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if comments.has_next %}
+                    <a href="{{ url_for('admin.manage_comments', page=comments.next_num, search=search, author=author) }}" class="btn btn-outline">Next</a>
+                    {% endif %}
+                </div>
+                {% endif %}
+            {% else %}
+                <p style="margin-top: 20px;">No comments found matching your criteria.</p>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}

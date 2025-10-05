@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}Forum - PSRA{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container" style="display: grid; grid-template-columns: 300px 1fr; gap: 40px;">
+        <!-- Left Sidebar -->
+        <div style="position: sticky; top: 20px;">
+            <div class="card">
+                <h3>Search Discussion</h3>
+                <input type="text" id="search-input" value="{{ search or '' }}" placeholder="Search..." style="width: 100%; padding: 8px; border: 1px solid var(--border); border-radius: 3px;">
+            </div>
+            <div class="card" style="margin-top: 20px;">
+                <h3>Categories</h3>
+                <select id="category-select" style="width: 100%; padding: 8px; border: 1px solid var(--border); border-radius: 3px;">
+                    <option value="">All Discussions</option>
+                    <option value="Pharmacology" {% if selected_category == 'Pharmacology' %}selected{% endif %}>Pharmacology</option>
+                    <option value="Clinical Pharmacy" {% if selected_category == 'Clinical Pharmacy' %}selected{% endif %}>Clinical Pharmacy</option>
+                    <option value="Research Skills" {% if selected_category == 'Research Skills' %}selected{% endif %}>Research Skills</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2>Forum > {{ selected_category or 'All Discussions' }}</h2>
+                {% if current_user.is_authenticated %}
+                <a href="{{ url_for('forum.create_post') }}" class="btn">Start New Discussion</a>
+                {% endif %}
+            </div>
+
+            {% for post in posts %}
+            <div class="card" style="margin-bottom: 20px;">
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                    <img src="{{ url_for('static', filename='images/' + (post.author.profile_picture_url or 'default-avatar.png')) }}" alt="Avatar" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+                    <div>
+                        <strong>{{ post.author.name }}</strong>
+                        <br><small style="color: var(--text-muted);">{{ post.created_at.strftime('%B %d, %Y at %I:%M %p') }}</small>
+                    </div>
+                </div>
+                <h3><a href="{{ url_for('forum.post_detail', post_id=post.id) }}" style="text-decoration: none; color: var(--text-primary);">{{ post.title }}</a></h3>
+                <p style="color: var(--text-secondary);">{{ post.content[:200] }}...</p>
+                <div style="display: flex; gap: 20px; margin-top: 10px;">
+                    <span>👍 {{ post.likes|length }}</span>
+                    <span>💬 {{ post.comments|length }}</span>
+                </div>
+            </div>
+            {% endfor %}
+
+            {% if not posts %}
+            <div class="card">
+                <p>No discussions found. <a href="{{ url_for('forum.create_post') }}">Start the first one!</a></p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}

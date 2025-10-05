@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Event - Admin - PSRA{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+            <h2>Edit Event</h2>
+            <a href="{{ url_for('admin.manage_events') }}" class="btn btn-outline">Back to Events</a>
+        </div>
+
+        <div class="card">
+            <form method="POST" enctype="multipart/form-data" style="max-width: 600px;">
+                <div style="margin-bottom: 20px;">
+                    <label for="title" style="display: block; margin-bottom: 8px; font-weight: bold;">Event Title:</label>
+                    <input type="text" id="title" name="title" value="{{ event.title }}" required style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 4px; font-size: 16px;">
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <label for="event_date" style="display: block; margin-bottom: 8px; font-weight: bold;">Event Date:</label>
+                    <input type="date" id="event_date" name="event_date" value="{{ event.event_date.strftime('%Y-%m-%d') }}" required style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 4px; font-size: 16px;">
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <label for="event_time" style="display: block; margin-bottom: 8px; font-weight: bold;">Event Time (Optional):</label>
+                    <input type="time" id="event_time" name="event_time" value="{{ event.event_time.strftime('%H:%M') if event.event_time else '' }}" style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 4px; font-size: 16px;">
+                    <small style="color: var(--text-muted); display: block; margin-top: 5px;">Leave empty for all-day events</small>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <label for="description" style="display: block; margin-bottom: 8px; font-weight: bold;">Description (Optional):</label>
+                    <textarea id="description" name="description" rows="6" style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 4px; font-size: 16px; font-family: inherit;">{{ event.description or '' }}</textarea>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <label for="image" style="display: block; margin-bottom: 8px; font-weight: bold;">Event Image (Optional):</label>
+                    {% if event.image_url %}
+                    <div style="margin-bottom: 10px;">
+                        <img src="{{ url_for('static', filename='images/' + event.image_url) }}" alt="Current Event Image" style="max-width: 200px; max-height: 150px; border: 1px solid var(--border); border-radius: 4px;">
+                        <p style="margin: 5px 0; font-size: 14px; color: var(--text-muted);">Current image: {{ event.image_url }}</p>
+                    </div>
+                    {% endif %}
+                    <input type="file" id="image" name="image" accept="image/*" style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 4px; font-size: 16px;">
+                    <small style="color: var(--text-muted); display: block; margin-top: 5px;">Upload a new image to replace the current one (JPG, PNG, etc.)</small>
+                </div>
+
+                <div style="margin-bottom: 20px; padding: 15px; background-color: var(--bg-secondary); border-radius: 4px;">
+                    <h4 style="margin-bottom: 10px;">Event Information</h4>
+                    <p><strong>Created By:</strong> {{ event.creator.name }}</p>
+                    <p><strong>Created:</strong> {{ event.created_at.strftime('%B %d, %Y at %I:%M %p') }}</p>
+                </div>
+
+                <div style="display: flex; gap: 15px;">
+                    <button type="submit" class="btn">Update Event</button>
+                    <a href="{{ url_for('admin.manage_events') }}" class="btn btn-outline">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}
