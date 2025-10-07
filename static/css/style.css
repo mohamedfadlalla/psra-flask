@@ -239,3 +239,94 @@ footer .container {
     justify-content: center;
     flex-wrap: wrap;
 }
+
+/* Add these styles to your existing style.css file */
+
+/* --- Responsive Header & Navigation --- */
+
+/* Style the hamburger menu button */
+.menu-toggle {
+    display: none; /* Hidden by default, shown on mobile */
+    background: none;
+    border: none;
+    color: #333; /* Change to your desired icon color */
+    font-size: 1.5rem;
+    cursor: pointer;
+    z-index: 1001; /* Ensure it's on top of other content */
+}
+
+/* --- Mobile Styles (Screens smaller than 768px) --- */
+@media (max-width: 768px) {
+    /* Make the header container flexible to align items */
+    header .container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    /* Show the hamburger menu button */
+    .menu-toggle {
+        display: block;
+    }
+
+    /* Style the navigation for mobile view */
+    .main-nav {
+        position: fixed;
+        top: 0;
+        right: 0;
+        width: 70%; /* Or your preferred width */
+        height: 100vh;
+        background-color: #f8f9fa; /* A light background for the menu */
+        box-shadow: -2px 0 5px rgba(0,0,0,0.1);
+        transform: translateX(100%); /* Start off-screen */
+        transition: transform 0.3s ease-in-out;
+        z-index: 1000;
+    }
+
+    /* The state when the menu is open */
+    .main-nav.is-active {
+        transform: translateX(0);
+    }
+    
+    /* Style the navigation list for vertical layout */
+    .main-nav ul {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding-top: 5rem; /* Add space at the top */
+    }
+
+    .main-nav ul li {
+        margin: 1.5rem 0;
+    }
+
+    .main-nav ul li a {
+        font-size: 1.2rem;
+        color: #333; /* Ensure link color is visible on the new background */
+    }
+}
+
+/* --- Desktop Styles (for screens 769px and wider) --- */
+/* This assumes you already have desktop styles. 
+   These rules ensure the nav is a horizontal bar on larger screens.
+   You might need to adjust them to fit your existing desktop styles.
+*/
+@media (min-width: 769px) {
+    header .container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .main-nav ul {
+        display: flex;
+        flex-direction: row;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    .main-nav ul li {
+        margin-left: 20px; /* Or your desired spacing */
+    }
+}

@@ -1,6 +1,8 @@
-from flask import render_template, redirect, url_for, flash, request
+from flask import render_template, redirect, url_for, flash, request, current_app
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.utils import secure_filename
+from PIL import Image
+import os
 from . import forum_bp
 from .forms import LoginForm, RegisterForm, PostForm, CommentForm, ProfileForm, PasswordChangeForm
 from models import db, User, Post, Comment, Like
@@ -28,13 +30,55 @@ def register():
         user = User(
             email=form.email.data,
             name=form.name.data,
-            batch_number=int(form.batch_number.data),
             phone_number=form.phone_number.data,
             whatsapp_number=form.whatsapp_number.data
         )
+        user.is_member = form.is_member.data
+        user.batch_number = None
+        if form.is_member.data:
+            user.status = 'undergraduate'
+        else:
+            user.status = 'student'
         user.set_password(form.password.data)
-        db.session.add(user)
-        db.session.commit()
+
+        # Handle profile picture upload during registration
+        if form.profile_picture.data:
+            # Save user first to get ID for filename
+            db.session.add(user)
+            db.session.commit()
+
+            picture_file = form.profile_picture.data
+            filename = secure_filename(f"{user.id}_{picture_file.filename}")
+            picture_path = os.path.join(current_app.root_path, current_app.config['UPLOAD_FOLDER'], filename)
+
+            print(f"Saving profile picture to: {picture_path}")
+            print(f"Root path: {current_app.root_path}")
+            print(f"Upload folder: {current_app.config['UPLOAD_FOLDER']}")
+
+            # Ensure the upload directory exists
+            os.makedirs(os.path.dirname(picture_path), exist_ok=True)
+
+            # Resize and save image
+            try:
+                image = Image.open(picture_file)
+                # Convert to RGB if necessary (for JPEG compatibility)
+                if image.mode in ("RGBA", "P"):
+                    image = image.convert("RGB")
+                image.thumbnail((300, 300), Image.Resampling.LANCZOS)  # Resize to max 300x300 while maintaining aspect ratio
+                image.save(picture_path, quality=85)
+
+                # Update user profile picture URL
+                user.profile_picture_url = url_for('static', filename=f'profile_images/{filename}')
+                db.session.commit()
+                print(f"Profile picture URL set to: {user.profile_picture_url}")
+            except Exception as e:
+                # If image processing fails, continue without profile picture
+                print(f"Error processing profile picture: {e}")
+                pass
+        else:
+            db.session.add(user)
+            db.session.commit()
+
         flash('Account created successfully! You can now log in.', 'success')
         return redirect(url_for('forum.login'))
     return render_template('register.html', form=form)
@@ -132,17 +176,59 @@ def edit_profile():
     # Pre-populate profile form with current user data
     if request.method == 'GET':
         profile_form.name.data = current_user.name
+        profile_form.headline.data = current_user.headline
+        profile_form.location.data = current_user.location
+        profile_form.about.data = current_user.about
         profile_form.batch_number.data = str(current_user.batch_number) if current_user.batch_number else None
         profile_form.email.data = current_user.email
         profile_form.phone_number.data = current_user.phone_number
         profile_form.whatsapp_number.data = current_user.whatsapp_number
+        profile_form.skills.data = current_user.skills
+        profile_form.education.data = current_user.education
+        profile_form.experience.data = current_user.experience
+        profile_form.linkedin_url.data = current_user.linkedin_url
+        profile_form.github_url.data = current_user.github_url
 
     # Handle profile form submission
     if profile_form.submit.data and profile_form.validate_on_submit():
         current_user.name = profile_form.name.data
+        current_user.headline = profile_form.headline.data
+        current_user.location = profile_form.location.data
+        current_user.about = profile_form.about.data
         current_user.batch_number = int(profile_form.batch_number.data)
         current_user.phone_number = profile_form.phone_number.data
         current_user.whatsapp_number = profile_form.whatsapp_number.data
+        current_user.skills = profile_form.skills.data
+        current_user.education = profile_form.education.data
+        current_user.experience = profile_form.experience.data
+        current_user.linkedin_url = profile_form.linkedin_url.data
+        current_user.github_url = profile_form.github_url.data
+
+        # Handle profile picture upload
+        if profile_form.profile_picture.data:
+            picture_file = profile_form.profile_picture.data
+            filename = secure_filename(f"{current_user.id}_{picture_file.filename}")
+            picture_path = os.path.join(current_app.root_path, current_app.config['UPLOAD_FOLDER'], filename)
+
+            # Ensure the upload directory exists
+            os.makedirs(os.path.dirname(picture_path), exist_ok=True)
+
+            # Resize and save image
+            try:
+                image = Image.open(picture_file)
+                # Convert to RGB if necessary (for JPEG compatibility)
+                if image.mode in ("RGBA", "P"):
+                    image = image.convert("RGB")
+                image.thumbnail((300, 300), Image.Resampling.LANCZOS)  # Resize to max 300x300 while maintaining aspect ratio
+                image.save(picture_path, quality=85)
+
+                # Update user profile picture URL
+                current_user.profile_picture_url = url_for('static', filename=f'profile_images/{filename}')
+            except Exception as e:
+                # If image processing fails, continue without profile picture
+                print(f"Error processing profile picture: {e}")
+                pass
+
         db.session.commit()
         flash('Profile updated successfully!', 'success')
         return redirect(url_for('forum.profile'))

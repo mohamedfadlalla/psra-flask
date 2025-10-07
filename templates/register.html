@@ -15,7 +15,7 @@
                 {% endfor %}
             {% endif %}
         {% endwith %}
-        <form method="post" style="display: flex; flex-direction: column; gap: 20px;">
+        <form method="post" enctype="multipart/form-data" style="display: flex; flex-direction: column; gap: 20px;">
             {{ form.hidden_tag() }}
             <div>
                 {{ form.email.label }}
@@ -36,11 +36,10 @@
                 {% endif %}
             </div>
             <div>
-                {{ form.batch_number.label }}
-                {{ form.batch_number(style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 5px;") }}
-                {% if form.batch_number.errors %}
+                {{ form.is_member() }} {{ form.is_member.label }}
+                {% if form.is_member.errors %}
                     <div style="color: red; font-size: 14px;">
-                        {% for error in form.batch_number.errors %}{{ error }}{% endfor %}
+                        {% for error in form.is_member.errors %}{{ error }}{% endfor %}
                     </div>
                 {% endif %}
             </div>
@@ -59,6 +58,16 @@
                 {% if form.whatsapp_number.errors %}
                     <div style="color: red; font-size: 14px;">
                         {% for error in form.whatsapp_number.errors %}{{ error }}{% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            <div>
+                {{ form.profile_picture.label }}
+                {{ form.profile_picture(style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 5px;") }}
+                <small style="color: var(--text-secondary); font-size: 14px;">Optional. Upload a profile picture (JPG, PNG, GIF). Max size will be automatically resized.</small>
+                {% if form.profile_picture.errors %}
+                    <div style="color: red; font-size: 14px;">
+                        {% for error in form.profile_picture.errors %}{{ error }}{% endfor %}
                     </div>
                 {% endif %}
             </div>

@@ -17,7 +17,9 @@
                     <img src="{{ url_for('static', filename='images/logo.png') }}" alt="PSRA Logo">
                 </a>
             </div>
-            <nav>
+
+            <!-- Main Navigation -->
+            <nav class="main-nav" id="main-nav">
                 <ul>
                     <li><a href="{{ url_for('home') }}" class="{% if request.endpoint == 'home' %}active{% endif %}">Home</a></li>
                     <li><a href="{{ url_for('research') }}">Research</a></li>
@@ -33,6 +35,11 @@
                     {% endif %}
                 </ul>
             </nav>
+
+            <!-- Hamburger Menu Toggle Button -->
+            <button class="menu-toggle" id="menu-toggle" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="main-nav">
+                <i class="fas fa-bars"></i>
+            </button>
         </div>
     </header>
 
@@ -44,7 +51,8 @@
         <div class="container">
             <div class="footer-column">
                 <img src="{{ url_for('static', filename='images/logo.png') }}" alt="PSRA Logo" class="footer-logo">
-                <p>&copy; 2024 Pharmaceutical Studies and Research Association. All Rights Reserved.</p>
+                <p>&copy; 2025 Pharmaceutical Studies and Research Association. All Rights Reserved.</p>
+                <p>Created by <a href="https://mohamedfadlalla.github.io" target="_blank">MohamedFadlalla</a></p>
             </div>
             <div class="footer-column">
                 <h4>Links</h4>

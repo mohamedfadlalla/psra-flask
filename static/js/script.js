@@ -181,3 +181,30 @@ function debounce(func, wait) {
         timeout = setTimeout(later, wait);
     };
 }
+
+// Wait for the DOM to be fully loaded before running the script
+document.addEventListener('DOMContentLoaded', function () {
+
+    const menuToggle = document.getElementById('menu-toggle');
+    const mainNav = document.getElementById('main-nav');
+    const icon = menuToggle.querySelector('i');
+
+    if (menuToggle && mainNav) {
+        menuToggle.addEventListener('click', function () {
+            // Toggle the .is-active class on the nav menu
+            mainNav.classList.toggle('is-active');
+
+            // Toggle the hamburger/close icon
+            if (mainNav.classList.contains('is-active')) {
+                icon.classList.remove('fa-bars');
+                icon.classList.add('fa-times'); // The 'X' icon
+                menuToggle.setAttribute('aria-expanded', 'true');
+            } else {
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+                menuToggle.setAttribute('aria-expanded', 'false');
+            }
+        });
+    }
+
+});

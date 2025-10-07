@@ -14,6 +14,16 @@ class User(UserMixin, db.Model):
     batch_number = db.Column(db.Integer, nullable=True)
     phone_number = db.Column(db.String(20), nullable=True)
     whatsapp_number = db.Column(db.String(20), nullable=True)
+    is_member = db.Column(db.Boolean, default=False)
+    status = db.Column(db.String(20), default='student')  # 'student', 'alumni', 'undergraduate'
+    headline = db.Column(db.String(200), nullable=True)
+    location = db.Column(db.String(100), nullable=True)
+    about = db.Column(db.Text, nullable=True)
+    skills = db.Column(db.Text, nullable=True)  # Comma-separated skills
+    education = db.Column(db.Text, nullable=True)
+    experience = db.Column(db.Text, nullable=True)
+    linkedin_url = db.Column(db.String(200), nullable=True)
+    github_url = db.Column(db.String(200), nullable=True)
     is_admin = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
