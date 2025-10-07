@@ -1,12 +1,21 @@
-/* Color Palette */
+/* PSRA Brand Color Palette */
 :root {
-    --bg-primary: #FFFFFF;
-    --bg-secondary: #F4F4F4;
-    --text-primary: #000000;
-    --text-secondary: #212121;
-    --text-muted: #888888;
-    --border: #CCCCCC;
-    --hover-bg: #E0E0E0;
+    --primary-blue: #2D577B;
+    --secondary-blue: #607D9B;
+    --accent-orange: #F59E0B;
+    --accent-green: #4ADE80;
+    --text-gray: #1E293B;
+    --white: #FFFFFF;
+    --dark: #0A0A0A;
+
+    /* Mapped variables for compatibility */
+    --bg-primary: var(--white);
+    --bg-secondary: #F8FAFC;
+    --text-primary: var(--text-gray);
+    --text-secondary: var(--primary-blue);
+    --text-muted: #64748B;
+    --border: #E2E8F0;
+    --hover-bg: #F1F5F9;
 }
 
 /* Global Styles */
@@ -17,10 +26,57 @@
 }
 
 body {
-    font-family: Arial, sans-serif;
-    line-height: 1.6;
+    font-family: 'Inter', sans-serif;
+    line-height: 1.5;
     color: var(--text-primary);
     background-color: var(--bg-primary);
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Montserrat', sans-serif;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+}
+
+h1 {
+    font-size: 48px;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+h2 {
+    font-size: 36px;
+    font-weight: 600;
+    line-height: 1.3;
+}
+
+h3 {
+    font-size: 24px;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+h4 {
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+h5 {
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+h6 {
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.5;
+}
+
+p {
+    margin-bottom: 1rem;
 }
 
 img {
@@ -50,6 +106,7 @@ header .container {
 
 .logo img {
     height: 50px;
+    filter: none;
 }
 
 nav ul {
@@ -149,27 +206,29 @@ footer .container {
 .btn {
     display: inline-block;
     padding: 10px 20px;
-    background-color: var(--text-secondary);
-    color: var(--bg-primary);
+    background-color: var(--accent-orange);
+    color: var(--white);
     text-decoration: none;
     border: none;
     cursor: pointer;
     transition: background-color 0.3s;
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
 }
 
 .btn:hover {
-    background-color: var(--text-primary);
+    background-color: #E6930A; /* Slightly darker orange */
 }
 
 .btn-outline {
     background-color: transparent;
-    border: 2px solid var(--text-secondary);
-    color: var(--text-secondary);
+    border: 2px solid var(--primary-blue);
+    color: var(--primary-blue);
 }
 
 .btn-outline:hover {
-    background-color: var(--text-secondary);
-    color: var(--bg-primary);
+    background-color: var(--primary-blue);
+    color: var(--white);
 }
 
 .section {
@@ -197,14 +256,15 @@ footer .container {
 
 .hero {
     position: relative;
-    height: 400px;
+    height: 500px;
     background-size: cover;
     background-position: center;
     display: flex;
     align-items: center;
     justify-content: center;
     text-align: center;
-    color: var(--bg-primary);
+    color: var(--white);
+    overflow: hidden;
 }
 
 .hero::before {
@@ -214,23 +274,41 @@ footer .container {
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(0, 0, 0, 0.6);
+    background: linear-gradient(135deg, rgba(45, 87, 123, 0.8), rgba(96, 125, 155, 0.6));
 }
 
 .hero-content {
     position: relative;
     z-index: 1;
-    max-width: 600px;
+    max-width: 700px;
+    animation: fadeInUp 1.5s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .hero h1 {
-    font-size: 2.5rem;
+    font-size: 3rem;
+    font-weight: 700;
     margin-bottom: 20px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+    line-height: 1.2;
 }
 
 .hero p {
-    font-size: 1.2rem;
+    font-size: 1.25rem;
     margin-bottom: 30px;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    line-height: 1.6;
+    opacity: 0.95;
 }
 
 .cta-buttons {
@@ -249,7 +327,7 @@ footer .container {
     display: none; /* Hidden by default, shown on mobile */
     background: none;
     border: none;
-    color: #333; /* Change to your desired icon color */
+    color: var(--text-primary); /* Change to your desired icon color */
     font-size: 1.5rem;
     cursor: pointer;
     z-index: 1001; /* Ensure it's on top of other content */
@@ -276,7 +354,7 @@ footer .container {
         right: 0;
         width: 70%; /* Or your preferred width */
         height: 100vh;
-        background-color: #f8f9fa; /* A light background for the menu */
+        background-color: var(--bg-secondary); /* A light background for the menu */
         box-shadow: -2px 0 5px rgba(0,0,0,0.1);
         transform: translateX(100%); /* Start off-screen */
         transition: transform 0.3s ease-in-out;
@@ -287,7 +365,7 @@ footer .container {
     .main-nav.is-active {
         transform: translateX(0);
     }
-    
+
     /* Style the navigation list for vertical layout */
     .main-nav ul {
         display: flex;
@@ -302,7 +380,7 @@ footer .container {
 
     .main-nav ul li a {
         font-size: 1.2rem;
-        color: #333; /* Ensure link color is visible on the new background */
+        color: var(--text-primary); /* Ensure link color is visible on the new background */
     }
 }
 
