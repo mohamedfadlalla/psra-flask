@@ -91,6 +91,40 @@
     </div>
 </section>
 
+<!-- Recent Forum Comments Section -->
+<section class="section">
+    <div class="container">
+        <h2>Recent Forum Discussions</h2>
+        {% if recent_comments %}
+        <div style="display: grid; gap: 20px;">
+            {% for comment in recent_comments %}
+            <div class="card">
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                    <img src="{{ url_for('static', filename='images/' + (comment.author.profile_picture_url or 'default-avatar.png')) }}" alt="Avatar" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+                    <div>
+                        <strong>{{ comment.author.name }}</strong>
+                        <br><small style="color: var(--text-muted);">{{ comment.created_at.strftime('%B %d, %Y at %I:%M %p') }}</small>
+                    </div>
+                </div>
+                <p style="margin-bottom: 10px;">{{ comment.content[:200] }}{% if comment.content|length > 200 %}...{% endif %}</p>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <small style="color: var(--text-muted);">On: <a href="{{ url_for('forum.post_detail', post_id=comment.post_id) }}" style="color: var(--primary-color);">{{ comment.post.title }}</a></small>
+                    <a href="{{ url_for('forum.post_detail', post_id=comment.post_id) }}" class="btn" style="font-size: 0.9rem; padding: 5px 10px;">View Discussion</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div style="text-align: center; margin-top: 30px;">
+            <a href="{{ url_for('forum.forum_main') }}" class="btn">View All Discussions</a>
+        </div>
+        {% else %}
+        <div class="card">
+            <p>No recent discussions yet. <a href="{{ url_for('forum.forum_main') }}">Be the first to start one!</a></p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
 
 
 <section class="section">

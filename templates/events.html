@@ -1,19 +1,86 @@
 {% extends "base.html" %}
 
-{% block title %}Upcoming Events - PSRA{% endblock %}
+{% block title %}Events - PSRA{% endblock %}
 
 {% block content %}
 <section class="section">
     <div class="container">
-        <h2>Upcoming Events</h2>
+        <h2>Events</h2>
 
-        {% if events %}
+        <!-- Live Events Section -->
+        {% if live_events %}
+        <div class="events-section">
+            <h3 class="section-title live-title">
+                <span class="status-badge live-badge">LIVE</span>
+                Live Events
+            </h3>
             <div class="events-list">
-                {% for event in events %}
-                <div class="card event-card" style="margin-bottom: 30px;">
+                {% for event in live_events %}
+                <div class="card event-card live-event" style="margin-bottom: 30px;">
                     <div class="event-header" style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
                         <h3 style="margin: 0; color: var(--text-primary);">{{ event.title }}</h3>
-                        <div class="event-date" style="text-align: right; background-color: var(--bg-secondary); padding: 10px; border-radius: 8px; min-width: 150px;">
+                        <div class="event-date live-date" style="text-align: right; background-color: var(--accent-green); color: white; padding: 10px; border-radius: 8px; min-width: 150px;">
+                            <div style="font-size: 1.2rem; font-weight: bold;">
+                                {{ event.event_date.strftime('%B %d, %Y') }}
+                            </div>
+                            {% if event.event_time %}
+                            <div style="font-size: 1rem; margin-top: 5px;">
+                                {{ event.event_time.strftime('%I:%M %p') }}
+                            </div>
+                            {% else %}
+                            <div style="font-size: 1rem; margin-top: 5px;">
+                                All Day
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    {% if event.presenter %}
+                    <div class="event-presenter" style="margin-bottom: 10px; font-weight: 600; color: var(--primary-blue);">
+                        Presented by: {{ event.presenter }}
+                    </div>
+                    {% endif %}
+
+                    {% if event.image_url %}
+                    <div class="event-image" style="margin-bottom: 15px;">
+                        <img src="{{ url_for('static', filename='images/' + event.image_url) }}" alt="{{ event.title }} Image" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);">
+                    </div>
+                    {% endif %}
+
+                    {% if event.description %}
+                    <div class="event-description" style="color: var(--text-secondary); line-height: 1.6; margin-bottom: 15px;">
+                        {{ event.description }}
+                    </div>
+                    {% endif %}
+
+                    {% if event.event_url %}
+                    <div class="event-link" style="margin-bottom: 15px;">
+                        <a href="{{ event.event_url }}" target="_blank" class="btn btn-primary" style="text-decoration: none;">Join Event</a>
+                    </div>
+                    {% endif %}
+
+                    <div class="event-meta" style="font-size: 0.9rem; color: var(--text-muted); border-top: 1px solid var(--border); padding-top: 10px;">
+                        Created by {{ event.creator.name }} on {{ event.created_at.strftime('%B %d, %Y') }}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Upcoming Events Section -->
+        {% if upcoming_events %}
+        <div class="events-section">
+            <h3 class="section-title upcoming-title">
+                <span class="status-badge upcoming-badge">UPCOMING</span>
+                Upcoming Events
+            </h3>
+            <div class="events-list">
+                {% for event in upcoming_events %}
+                <div class="card event-card upcoming-event" style="margin-bottom: 30px;">
+                    <div class="event-header" style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
+                        <h3 style="margin: 0; color: var(--text-primary);">{{ event.title }}</h3>
+                        <div class="event-date upcoming-date" style="text-align: right; background-color: var(--bg-secondary); padding: 10px; border-radius: 8px; min-width: 150px;">
                             <div style="font-size: 1.2rem; font-weight: bold; color: var(--text-primary);">
                                 {{ event.event_date.strftime('%B %d, %Y') }}
                             </div>
@@ -29,6 +96,12 @@
                         </div>
                     </div>
 
+                    {% if event.presenter %}
+                    <div class="event-presenter" style="margin-bottom: 10px; font-weight: 600; color: var(--primary-blue);">
+                        Presented by: {{ event.presenter }}
+                    </div>
+                    {% endif %}
+
                     {% if event.image_url %}
                     <div class="event-image" style="margin-bottom: 15px;">
                         <img src="{{ url_for('static', filename='images/' + event.image_url) }}" alt="{{ event.title }} Image" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);">
@@ -41,16 +114,87 @@
                     </div>
                     {% endif %}
 
+                    {% if event.event_url %}
+                    <div class="event-link" style="margin-bottom: 15px;">
+                        <a href="{{ event.event_url }}" target="_blank" class="btn btn-primary" style="text-decoration: none;">Register</a>
+                    </div>
+                    {% endif %}
+
                     <div class="event-meta" style="font-size: 0.9rem; color: var(--text-muted); border-top: 1px solid var(--border); padding-top: 10px;">
                         Created by {{ event.creator.name }} on {{ event.created_at.strftime('%B %d, %Y') }}
                     </div>
                 </div>
                 {% endfor %}
             </div>
-        {% else %}
+        </div>
+        {% endif %}
+
+        <!-- Archived Events Section -->
+        {% if archived_events %}
+        <div class="events-section">
+            <h3 class="section-title archived-title">
+                <span class="status-badge archived-badge">ARCHIVED</span>
+                Past Events
+            </h3>
+            <div class="events-list">
+                {% for event in archived_events %}
+                <div class="card event-card archived-event" style="margin-bottom: 30px; opacity: 0.7;">
+                    <div class="event-header" style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
+                        <h3 style="margin: 0; color: var(--text-primary);">{{ event.title }}</h3>
+                        <div class="event-date archived-date" style="text-align: right; background-color: #6b7280; color: white; padding: 10px; border-radius: 8px; min-width: 150px;">
+                            <div style="font-size: 1.2rem; font-weight: bold;">
+                                {{ event.event_date.strftime('%B %d, %Y') }}
+                            </div>
+                            {% if event.event_time %}
+                            <div style="font-size: 1rem; margin-top: 5px;">
+                                {{ event.event_time.strftime('%I:%M %p') }}
+                            </div>
+                            {% else %}
+                            <div style="font-size: 1rem; margin-top: 5px;">
+                                All Day
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    {% if event.presenter %}
+                    <div class="event-presenter" style="margin-bottom: 10px; font-weight: 600; color: var(--primary-blue);">
+                        Presented by: {{ event.presenter }}
+                    </div>
+                    {% endif %}
+
+                    {% if event.image_url %}
+                    <div class="event-image" style="margin-bottom: 15px;">
+                        <img src="{{ url_for('static', filename='images/' + event.image_url) }}" alt="{{ event.title }} Image" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); filter: grayscale(50%);">
+                    </div>
+                    {% endif %}
+
+                    {% if event.description %}
+                    <div class="event-description" style="color: var(--text-secondary); line-height: 1.6; margin-bottom: 15px;">
+                        {{ event.description }}
+                    </div>
+                    {% endif %}
+
+                    {% if event.event_url %}
+                    <div class="event-link" style="margin-bottom: 15px;">
+                        <a href="{{ event.event_url }}" target="_blank" class="btn btn-outline" style="text-decoration: none;">View Details</a>
+                    </div>
+                    {% endif %}
+
+                    <div class="event-meta" style="font-size: 0.9rem; color: var(--text-muted); border-top: 1px solid var(--border); padding-top: 10px;">
+                        Created by {{ event.creator.name }} on {{ event.created_at.strftime('%B %d, %Y') }}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- No Events Message -->
+        {% if not live_events and not upcoming_events and not archived_events %}
             <div class="card" style="text-align: center; padding: 60px 20px;">
-                <h3 style="color: var(--text-secondary); margin-bottom: 20px;">No Upcoming Events</h3>
-                <p style="color: var(--text-muted); margin-bottom: 30px;">There are currently no upcoming events scheduled. Check back later for updates!</p>
+                <h3 style="color: var(--text-secondary); margin-bottom: 20px;">No Events</h3>
+                <p style="color: var(--text-muted); margin-bottom: 30px;">There are currently no events scheduled. Check back later for updates!</p>
                 {% if current_user.is_authenticated and current_user.is_admin %}
                 <a href="{{ url_for('admin.create_event') }}" class="btn">Create First Event</a>
                 {% endif %}
@@ -69,9 +213,55 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
+.archived-event:hover {
+    transform: none;
+}
+
 .event-header {
     flex-wrap: wrap;
     gap: 15px;
+}
+
+.section-title {
+    margin: 40px 0 20px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.status-badge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.live-badge {
+    background-color: var(--accent-green);
+    color: white;
+}
+
+.upcoming-badge {
+    background-color: var(--accent-orange);
+    color: white;
+}
+
+.archived-badge {
+    background-color: #6b7280;
+    color: white;
+}
+
+.live-event {
+    border-left: 4px solid var(--accent-green);
+}
+
+.upcoming-event {
+    border-left: 4px solid var(--accent-orange);
+}
+
+.archived-event {
+    border-left: 4px solid #6b7280;
 }
 
 @media (max-width: 768px) {
@@ -84,6 +274,12 @@
         min-width: auto;
         width: 100%;
         text-align: left;
+    }
+
+    .section-title {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
     }
 }
 </style>

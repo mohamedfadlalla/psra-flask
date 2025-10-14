@@ -26,9 +26,10 @@
                     </div>
                 {% endif %}
             </div>
-            <div>
+            <div style="position: relative;">
                 {{ form.password.label }}
                 {{ form.password(style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 5px;") }}
+                <button type="button" onclick="togglePassword('password')" style="position: absolute; right: 10px; top: 35px; background: none; border: none; cursor: pointer; font-size: 18px;">👁️</button>
                 {% if form.password.errors %}
                     <div style="color: red; font-size: 14px;">
                         {% for error in form.password.errors %}{{ error }}{% endfor %}

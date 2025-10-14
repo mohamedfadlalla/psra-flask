@@ -1,195 +1,296 @@
 {% extends "base.html" %}
 
-{% block title %}{{ current_user.name }} - Profile{% endblock %}
+{% block title %}{{ current_user.name }}'s Profile - PSRA{% endblock %}
 
 {% block content %}
-<section class="section" style="background: #f3f2ef; min-height: 100vh; padding: 20px 0;">
-    <div class="container" style="max-width: 1200px;">
-        <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 20px;">
-
-            <!-- Left Sidebar -->
-            <div style="display: flex; flex-direction: column; gap: 20px;">
-
-                <!-- Profile Card -->
-                <div style="background: white; border-radius: 8px; box-shadow: 0 0 0 1px rgba(0,0,0,0.15), 0 2px 3px rgba(0,0,0,0.2); overflow: hidden;">
-                    <!-- Cover Photo Placeholder -->
-                    <div style="height: 60px; background: linear-gradient(135deg, var(--primary), var(--secondary));"></div>
-
-                    <!-- Profile Picture -->
-                    <div style="text-align: center; margin-top: -40px; margin-bottom: 20px;">
-                        {% if current_user.profile_picture_url %}
-                            <img src="{{ current_user.profile_picture_url }}" alt="Profile Picture" style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 4px solid white; box-shadow: 0 0 0 1px rgba(0,0,0,0.1);">
-                        {% else %}
-                            <div style="width: 120px; height: 120px; border-radius: 50%; background: var(--background); border: 4px solid white; box-shadow: 0 0 0 1px rgba(0,0,0,0.1); display: inline-flex; align-items: center; justify-content: center; font-size: 48px; color: var(--text-secondary);">
-                                {{ current_user.name[0].upper() }}
-                            </div>
-                        {% endif %}
-                    </div>
-
-                    <!-- Profile Info -->
-                    <div style="padding: 0 24px 24px;">
-                        <h1 style="font-size: 24px; font-weight: 600; color: #333; margin: 0 0 8px 0; text-align: center;">{{ current_user.name }}</h1>
-
-                        {% if current_user.headline %}
-                            <p style="font-size: 16px; color: #666; margin: 0 0 16px 0; text-align: center; line-height: 1.4;">{{ current_user.headline }}</p>
-                        {% endif %}
-
-                        {% if current_user.location %}
-                            <p style="font-size: 14px; color: #666; margin: 0 0 8px 0; text-align: center;">📍 {{ current_user.location }}</p>
-                        {% endif %}
-
-                        <div style="border-top: 1px solid #e0e0e0; padding-top: 16px; margin-top: 16px;">
-                            <a href="{{ url_for('forum.edit_profile') }}" style="display: block; background: var(--primary); color: white; padding: 8px 16px; text-decoration: none; border-radius: 20px; text-align: center; font-weight: 600; transition: background 0.2s;">
-                                Edit Profile
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Activity Stats -->
-                <div style="background: white; border-radius: 8px; box-shadow: 0 0 0 1px rgba(0,0,0,0.15), 0 2px 3px rgba(0,0,0,0.2); padding: 24px;">
-                    <h3 style="font-size: 18px; font-weight: 600; color: #333; margin: 0 0 16px 0;">Activity</h3>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; text-align: center;">
-                        <div>
-                            <div style="font-size: 24px; font-weight: bold; color: var(--primary);">{{ current_user.posts|length }}</div>
-                            <div style="font-size: 12px; color: #666; margin-top: 4px;">Posts</div>
-                        </div>
-                        <div>
-                            <div style="font-size: 24px; font-weight: bold; color: var(--primary);">{{ current_user.comments|length }}</div>
-                            <div style="font-size: 12px; color: #666; margin-top: 4px;">Comments</div>
-                        </div>
-                        <div>
-                            <div style="font-size: 24px; font-weight: bold; color: var(--primary);">{{ current_user.likes|length }}</div>
-                            <div style="font-size: 12px; color: #666; margin-top: 4px;">Likes</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Main Content -->
-            <div style="display: flex; flex-direction: column; gap: 20px;">
-
-                <!-- About Section -->
-                {% if current_user.about %}
-                <div style="background: white; border-radius: 8px; box-shadow: 0 0 0 1px rgba(0,0,0,0.15), 0 2px 3px rgba(0,0,0,0.2); padding: 24px;">
-                    <h3 style="font-size: 18px; font-weight: 600; color: #333; margin: 0 0 16px 0;">About</h3>
-                    <p style="font-size: 14px; color: #666; line-height: 1.6; margin: 0; white-space: pre-line;">{{ current_user.about }}</p>
-                </div>
+<div class="container">
+    <div class="profile-header">
+        {% if current_user.cover_photo_url %}
+        <div class="cover-photo" style="background-image: url('{{ current_user.cover_photo_url }}');">
+        {% else %}
+        <div class="cover-photo" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+        {% endif %}
+            <div class="profile-info">
+                <h1>{{ current_user.name }}</h1>
+                {% if current_user.headline %}
+                <p class="headline">{{ current_user.headline }}</p>
                 {% endif %}
-
-                <!-- Experience Section -->
-                {% if current_user.experience %}
-                <div style="background: white; border-radius: 8px; box-shadow: 0 0 0 1px rgba(0,0,0,0.15), 0 2px 3px rgba(0,0,0,0.2); padding: 24px;">
-                    <h3 style="font-size: 18px; font-weight: 600; color: #333; margin: 0 0 16px 0;">Experience</h3>
-                    <p style="font-size: 14px; color: #666; line-height: 1.6; margin: 0; white-space: pre-line;">{{ current_user.experience }}</p>
-                </div>
+                {% if current_user.location %}
+                <p class="location"><i class="fas fa-map-marker-alt"></i> {{ current_user.location }}</p>
                 {% endif %}
-
-                <!-- Education Section -->
-                {% if current_user.education %}
-                <div style="background: white; border-radius: 8px; box-shadow: 0 0 0 1px rgba(0,0,0,0.15), 0 2px 3px rgba(0,0,0,0.2); padding: 24px;">
-                    <h3 style="font-size: 18px; font-weight: 600; color: #333; margin: 0 0 16px 0;">Education</h3>
-                    <p style="font-size: 14px; color: #666; line-height: 1.6; margin: 0; white-space: pre-line;">{{ current_user.education }}</p>
-                </div>
-                {% endif %}
-
-                <!-- Skills Section -->
-                {% if current_user.skills %}
-                <div style="background: white; border-radius: 8px; box-shadow: 0 0 0 1px rgba(0,0,0,0.15), 0 2px 3px rgba(0,0,0,0.2); padding: 24px;">
-                    <h3 style="font-size: 18px; font-weight: 600; color: #333; margin: 0 0 16px 0;">Skills</h3>
-                    <div style="display: flex; flex-wrap: wrap; gap: 8px;">
-                        {% for skill in current_user.skills.split(',') %}
-                            <span style="background: #f0f0f0; color: #666; padding: 6px 12px; border-radius: 16px; font-size: 14px; font-weight: 500;">{{ skill.strip() }}</span>
-                        {% endfor %}
-                    </div>
-                </div>
-                {% endif %}
-
-                <!-- Contact & Links Section -->
-                <div style="background: white; border-radius: 8px; box-shadow: 0 0 0 1px rgba(0,0,0,0.15), 0 2px 3px rgba(0,0,0,0.2); padding: 24px;">
-                    <h3 style="font-size: 18px; font-weight: 600; color: #333; margin: 0 0 16px 0;">Contact & Links</h3>
-                    <div style="display: flex; flex-direction: column; gap: 12px;">
-                        <div style="display: flex; align-items: center; gap: 12px;">
-                            <span style="font-size: 16px;">📧</span>
-                            <div>
-                                <div style="font-size: 14px; color: #666;">Email</div>
-                                <div style="font-size: 14px; color: #333;">{{ current_user.email }}</div>
-                            </div>
-                        </div>
-
-                        {% if current_user.phone_number %}
-                        <div style="display: flex; align-items: center; gap: 12px;">
-                            <span style="font-size: 16px;">📱</span>
-                            <div>
-                                <div style="font-size: 14px; color: #666;">Phone</div>
-                                <div style="font-size: 14px; color: #333;">{{ current_user.phone_number }}</div>
-                            </div>
-                        </div>
-                        {% endif %}
-
-                        {% if current_user.whatsapp_number %}
-                        <div style="display: flex; align-items: center; gap: 12px;">
-                            <span style="font-size: 16px;">💬</span>
-                            <div>
-                                <div style="font-size: 14px; color: #666;">WhatsApp</div>
-                                <div style="font-size: 14px; color: #333;">{{ current_user.whatsapp_number }}</div>
-                            </div>
-                        </div>
-                        {% endif %}
-
-                        {% if current_user.linkedin_url %}
-                        <div style="display: flex; align-items: center; gap: 12px;">
-                            <span style="font-size: 16px;">💼</span>
-                            <div>
-                                <div style="font-size: 14px; color: #666;">LinkedIn</div>
-                                <a href="{{ current_user.linkedin_url }}" target="_blank" style="font-size: 14px; color: #0077b5; text-decoration: none;">{{ current_user.linkedin_url }}</a>
-                            </div>
-                        </div>
-                        {% endif %}
-
-                        {% if current_user.github_url %}
-                        <div style="display: flex; align-items: center; gap: 12px;">
-                            <span style="font-size: 16px;">💻</span>
-                            <div>
-                                <div style="font-size: 14px; color: #666;">GitHub</div>
-                                <a href="{{ current_user.github_url }}" target="_blank" style="font-size: 14px; color: #333; text-decoration: none;">{{ current_user.github_url }}</a>
-                            </div>
-                        </div>
-                        {% endif %}
-
-                        {% if current_user.batch_number %}
-                        <div style="display: flex; align-items: center; gap: 12px;">
-                            <span style="font-size: 16px;">🎓</span>
-                            <div>
-                                <div style="font-size: 14px; color: #666;">Batch</div>
-                                <div style="font-size: 14px; color: #333;">{{ current_user.batch_number }}</div>
-                            </div>
-                        </div>
-                        {% endif %}
-
-                        <div style="display: flex; align-items: center; gap: 12px;">
-                            <span style="font-size: 16px;">📊</span>
-                            <div>
-                                <div style="font-size: 14px; color: #666;">Status</div>
-                                <div style="font-size: 14px; color: #333;">
-                                    {% if current_user.is_member %}
-                                        {% if current_user.status == 'alumni' %}
-                                            Alumni
-                                        {% elif current_user.status == 'undergraduate' %}
-                                            Undergraduate
-                                        {% else %}
-                                            Member
-                                        {% endif %}
-                                    {% else %}
-                                        Student
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
-</section>
+
+    <div class="profile-content">
+        <div class="profile-actions">
+            <a href="{{ url_for('forum.edit_profile') }}" class="btn btn-primary">Edit Profile</a>
+        </div>
+
+        <div class="profile-section">
+            <h2>About</h2>
+            {% if current_user.about %}
+            <p>{{ current_user.about }}</p>
+            {% else %}
+            <p class="no-info">No about information provided.</p>
+            {% endif %}
+        </div>
+
+        {% if current_user.professional_summary %}
+        <div class="profile-section">
+            <h2>Professional Summary</h2>
+            <p>{{ current_user.professional_summary }}</p>
+        </div>
+        {% endif %}
+
+        <div class="profile-grid">
+            <div class="profile-section">
+                <h3>Basic Information</h3>
+                <ul class="info-list">
+                    <li><strong>Name:</strong> {{ current_user.name }}</li>
+                    <li><strong>Email:</strong> {{ current_user.email }}</li>
+                    {% if current_user.phone_number %}
+                    <li><strong>Phone:</strong> {{ current_user.phone_number }}</li>
+                    {% endif %}
+                    {% if current_user.whatsapp_number %}
+                    <li><strong>WhatsApp:</strong> {{ current_user.whatsapp_number }}</li>
+                    {% endif %}
+                    <li><strong>Status:</strong> {{ current_user.status.title() }}</li>
+                    {% if current_user.batch_number %}
+                    <li><strong>Batch:</strong> {{ current_user.batch_number }}</li>
+                    {% endif %}
+                    {% if current_user.is_member %}
+                    <li><strong>Member:</strong> Yes</li>
+                    {% else %}
+                    <li><strong>Member:</strong> No</li>
+                    {% endif %}
+                </ul>
+            </div>
+
+            {% if current_user.skills or current_user.education or current_user.experience %}
+            <div class="profile-section">
+                <h3>Professional Details</h3>
+                <ul class="info-list">
+                    {% if current_user.skills %}
+                    <li><strong>Skills:</strong> {{ current_user.skills }}</li>
+                    {% endif %}
+                    {% if current_user.education %}
+                    <li><strong>Education:</strong> {{ current_user.education }}</li>
+                    {% endif %}
+                    {% if current_user.experience %}
+                    <li><strong>Experience:</strong> {{ current_user.experience }}</li>
+                    {% endif %}
+                </ul>
+            </div>
+            {% endif %}
+        </div>
+
+        {% if current_user.languages or current_user.certifications or current_user.projects or current_user.publications %}
+        <div class="profile-section">
+            <h3>Additional Information</h3>
+            <ul class="info-list">
+                {% if current_user.languages %}
+                <li><strong>Languages:</strong> {{ current_user.languages }}</li>
+                {% endif %}
+                {% if current_user.certifications %}
+                <li><strong>Certifications:</strong> {{ current_user.certifications }}</li>
+                {% endif %}
+                {% if current_user.projects %}
+                <li><strong>Projects:</strong> {{ current_user.projects }}</li>
+                {% endif %}
+                {% if current_user.publications %}
+                <li><strong>Publications:</strong> {{ current_user.publications }}</li>
+                {% endif %}
+            </ul>
+        </div>
+        {% endif %}
+
+        {% if current_user.linkedin_url or current_user.github_url or current_user.website_url %}
+        <div class="profile-section">
+            <h3>Social Links</h3>
+            <div class="social-links">
+                {% if current_user.linkedin_url %}
+                <a href="{{ current_user.linkedin_url }}" target="_blank" class="social-link">
+                    <i class="fab fa-linkedin"></i> LinkedIn
+                </a>
+                {% endif %}
+                {% if current_user.github_url %}
+                <a href="{{ current_user.github_url }}" target="_blank" class="social-link">
+                    <i class="fab fa-github"></i> GitHub
+                </a>
+                {% endif %}
+                {% if current_user.website_url %}
+                <a href="{{ current_user.website_url }}" target="_blank" class="social-link">
+                    <i class="fas fa-globe"></i> Website
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.profile-header {
+    margin-bottom: 30px;
+}
+
+.cover-photo {
+    height: 200px;
+    background-size: cover;
+    background-position: center;
+    border-radius: 8px;
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    padding: 20px;
+    color: white;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+
+.profile-info h1 {
+    margin: 0 0 5px 0;
+    font-size: 2em;
+}
+
+.headline {
+    margin: 0 0 10px 0;
+    font-size: 1.1em;
+    opacity: 0.9;
+}
+
+.location {
+    margin: 0;
+    font-size: 1em;
+}
+
+.location i {
+    margin-right: 5px;
+}
+
+.profile-content {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.profile-actions {
+    text-align: right;
+    margin-bottom: 30px;
+}
+
+.profile-section {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+.profile-section h2 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #333;
+    border-bottom: 2px solid #007bff;
+    padding-bottom: 10px;
+}
+
+.profile-section h3 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: #555;
+    font-size: 1.2em;
+}
+
+.profile-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.info-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.info-list li {
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.info-list li:last-child {
+    border-bottom: none;
+}
+
+.info-list strong {
+    color: #333;
+}
+
+.no-info {
+    color: #666;
+    font-style: italic;
+}
+
+.social-links {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.social-link {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 12px;
+    background-color: #f8f9fa;
+    color: #333;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.social-link:hover {
+    background-color: #e9ecef;
+}
+
+.social-link i {
+    margin-right: 5px;
+}
+
+.btn {
+    display: inline-block;
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 4px;
+    font-size: 1em;
+    transition: background-color 0.2s;
+    border: 1px solid transparent;
+    cursor: pointer;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+}
+
+@media (max-width: 768px) {
+    .profile-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .cover-photo {
+        height: 150px;
+        padding: 15px;
+    }
+
+    .profile-info h1 {
+        font-size: 1.5em;
+    }
+}
+</style>
 {% endblock %}

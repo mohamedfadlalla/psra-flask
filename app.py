@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
+from flask_migrate import Migrate
 from models import db, User
 
 app = Flask(__name__)
@@ -10,6 +11,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['UPLOAD_FOLDER'] = 'static/profile_images'
 
 db.init_app(app)
+migrate = Migrate(app, db)
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -21,7 +23,7 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 # Import models to register them with db
-from models import Post, Comment, Like, Event
+from models import Post, Comment, Like, Event, Message
 
 # Register forum blueprint
 from forum import forum_bp
@@ -34,7 +36,10 @@ app.register_blueprint(admin_bp, url_prefix='/admin')
 # Static Page Routes
 @app.route('/')
 def home():
-    return render_template('home.html')
+    # Fetch recent comments for display on home page
+    from models import Comment
+    recent_comments = Comment.query.order_by(Comment.created_at.desc()).limit(5).all()
+    return render_template('home.html', recent_comments=recent_comments)
 
 @app.route('/research')
 def research():
@@ -48,13 +53,30 @@ def events():
     today = date.today()
     now = datetime.now().time()
 
-    # Get upcoming events (future dates or today with future times)
-    upcoming_events = Event.query.filter(
-        (Event.event_date > today) |
-        ((Event.event_date == today) & (Event.event_time > now) & (Event.event_time.isnot(None)))
-    ).order_by(Event.event_date.asc(), Event.event_time.asc()).all()
+    # Archive past events automatically
+    past_events = Event.query.filter(
+        (Event.event_date < today) |
+        ((Event.event_date == today) & (Event.event_time <= now) & (Event.event_time.isnot(None)))
+    ).filter(Event.is_archived == False).all()
 
-    return render_template('events.html', events=upcoming_events)
+    for event in past_events:
+        event.is_archived = True
+
+    if past_events:
+        db.session.commit()
+
+    # Get live events (today with future times)
+    live_events = Event.query.filter(
+        (Event.event_date == today) & (Event.event_time > now) & (Event.event_time.isnot(None))
+    ).filter(Event.is_archived == False).order_by(Event.event_time.asc()).all()
+
+    # Get upcoming events (future dates)
+    upcoming_events = Event.query.filter(Event.event_date > today).filter(Event.is_archived == False).order_by(Event.event_date.asc(), Event.event_time.asc()).all()
+
+    # Get archived events
+    archived_events = Event.query.filter(Event.is_archived == True).order_by(Event.event_date.desc(), Event.event_time.desc()).all()
+
+    return render_template('events.html', live_events=live_events, upcoming_events=upcoming_events, archived_events=archived_events)
 
 @app.route('/support')
 def support():

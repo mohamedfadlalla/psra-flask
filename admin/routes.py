@@ -182,6 +182,8 @@ def create_event():
     if request.method == 'POST':
         title = request.form.get('title')
         description = request.form.get('description')
+        presenter = request.form.get('presenter')
+        event_url = request.form.get('event_url')
         event_date = request.form.get('event_date')
         event_time = request.form.get('event_time')
 
@@ -190,7 +192,10 @@ def create_event():
             file = request.files['image']
             if file and file.filename:
                 filename = secure_filename(file.filename)
-                file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+                # Save event images to static/images/ directory
+                images_dir = os.path.join(current_app.root_path, 'static', 'images')
+                os.makedirs(images_dir, exist_ok=True)
+                file_path = os.path.join(images_dir, filename)
                 file.save(file_path)
                 image_url = filename
 
@@ -198,6 +203,8 @@ def create_event():
             event = Event(
                 title=title,
                 description=description,
+                presenter=presenter,
+                event_url=event_url,
                 event_date=datetime.strptime(event_date, '%Y-%m-%d').date(),
                 event_time=datetime.strptime(event_time, '%H:%M').time() if event_time else None,
                 image_url=image_url,
@@ -222,6 +229,8 @@ def edit_event(event_id):
     if request.method == 'POST':
         event.title = request.form.get('title')
         event.description = request.form.get('description')
+        event.presenter = request.form.get('presenter')
+        event.event_url = request.form.get('event_url')
         event.event_date = datetime.strptime(request.form.get('event_date'), '%Y-%m-%d').date()
         event_time = request.form.get('event_time')
         event.event_time = datetime.strptime(event_time, '%H:%M').time() if event_time else None
@@ -232,12 +241,15 @@ def edit_event(event_id):
             if file and file.filename:
                 # Delete old image if exists
                 if event.image_url:
-                    old_file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], event.image_url)
+                    old_file_path = os.path.join(current_app.root_path, 'static', 'images', event.image_url)
                     if os.path.exists(old_file_path):
                         os.remove(old_file_path)
 
                 filename = secure_filename(file.filename)
-                file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+                # Save event images to static/images/ directory
+                images_dir = os.path.join(current_app.root_path, 'static', 'images')
+                os.makedirs(images_dir, exist_ok=True)
+                file_path = os.path.join(images_dir, filename)
                 file.save(file_path)
                 event.image_url = filename
 
@@ -260,7 +272,7 @@ def delete_event(event_id):
     try:
         # Delete associated image file if exists
         if event.image_url:
-            file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], event.image_url)
+            file_path = os.path.join(current_app.root_path, 'static', 'images', event.image_url)
             if os.path.exists(file_path):
                 os.remove(file_path)
 

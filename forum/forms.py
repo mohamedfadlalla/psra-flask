@@ -15,14 +15,14 @@ class RegisterForm(FlaskForm):
     is_member = BooleanField('Are you a member of the University of Khartoum Pharmacy?', validators=[DataRequired()])
     phone_number = StringField('Phone Number', validators=[Length(max=20)])
     whatsapp_number = StringField('WhatsApp Number (Optional)', validators=[Length(max=20)])
-    profile_picture = FileField('Profile Picture (Optional)', validators=[FileAllowed(['jpg', 'jpeg', 'png', 'gif'], 'Images only!')])
+    profile_picture = FileField('Profile Picture', validators=[FileAllowed(['jpg', 'jpeg', 'png', 'gif'], 'Images only!')])
     password = PasswordField('Password', validators=[DataRequired(), Length(min=6)])
     confirm_password = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password')])
     agree_terms = BooleanField('I agree to the Terms and Conditions', validators=[DataRequired()])
     submit = SubmitField('Create Account')
 
     def validate_email(self, email):
-        user = User.query.filter_by(email=email.data).first()
+        user = User.query.filter_by(email=email.data.strip()).first()
         if user:
             raise ValidationError('Email already registered.')
 
@@ -54,7 +54,13 @@ class ProfileForm(FlaskForm):
     experience = TextAreaField('Experience', validators=[Length(max=1000)])
     linkedin_url = StringField('LinkedIn URL', validators=[Length(max=200)])
     github_url = StringField('GitHub URL', validators=[Length(max=200)])
-    profile_picture = FileField('Profile Picture', validators=[FileAllowed(['jpg', 'jpeg', 'png', 'gif'], 'Images only!')])
+    website_url = StringField('Website URL', validators=[Length(max=200)])
+    languages = StringField('Languages (comma-separated)', validators=[Length(max=500)])
+    certifications = TextAreaField('Certifications', validators=[Length(max=1000)])
+    projects = TextAreaField('Projects/Portfolio', validators=[Length(max=1000)])
+    publications = TextAreaField('Publications/Research', validators=[Length(max=1000)])
+    professional_summary = TextAreaField('Professional Summary', validators=[Length(max=1000)])
+    cover_photo = FileField('Cover Photo', validators=[FileAllowed(['jpg', 'jpeg', 'png', 'gif'], 'Images only!')])
     submit = SubmitField('Update Profile')
 
 class PasswordChangeForm(FlaskForm):
@@ -62,3 +68,7 @@ class PasswordChangeForm(FlaskForm):
     new_password = PasswordField('New Password', validators=[DataRequired(), Length(min=6)])
     confirm_password = PasswordField('Confirm New Password', validators=[DataRequired(), EqualTo('new_password')])
     submit = SubmitField('Change Password')
+
+class MessageForm(FlaskForm):
+    content = TextAreaField('Message', validators=[DataRequired(), Length(min=1, max=1000)])
+    submit = SubmitField('Send Message')

@@ -10,7 +10,6 @@ class User(UserMixin, db.Model):
     name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(128), nullable=False)
-    profile_picture_url = db.Column(db.String(200), default=None)
     batch_number = db.Column(db.Integer, nullable=True)
     phone_number = db.Column(db.String(20), nullable=True)
     whatsapp_number = db.Column(db.String(20), nullable=True)
@@ -24,6 +23,13 @@ class User(UserMixin, db.Model):
     experience = db.Column(db.Text, nullable=True)
     linkedin_url = db.Column(db.String(200), nullable=True)
     github_url = db.Column(db.String(200), nullable=True)
+    website_url = db.Column(db.String(200), nullable=True)
+    cover_photo_url = db.Column(db.String(200), default=None)
+    languages = db.Column(db.Text, nullable=True)  # Comma-separated languages
+    certifications = db.Column(db.Text, nullable=True)  # JSON or text for certifications
+    projects = db.Column(db.Text, nullable=True)  # JSON or text for projects
+    publications = db.Column(db.Text, nullable=True)  # Research publications
+    professional_summary = db.Column(db.Text, nullable=True)  # Separate from about
     is_admin = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
@@ -70,5 +76,19 @@ class Event(db.Model):
     event_date = db.Column(db.Date, nullable=False)
     event_time = db.Column(db.Time, nullable=True)
     image_url = db.Column(db.String(200), default=None)
+    presenter = db.Column(db.String(200), nullable=True)
+    event_url = db.Column(db.String(500), nullable=True)
+    is_archived = db.Column(db.Boolean, default=False)
     created_by = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+class Message(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    sender_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    receiver_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    is_read = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    sender = db.relationship('User', foreign_keys=[sender_id], backref='sent_messages')
+    receiver = db.relationship('User', foreign_keys=[receiver_id], backref='received_messages')

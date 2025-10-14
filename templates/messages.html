@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+
+{% block title %}Messages - PSRA{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="messages-header">
+        <h1>Your Messages</h1>
+        <a href="{{ url_for('forum.send_message_by_username') }}" class="btn btn-primary">Send New Message</a>
+    </div>
+
+    {% if conversations %}
+        <div class="conversations-list">
+            {% for conv in conversations %}
+            <div class="conversation-item {% if conv.unread_count > 0 %}unread{% endif %}">
+                <div class="conversation-user">
+                    <h3><a href="{{ url_for('forum.conversation', user_id=conv.user.id) }}">{{ conv.user.name }}</a></h3>
+                    {% if conv.unread_count > 0 %}
+                        <span class="unread-badge">{{ conv.unread_count }}</span>
+                    {% endif %}
+                </div>
+                <div class="conversation-preview">
+                    {% if conv.latest_message %}
+                        <p class="latest-message">
+                            {% if conv.latest_message.sender_id == current_user.id %}
+                                You: {{ conv.latest_message.content[:50] }}{% if conv.latest_message.content|length > 50 %}...{% endif %}
+                            {% else %}
+                                {{ conv.user.name }}: {{ conv.latest_message.content[:50] }}{% if conv.latest_message.content|length > 50 %}...{% endif %}
+                            {% endif %}
+                        </p>
+                        <small class="message-time">{{ conv.latest_message.created_at.strftime('%b %d, %Y %I:%M %p') }}</small>
+                    {% else %}
+                        <p class="no-messages">No messages yet</p>
+                    {% endif %}
+                </div>
+                <div class="conversation-actions">
+                    <a href="{{ url_for('forum.conversation', user_id=conv.user.id) }}" class="btn btn-primary">View Conversation</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="no-conversations">
+            <p>You haven't started any conversations yet.</p>
+            <p><a href="{{ url_for('forum.send_message_by_username') }}">Send your first message</a> or <a href="{{ url_for('forum.forum_main') }}">browse the forum</a> to find users to message.</p>
+        </div>
+    {% endif %}
+</div>
+
+<style>
+.messages-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.messages-header h1 {
+    margin: 0;
+}
+
+.conversations-list {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.conversation-item {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    background-color: #fff;
+    transition: background-color 0.2s;
+}
+
+.conversation-item:hover {
+    background-color: #f8f9fa;
+}
+
+.conversation-item.unread {
+    border-left: 4px solid #007bff;
+    background-color: #f0f8ff;
+}
+
+.conversation-user {
+    flex: 1;
+    display: flex;
+    align-items: center;
+}
+
+.conversation-user h3 {
+    margin: 0;
+    font-size: 1.1em;
+}
+
+.conversation-user h3 a {
+    color: #333;
+    text-decoration: none;
+}
+
+.conversation-user h3 a:hover {
+    color: #007bff;
+}
+
+.unread-badge {
+    background-color: #dc3545;
+    color: white;
+    border-radius: 50%;
+    padding: 2px 6px;
+    font-size: 0.8em;
+    margin-left: 10px;
+}
+
+.conversation-preview {
+    flex: 2;
+    margin: 0 20px;
+}
+
+.latest-message {
+    margin: 0 0 5px 0;
+    color: #666;
+}
+
+.message-time {
+    color: #999;
+    font-size: 0.9em;
+}
+
+.no-messages {
+    color: #999;
+    font-style: italic;
+    margin: 0;
+}
+
+.conversation-actions {
+    flex: 1;
+    text-align: right;
+}
+
+.btn {
+    display: inline-block;
+    padding: 8px 16px;
+    text-decoration: none;
+    border-radius: 4px;
+    font-size: 0.9em;
+    transition: background-color 0.2s;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    color: white;
+    border: 1px solid #007bff;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+}
+
+.no-conversations {
+    text-align: center;
+    padding: 50px 20px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.no-conversations p {
+    margin: 10px 0;
+    color: #666;
+}
+
+.no-conversations a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.no-conversations a:hover {
+    text-decoration: underline;
+}
+</style>
+{% endblock %}

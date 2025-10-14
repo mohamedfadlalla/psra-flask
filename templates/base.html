@@ -51,6 +51,7 @@
                     <li><a href="{{ url_for('events') }}">Events</a></li>
                     <li><a href="{{ url_for('support') }}">Support & Donations</a></li>
                     {% if current_user.is_authenticated %}
+                    <li><a href="{{ url_for('forum.messages') }}" class="{% if 'messages' in request.endpoint %}active{% endif %}">Messages</a></li>
                     <li><a href="{{ url_for('forum.profile') }}" class="{% if 'profile' in request.endpoint %}active{% endif %}">Profile</a></li>
                     <li><a href="{{ url_for('forum.logout') }}">Logout</a></li>
                     {% endif %}
