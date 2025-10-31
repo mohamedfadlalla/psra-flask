@@ -4,9 +4,9 @@
 
 {% block content %}
 <section class="section">
-    <div class="container" style="display: grid; grid-template-columns: 300px 1fr; gap: 40px;">
+    <div class="container forum-container">
         <!-- Left Sidebar -->
-        <div style="position: sticky; top: 20px;">
+        <div class="forum-sidebar">
             <div class="card">
                 <h3>Search Discussion</h3>
                 <input type="text" id="search-input" value="{{ search or '' }}" placeholder="Search..." style="width: 100%; padding: 8px; border: 1px solid var(--border); border-radius: 3px;">

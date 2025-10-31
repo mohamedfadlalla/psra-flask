@@ -20,6 +20,32 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400&family=Montserrat:wght@600;700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            blue: '#2D577B',
+                            'blue-light': '#607D9B'
+                        },
+                        accent: {
+                            orange: '#F59E0B',
+                            green: '#4ADE80'
+                        }
+                    },
+                    fontFamily: {
+                        'heading': ['Montserrat', 'sans-serif'],
+                        'body': ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <!-- Font Awesome CDN for social media icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha512-Fo3rlrZj/k7ujTnHg4CGR2D7kSs0v4LLanw2qksYuRlEzO+tcaEPQogQ0KaoGN26/zrn20ImR1DfuLWnOo7aBA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -93,7 +119,6 @@
             <div class="footer-column">
                 <img src="{{ url_for('static', filename='images/logo.png') }}" alt="PSRA Logo" class="footer-logo">
                 <p>&copy; 2025 Pharmaceutical Studies and Research Association. All Rights Reserved.</p>
-                <p>Created by <a href="https://mohamedfadlalla.github.io" target="_blank">MohamedFadlalla</a></p>
             </div>
             <div class="footer-column">
                 <h4>Links</h4>
@@ -120,6 +145,7 @@
                 </div>
             </div>
         </div>
+        <p class="text-center text-sm text-gray-500 mt-4">Created by <a href="https://mohamedfadlalla.github.io" target="_blank">MohamedFadlalla</a></p>
     </footer>
 </body>
 </html>

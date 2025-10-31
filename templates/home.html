@@ -3,151 +3,210 @@
 {% block title %}Home - PSRA{% endblock %}
 
 {% block content %}
-<section class="hero" style="background-image: url('{{ url_for('static', filename='images/image1.jpg') }}')">
-    <div class="hero-content">
-        <h1>Pioneering Pharmaceutical Research</h1>
-        <p>Join a community of innovators dedicated to advancing healthcare. Discover opportunities, collaborate on cutting-edge projects, and make an impact.</p>
-        <div class="cta-buttons">
-            <a href="{{ url_for('forum.register') }}" class="btn btn-primary">Join Now</a>
-            <a href="#vision" class="btn btn-secondary">Learn More</a>
+<!-- Hero Section -->
+<div class="hero-section relative h-screen bg-cover bg-center flex items-center overflow-hidden" style="background-image: url('{{ url_for('static', filename='images/image1.jpg') }}');">
+    <div class="hero-overlay absolute inset-0 bg-gradient-to-br from-primary-blue/85 to-primary-blue-light/70"></div>
+    <div class="hero-content relative z-10 text-center text-white max-w-4xl mx-auto px-4 animate-on-scroll">
+        <h1 class="hero-title text-5xl md:text-6xl font-bold mb-6 text-shadow-lg">Pioneering Pharmaceutical Research</h1>
+        <p class="hero-subtitle text-xl md:text-2xl mb-8 text-shadow-md max-w-3xl mx-auto leading-relaxed">Join a community of innovators dedicated to advancing healthcare. Discover opportunities, collaborate on cutting-edge projects, and make an impact.</p>
+        <div class="hero-actions flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <button class="bg-accent-orange hover:bg-orange-600 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-2" onclick="window.location.href='{{ url_for('forum.register') }}'">
+                <i class="fas fa-user-plus"></i>
+                Join Now
+            </button>
+            <button class="border-2 border-white text-white hover:bg-white hover:text-primary-blue px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 flex items-center gap-2" onclick="document.getElementById('vision').scrollIntoView({behavior: 'smooth'})">
+                <i class="fas fa-chevron-down"></i>
+                Learn More
+            </button>
         </div>
     </div>
-</section>
+    <div class="hero-particles absolute inset-0 pointer-events-none z-0">
+        <div class="absolute top-1/4 left-10 w-4 h-4 bg-white/30 rounded-full animate-float"></div>
+        <div class="absolute top-3/4 right-16 w-4 h-4 bg-white/30 rounded-full animate-float animation-delay-3s"></div>
+    </div>
+</div>
 
-<section id="vision" class="section">
-    <div class="container">
-        <h2>Our Vision</h2>
-        <p>The Pharmaceutical Studies and Research Association (PSRA) is a student-led organization dedicated to fostering a culture of scientific inquiry and innovation in pharmaceutical sciences. We aim to bridge the gap between academic learning and real-world application by providing students with opportunities to engage in cutting-edge research, collaborate with industry professionals, and contribute to advancements in healthcare.</p>
+<!-- Vision Section -->
+<section id="vision" class="vision-section py-20 animate-on-scroll">
+    <div class="max-w-4xl mx-auto px-4">
+        <div class="vision-content text-center">
+            <h2 class="vision-title text-4xl md:text-5xl font-bold text-primary-blue mb-8 font-heading">Our Vision</h2>
+            <p class="vision-description text-lg text-gray-600 leading-relaxed max-w-3xl mx-auto font-body">The Pharmaceutical Studies and Research Association (PSRA) is a student-led organization dedicated to fostering a culture of scientific inquiry and innovation in pharmaceutical sciences. We aim to bridge the gap between academic learning and real-world application by providing students with opportunities to engage in cutting-edge research, collaborate with industry professionals, and contribute to advancements in healthcare.</p>
+        </div>
     </div>
 </section>
 
 <!-- Upcoming Event Section -->
-<section class="section upcoming-event-section" id="upcoming-event" style="background: linear-gradient(135deg, var(--text-secondary), var(--text-primary)); color: var(--bg-primary); display: none;">
-    <div class="container">
-        <div style="text-align: center; max-width: 800px; margin: 0 auto;">
-            <h2 style="margin-bottom: 10px;">Next Event</h2>
-            <h3 id="upcoming-event-title" style="margin-bottom: 20px; font-size: 1.8rem;"></h3>
+<section class="mui-panel upcoming-event-section" id="upcoming-event" style="background: linear-gradient(135deg, #2D577B, #607D9B); color: white; padding: 80px 0; display: none;">
+    <div class="mui-container">
+        <div class="mui-row">
+            <div class="mui-col-md-8 mui-col-md-offset-2" style="text-align: center;">
+                <h2 class="mui--text-display-1" style="margin-bottom: 20px; font-family: 'Montserrat', sans-serif; font-weight: 600;">Next Event</h2>
+                <h3 id="upcoming-event-title" class="mui--text-headline" style="margin-bottom: 30px;"></h3>
 
-            <div id="upcoming-event-image" style="margin-bottom: 20px; display: none;">
-                <img id="upcoming-event-img" src="" alt="Event Image" style="max-width: 100%; max-height: 300px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); object-fit: cover;">
-            </div>
-
-            <div class="upcoming-event-details" style="margin-bottom: 30px;">
-                <div id="upcoming-event-date" style="font-size: 1.2rem; margin-bottom: 10px;"></div>
-                <div id="upcoming-event-description" style="font-size: 1rem; opacity: 0.9; line-height: 1.6;"></div>
-            </div>
-
-            <div id="upcoming-countdown" style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin-bottom: 30px;">
-                <div class="countdown-item">
-                    <div id="upcoming-days" class="countdown-number" style="font-size: 2.5rem; font-weight: bold;">00</div>
-                    <div class="countdown-label" style="font-size: 0.9rem; opacity: 0.8;">Days</div>
+                <div id="upcoming-event-image" style="margin-bottom: 30px; display: none;">
+                    <img id="upcoming-event-img" src="" alt="Event Image" class="mui--z2" style="max-width: 100%; max-height: 300px; border-radius: 8px; object-fit: cover;">
                 </div>
-                <div class="countdown-item">
-                    <div id="upcoming-hours" class="countdown-number" style="font-size: 2.5rem; font-weight: bold;">00</div>
-                    <div class="countdown-label" style="font-size: 0.9rem; opacity: 0.8;">Hours</div>
-                </div>
-                <div class="countdown-item">
-                    <div id="upcoming-minutes" class="countdown-number" style="font-size: 2.5rem; font-weight: bold;">00</div>
-                    <div class="countdown-label" style="font-size: 0.9rem; opacity: 0.8;">Minutes</div>
-                </div>
-                <div class="countdown-item">
-                    <div id="upcoming-seconds" class="countdown-number" style="font-size: 2.5rem; font-weight: bold;">00</div>
-                    <div class="countdown-label" style="font-size: 0.9rem; opacity: 0.8;">Seconds</div>
-                </div>
-            </div>
 
-            <a href="{{ url_for('events') }}" class="btn" style="background-color: var(--bg-primary); color: var(--text-secondary); border: 2px solid var(--bg-primary);">View All Events</a>
-        </div>
-    </div>
-</section>
+                <div class="upcoming-event-details" style="margin-bottom: 40px;">
+                    <div id="upcoming-event-date" class="mui--text-body2" style="margin-bottom: 15px; opacity: 0.9;"></div>
+                    <div id="upcoming-event-description" class="mui--text-body1" style="opacity: 0.9; line-height: 1.6;"></div>
+                </div>
 
-<section class="section" style="background-color: var(--bg-secondary);">
-    <div class="container">
-        <h2>Our Goals</h2>
-        <div class="grid">
-            <div class="card">
-                <svg width="50" height="50" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 2L13.09 8.26L20 9L13.09 9.74L12 16L10.91 9.74L4 9L10.91 8.26L12 2Z" stroke="currentColor" stroke-width="2"/>
-                </svg>
-                <h3>Advance Research</h3>
-                <p>To promote and facilitate high-quality research in pharmaceutical sciences, encouraging students to explore innovative solutions to real-world health challenges.</p>
-            </div>
-            <div class="card">
-                <svg width="50" height="50" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M17 20H7C5.89543 20 5 19.1046 5 18V9H19V18C19 19.1046 18.1046 20 17 20Z" stroke="currentColor" stroke-width="2"/>
-                    <path d="M9 9V5C9 3.89543 9.89543 3 11 3H13C14.1046 3 15 3.89543 15 5V9" stroke="currentColor" stroke-width="2"/>
-                </svg>
-                <h3>Foster Collaboration</h3>
-                <p>To build partnerships between students, faculty, and industry experts, creating a collaborative environment that enhances learning and professional development.</p>
-            </div>
-            <div class="card">
-                <svg width="50" height="50" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM13 17H11V15H13V17ZM13 13H11V7H13V13Z" stroke="currentColor" stroke-width="2"/>
-                </svg>
-                <h3>Educate and Inspire</h3>
-                <p>To educate the community about pharmaceutical sciences and inspire the next generation of researchers and healthcare professionals.</p>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Recent Forum Comments Section -->
-<section class="section">
-    <div class="container">
-        <h2>Recent Forum Discussions</h2>
-        {% if recent_comments %}
-        <div style="display: grid; gap: 20px;">
-            {% for comment in recent_comments %}
-            <div class="card">
-                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
-                    <img src="{{ url_for('static', filename='images/' + (comment.author.profile_picture_url or 'default-avatar.png')) }}" alt="Avatar" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
-                    <div>
-                        <strong>{{ comment.author.name }}</strong>
-                        <br><small style="color: var(--text-muted);">{{ comment.created_at.strftime('%B %d, %Y at %I:%M %p') }}</small>
+                <div id="upcoming-countdown" class="mui-row" style="margin-bottom: 40px;">
+                    <div class="mui-col-md-3 countdown-item">
+                        <div id="upcoming-days" class="countdown-number mui--text-display-1" style="font-weight: bold;">00</div>
+                        <div class="countdown-label mui--text-caption" style="opacity: 0.8;">Days</div>
+                    </div>
+                    <div class="mui-col-md-3 countdown-item">
+                        <div id="upcoming-hours" class="countdown-number mui--text-display-1" style="font-weight: bold;">00</div>
+                        <div class="countdown-label mui--text-caption" style="opacity: 0.8;">Hours</div>
+                    </div>
+                    <div class="mui-col-md-3 countdown-item">
+                        <div id="upcoming-minutes" class="countdown-number mui--text-display-1" style="font-weight: bold;">00</div>
+                        <div class="countdown-label mui--text-caption" style="opacity: 0.8;">Minutes</div>
+                    </div>
+                    <div class="mui-col-md-3 countdown-item">
+                        <div id="upcoming-seconds" class="countdown-number mui--text-display-1" style="font-weight: bold;">00</div>
+                        <div class="countdown-label mui--text-caption" style="opacity: 0.8;">Seconds</div>
                     </div>
                 </div>
-                <p style="margin-bottom: 10px;">{{ comment.content[:200] }}{% if comment.content|length > 200 %}...{% endif %}</p>
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <small style="color: var(--text-muted);">On: <a href="{{ url_for('forum.post_detail', post_id=comment.post_id) }}" style="color: var(--primary-color);">{{ comment.post.title }}</a></small>
-                    <a href="{{ url_for('forum.post_detail', post_id=comment.post_id) }}" class="btn" style="font-size: 0.9rem; padding: 5px 10px;">View Discussion</a>
+
+                <a href="{{ url_for('events') }}" class="mui-btn mui-btn--primary mui-btn--raised" style="background-color: white; color: #2D577B;">View All Events</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Goals Section -->
+<section class="goals-section py-20 bg-gray-50 animate-on-scroll">
+    <div class="max-w-7xl mx-auto px-4">
+        <div class="section-header text-center mb-16">
+            <h2 class="section-title text-4xl md:text-5xl font-bold text-primary-blue font-heading">Our Goals</h2>
+        </div>
+        <div class="goals-grid grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="goal-card bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 animate-on-scroll goal-card-1">
+                <div class="goal-icon goal-icon-research h-20 flex items-center justify-center bg-gradient-to-br from-accent-orange to-orange-600 text-white">
+                    <i class="fas fa-microscope text-3xl"></i>
+                </div>
+                <div class="p-6">
+                    <h3 class="goal-title text-xl font-bold text-primary-blue mb-4 font-heading">Advance Research</h3>
+                    <p class="goal-description text-gray-600 leading-relaxed font-body">To promote and facilitate high-quality research in pharmaceutical sciences, encouraging students to explore innovative solutions to real-world health challenges.</p>
+                </div>
+            </div>
+
+            <div class="goal-card bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 animate-on-scroll goal-card-2">
+                <div class="goal-icon goal-icon-collaboration h-20 flex items-center justify-center bg-gradient-to-br from-accent-green to-green-600 text-white">
+                    <i class="fas fa-users text-3xl"></i>
+                </div>
+                <div class="p-6">
+                    <h3 class="goal-title text-xl font-bold text-primary-blue mb-4 font-heading">Foster Collaboration</h3>
+                    <p class="goal-description text-gray-600 leading-relaxed font-body">To build partnerships between students, faculty, and industry experts, creating a collaborative environment that enhances learning and professional development.</p>
+                </div>
+            </div>
+
+            <div class="goal-card bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 animate-on-scroll goal-card-3">
+                <div class="goal-icon goal-icon-education h-20 flex items-center justify-center bg-gradient-to-br from-primary-blue-light to-primary-blue text-white">
+                    <i class="fas fa-graduation-cap text-3xl"></i>
+                </div>
+                <div class="p-6">
+                    <h3 class="goal-title text-xl font-bold text-primary-blue mb-4 font-heading">Educate and Inspire</h3>
+                    <p class="goal-description text-gray-600 leading-relaxed font-body">To educate the community about pharmaceutical sciences and inspire the next generation of researchers and healthcare professionals.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Recent Forum Discussions Section -->
+<section class="forum-discussions-section py-20 bg-white animate-on-scroll">
+    <div class="max-w-7xl mx-auto px-4">
+        <div class="section-header text-center mb-16">
+            <h2 class="section-title text-4xl md:text-5xl font-bold text-primary-blue font-heading">Recent Forum Discussions</h2>
+        </div>
+        {% if recent_comments %}
+        <div class="discussions-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+            {% for comment in recent_comments %}
+            <div class="discussion-card bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 animate-on-scroll discussion-card-{{ loop.index }}">
+                <div class="p-6">
+                    <div class="discussion-header flex items-center gap-3 mb-4">
+                        <div class="discussion-avatar w-12 h-12 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
+                            <img src="{{ url_for('static', filename='images/' + (comment.author.profile_picture_url or 'default-avatar.png')) }}" alt="Avatar" class="w-full h-full object-cover">
+                        </div>
+                        <div class="discussion-meta flex-1">
+                            <h4 class="author-name text-lg font-semibold text-primary-blue font-heading">{{ comment.author.name }}</h4>
+                            <p class="discussion-date text-sm text-gray-500 font-body">{{ comment.created_at.strftime('%B %d, %Y at %I:%M %p') }}</p>
+                        </div>
+                    </div>
+                    <p class="discussion-content text-gray-700 leading-relaxed mb-4 font-body">{{ comment.content[:200] }}{% if comment.content|length > 200 %}...{% endif %}</p>
+                    <div class="discussion-footer flex items-center justify-between">
+                        <span class="discussion-topic inline-flex items-center px-3 py-1 rounded-full text-sm bg-primary-blue/10 text-primary-blue border border-primary-blue/20">
+                            <i class="fas fa-comments mr-2"></i>
+                            {{ comment.post.title }}
+                        </span>
+                        <button class="text-primary-blue hover:text-primary-blue-light transition-colors duration-200 flex items-center gap-1 text-sm font-medium" onclick="window.location.href='{{ url_for('forum.post_detail', post_id=comment.post_id) }}'">
+                            View Discussion
+                            <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
             {% endfor %}
         </div>
-        <div style="text-align: center; margin-top: 30px;">
-            <a href="{{ url_for('forum.forum_main') }}" class="btn">View All Discussions</a>
+        <div class="section-footer text-center">
+            <button class="bg-accent-orange hover:bg-orange-600 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-2 mx-auto" onclick="window.location.href='{{ url_for('forum.forum_main') }}'">
+                <i class="fas fa-comments"></i>
+                View All Discussions
+            </button>
         </div>
         {% else %}
-        <div class="card">
-            <p>No recent discussions yet. <a href="{{ url_for('forum.forum_main') }}">Be the first to start one!</a></p>
+        <div class="empty-state text-center py-16">
+            <div class="empty-card max-w-md mx-auto bg-white rounded-xl shadow-lg p-8">
+                <div class="empty-icon text-6xl text-gray-400 mb-4">
+                    <i class="fas fa-comments"></i>
+                </div>
+                <h3 class="text-xl font-bold text-primary-blue mb-2 font-heading">No Recent Discussions</h3>
+                <p class="text-gray-600 font-body">
+                    No recent discussions yet. <a href="{{ url_for('forum.forum_main') }}" class="text-accent-orange hover:text-orange-600 font-medium transition-colors duration-200">Be the first to start one!</a>
+                </p>
+            </div>
         </div>
         {% endif %}
     </div>
 </section>
 
-
-
-<section class="section">
-    <div class="container">
-        <h3 style="text-align: center; margin-bottom: 40px;">In Association With</h3>
-        <div style="display: flex; justify-content: center; align-items: center; gap: 40px; flex-wrap: wrap;">
-            <div style="text-align: center;">
-                <div style="width: 150px; height: 100px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; background-color: var(--bg-secondary);">
-                    <img src="{{ url_for('static', filename='images/uofk.jpg') }}" alt="Faculty of Pharmacy, UofK Logo" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+<!-- Partners Section -->
+<section class="partners-section py-20 bg-gray-50 animate-on-scroll">
+    <div class="max-w-6xl mx-auto px-4">
+        <div class="section-header text-center mb-16">
+            <h2 class="section-title text-4xl md:text-5xl font-bold text-primary-blue font-heading">In Association With</h2>
+        </div>
+        <div class="partners-grid grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="partner-card bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 animate-on-scroll partner-card-1">
+                <div class="p-8 text-center">
+                    <div class="partner-logo-container h-24 flex items-center justify-center bg-gray-50 rounded-lg mb-6">
+                        <img src="{{ url_for('static', filename='images/uofk.jpg') }}" alt="Faculty of Pharmacy, UofK Logo" class="partner-logo max-w-full max-h-full object-contain grayscale hover:grayscale-0 transition-all duration-300">
+                    </div>
+                    <h3 class="partner-name text-lg font-semibold text-gray-700 font-heading">Faculty of Pharmacy, UofK</h3>
                 </div>
-                <p>Faculty of Pharmacy, UofK</p>
             </div>
-            <div style="text-align: center;">
-                <div style="width: 150px; height: 100px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; background-color: var(--bg-secondary);">
-                    <img src="{{ url_for('static', filename='images/fpsa.jpg') }}" alt="FPSA Logo" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+
+            <div class="partner-card bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 animate-on-scroll partner-card-2">
+                <div class="p-8 text-center">
+                    <div class="partner-logo-container h-24 flex items-center justify-center bg-gray-50 rounded-lg mb-6">
+                        <img src="{{ url_for('static', filename='images/fpsa.jpg') }}" alt="FPSA Logo" class="partner-logo max-w-full max-h-full object-contain grayscale hover:grayscale-0 transition-all duration-300">
+                    </div>
+                    <h3 class="partner-name text-lg font-semibold text-gray-700 font-heading">FPSA</h3>
                 </div>
-                <p>FPSA</p>
             </div>
-            <div style="text-align: center;">
-                <div style="width: 150px; height: 100px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; background-color: var(--bg-secondary);">
-                    <img src="{{ url_for('static', filename='images/PharmaRx.png') }}" alt="PharmaRx Logo" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+
+            <div class="partner-card bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 animate-on-scroll partner-card-3">
+                <div class="p-8 text-center">
+                    <div class="partner-logo-container h-24 flex items-center justify-center bg-gray-50 rounded-lg mb-6">
+                        <img src="{{ url_for('static', filename='images/PharmaRx.png') }}" alt="PharmaRx Logo" class="partner-logo max-w-full max-h-full object-contain grayscale hover:grayscale-0 transition-all duration-300">
+                    </div>
+                    <h3 class="partner-name text-lg font-semibold text-gray-700 font-heading">PharmaRx</h3>
                 </div>
-                <p>PharmaRx</p>
             </div>
         </div>
     </div>
