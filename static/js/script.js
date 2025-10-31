@@ -196,9 +196,147 @@ function togglePassword(fieldId) {
     }
 }
 
+// ===========================================
+// SCROLL-TRIGGERED ANIMATIONS
+// ===========================================
+
+// Intersection Observer for scroll animations
+const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '0px 0px -50px 0px'
+};
+
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add('animate-in');
+        }
+    });
+}, observerOptions);
+
+// Observe all elements with animate-on-scroll class
+function initScrollAnimations() {
+    const animatedElements = document.querySelectorAll('.animate-on-scroll');
+    animatedElements.forEach(element => {
+        observer.observe(element);
+    });
+}
+
+// ===========================================
+// ENHANCED INTERACTIONS
+// ===========================================
+
+// Smooth scroll for anchor links
+function initSmoothScrolling() {
+    const anchorLinks = document.querySelectorAll('a[href^="#"]');
+    anchorLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            const targetId = this.getAttribute('href');
+            const targetElement = document.querySelector(targetId);
+
+            if (targetElement) {
+                e.preventDefault();
+                targetElement.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    });
+}
+
+// Card hover effects enhancement
+function initCardInteractions() {
+    const cards = document.querySelectorAll('.goal-card, .discussion-card, .partner-card');
+
+    cards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-8px) scale(1.02)';
+        });
+
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0) scale(1)';
+        });
+    });
+}
+
+// Button ripple effect enhancement
+function initButtonEffects() {
+    const buttons = document.querySelectorAll('mui-button');
+
+    buttons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            const ripple = document.createElement('span');
+            const rect = this.getBoundingClientRect();
+            const size = Math.max(rect.width, rect.height);
+            const x = e.clientX - rect.left - size / 2;
+            const y = e.clientY - rect.top - size / 2;
+
+            ripple.style.width = ripple.style.height = size + 'px';
+            ripple.style.left = x + 'px';
+            ripple.style.top = y + 'px';
+            ripple.classList.add('ripple-effect');
+
+            this.appendChild(ripple);
+
+            setTimeout(() => {
+                ripple.remove();
+            }, 600);
+        });
+    });
+}
+
+// ===========================================
+// PERFORMANCE OPTIMIZATIONS
+// ===========================================
+
+// Lazy loading for images
+function initLazyLoading() {
+    const images = document.querySelectorAll('img[data-src]');
+
+    if ('IntersectionObserver' in window) {
+        const imageObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const img = entry.target;
+                    img.src = img.dataset.src;
+                    img.classList.remove('lazy');
+                    imageObserver.unobserve(img);
+                }
+            });
+        });
+
+        images.forEach(img => imageObserver.observe(img));
+    } else {
+        // Fallback for browsers without IntersectionObserver
+        images.forEach(img => {
+            img.src = img.dataset.src;
+        });
+    }
+}
+
+// ===========================================
+// INITIALIZATION
+// ===========================================
+
 // Wait for the DOM to be fully loaded before running the script
 document.addEventListener('DOMContentLoaded', function () {
+    // Initialize scroll animations
+    initScrollAnimations();
 
+    // Initialize smooth scrolling
+    initSmoothScrolling();
+
+    // Initialize card interactions
+    initCardInteractions();
+
+    // Initialize button effects
+    initButtonEffects();
+
+    // Initialize lazy loading
+    initLazyLoading();
+
+    // Mobile menu toggle
     const menuToggle = document.getElementById('menu-toggle');
     const mainNav = document.getElementById('main-nav');
     const icon = menuToggle.querySelector('i');
@@ -220,5 +358,4 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     }
-
 });
