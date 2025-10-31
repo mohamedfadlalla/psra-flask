@@ -19,12 +19,12 @@ class User(UserMixin, db.Model):
     location = db.Column(db.String(100), nullable=True)
     about = db.Column(db.Text, nullable=True)
     skills = db.Column(db.Text, nullable=True)  # Comma-separated skills
-    education = db.Column(db.Text, nullable=True)
-    experience = db.Column(db.Text, nullable=True)
+    education = db.Column(db.Text, nullable=True)  # JSON array of education entries
+    experience = db.Column(db.Text, nullable=True)  # JSON array of work experience entries
     linkedin_url = db.Column(db.String(200), nullable=True)
-    github_url = db.Column(db.String(200), nullable=True)
     website_url = db.Column(db.String(200), nullable=True)
     cover_photo_url = db.Column(db.String(200), default=None)
+    profile_picture_url = db.Column(db.String(200), default=None)
     languages = db.Column(db.Text, nullable=True)  # Comma-separated languages
     certifications = db.Column(db.Text, nullable=True)  # JSON or text for certifications
     projects = db.Column(db.Text, nullable=True)  # JSON or text for projects
@@ -88,6 +88,7 @@ class Message(db.Model):
     receiver_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     content = db.Column(db.Text, nullable=False)
     is_read = db.Column(db.Boolean, default=False)
+    read_at = db.Column(db.DateTime, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     sender = db.relationship('User', foreign_keys=[sender_id], backref='sent_messages')

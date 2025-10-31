@@ -131,7 +131,37 @@ def toggle_like(post_id):
 @forum_bp.route('/profile')
 @login_required
 def profile():
-    return render_template('profile.html')
+    import json
+
+    # Parse JSON data for template
+    experience_entries = []
+    education_entries = []
+
+    if current_user.experience:
+        try:
+            experience_entries = json.loads(current_user.experience)
+        except (json.JSONDecodeError, TypeError):
+            experience_entries = []
+
+    if current_user.education:
+        try:
+            education_entries = json.loads(current_user.education)
+        except (json.JSONDecodeError, TypeError):
+            education_entries = []
+
+    # Combine experience and education into chronological timeline
+    combined_experience = []
+    for entry in experience_entries:
+        entry['type'] = 'work'
+        combined_experience.append(entry)
+    for entry in education_entries:
+        entry['type'] = 'education'
+        combined_experience.append(entry)
+
+    # Sort by start_date descending (most recent first)
+    combined_experience.sort(key=lambda x: x.get('start_date', ''), reverse=True)
+
+    return render_template('profile.html', experience_entries=combined_experience)
 
 @forum_bp.route('/profile/edit', methods=['GET', 'POST'])
 @login_required
@@ -150,10 +180,28 @@ def edit_profile():
         profile_form.phone_number.data = current_user.phone_number
         profile_form.whatsapp_number.data = current_user.whatsapp_number
         profile_form.skills.data = current_user.skills
-        profile_form.education.data = current_user.education
-        profile_form.experience.data = current_user.experience
+        # Convert JSON data to form data for editing
+        import json
+        if current_user.education:
+            try:
+                education_entries = json.loads(current_user.education)
+                profile_form.education_data.data = json.dumps(education_entries)
+            except (json.JSONDecodeError, TypeError):
+                # Handle legacy text data or empty data
+                profile_form.education_data.data = '[]'
+        else:
+            profile_form.education_data.data = '[]'
+
+        if current_user.experience:
+            try:
+                experience_entries = json.loads(current_user.experience)
+                profile_form.experience_data.data = json.dumps(experience_entries)
+            except (json.JSONDecodeError, TypeError):
+                # Handle legacy text data or empty data
+                profile_form.experience_data.data = '[]'
+        else:
+            profile_form.experience_data.data = '[]'
         profile_form.linkedin_url.data = current_user.linkedin_url
-        profile_form.github_url.data = current_user.github_url
         profile_form.website_url.data = current_user.website_url
         profile_form.languages.data = current_user.languages
         profile_form.certifications.data = current_user.certifications
@@ -171,10 +219,10 @@ def edit_profile():
         current_user.phone_number = profile_form.phone_number.data
         current_user.whatsapp_number = profile_form.whatsapp_number.data
         current_user.skills = profile_form.skills.data
-        current_user.education = profile_form.education.data
-        current_user.experience = profile_form.experience.data
+        # Store JSON data from form
+        current_user.education = profile_form.education_data.data or '[]'
+        current_user.experience = profile_form.experience_data.data or '[]'
         current_user.linkedin_url = profile_form.linkedin_url.data
-        current_user.github_url = profile_form.github_url.data
         current_user.website_url = profile_form.website_url.data
         current_user.languages = profile_form.languages.data
         current_user.certifications = profile_form.certifications.data
@@ -206,6 +254,40 @@ def edit_profile():
             except Exception as e:
                 # If image processing fails, continue without cover photo
                 print(f"Error processing cover photo: {e}")
+                pass
+
+        # Handle profile picture upload
+        if profile_form.profile_picture.data:
+            profile_file = profile_form.profile_picture.data
+            profile_filename = secure_filename(f"{current_user.id}_profile_{profile_file.filename}")
+            profile_path = os.path.join(current_app.root_path, current_app.config['UPLOAD_FOLDER'], profile_filename)
+
+            # Ensure the upload directory exists
+            os.makedirs(os.path.dirname(profile_path), exist_ok=True)
+
+            # Resize and save profile picture
+            try:
+                profile_image = Image.open(profile_file)
+                # Convert to RGB if necessary
+                if profile_image.mode in ("RGBA", "P"):
+                    profile_image = profile_image.convert("RGB")
+                # Create a square image for profile picture
+                size = min(profile_image.size)
+                # Crop to square from center
+                left = (profile_image.width - size) // 2
+                top = (profile_image.height - size) // 2
+                right = left + size
+                bottom = top + size
+                profile_image = profile_image.crop((left, top, right, bottom))
+                # Resize to 150x150
+                profile_image = profile_image.resize((150, 150), Image.Resampling.LANCZOS)
+                profile_image.save(profile_path, quality=85)
+
+                # Update user profile picture URL
+                current_user.profile_picture_url = url_for('static', filename=f'profile_images/{profile_filename}')
+            except Exception as e:
+                # If image processing fails, continue without profile picture
+                print(f"Error processing profile picture: {e}")
                 pass
 
         db.session.commit()
@@ -325,10 +407,25 @@ def conversation(user_id):
     for message in messages:
         if message.receiver_id == current_user.id and not message.is_read:
             message.is_read = True
+            message.read_at = datetime.utcnow()
     db.session.commit()
 
+    # Group messages by date for date markers
+    from collections import defaultdict
+    messages_by_date = defaultdict(list)
+
+    for message in messages:
+        date_key = message.created_at.date()
+        messages_by_date[date_key].append(message)
+
+    # Convert to list of tuples for template
+    grouped_messages = []
+    for date_key in sorted(messages_by_date.keys()):
+        grouped_messages.append((date_key, messages_by_date[date_key]))
+
     form = MessageForm()
-    return render_template('conversation.html', messages=messages, other_user=other_user, form=form)
+    today = datetime.now().date()
+    return render_template('conversation.html', grouped_messages=grouped_messages, other_user=other_user, form=form, today=today)
 
 @forum_bp.route('/messages/reply/<int:user_id>', methods=['POST'])
 @login_required
@@ -346,3 +443,42 @@ def reply_message(user_id):
         flash('Message sent successfully!', 'success')
 
     return redirect(url_for('forum.conversation', user_id=user_id))
+
+@forum_bp.route('/messages/delete/<int:message_id>', methods=['DELETE'])
+@login_required
+def delete_message(message_id):
+    message = Message.query.get_or_404(message_id)
+
+    # Check if user owns this message
+    if message.sender_id != current_user.id:
+        return {'error': 'You can only delete your own messages'}, 403
+
+    # Store conversation partner for notification
+    other_user_id = message.receiver_id if message.sender_id == current_user.id else message.sender_id
+
+    # Delete the message
+    db.session.delete(message)
+    db.session.commit()
+
+    # Notify the other user about the deletion
+    # This would be sent via SocketIO in a real implementation
+
+    return {'success': True, 'message_id': message_id}
+
+@forum_bp.route('/messages/delete_conversation/<int:user_id>', methods=['DELETE'])
+@login_required
+def delete_conversation(user_id):
+    other_user = User.query.get_or_404(user_id)
+
+    # Delete all messages between current user and other user
+    Message.query.filter(
+        ((Message.sender_id == current_user.id) & (Message.receiver_id == user_id)) |
+        ((Message.sender_id == user_id) & (Message.receiver_id == current_user.id))
+    ).delete()
+
+    db.session.commit()
+
+    # Notify the other user about conversation deletion
+    # This would be sent via SocketIO in a real implementation
+
+    return {'success': True, 'deleted_conversation_with': user_id}

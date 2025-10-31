@@ -3,24 +3,40 @@
 {% block title %}Conversation with {{ other_user.name }} - PSRA{% endblock %}
 
 {% block content %}
-<div class="container">
+<div class="container" data-current-user-id="{{ current_user.id }}" data-other-user-id="{{ other_user.id }}">
     <div class="conversation-header">
         <h1>Conversation with {{ other_user.name }}</h1>
         <div class="conversation-actions">
+            <button class="btn btn-danger" data-user-id="{{ other_user.id }}" data-user-name="{{ other_user.name }}" onclick="deleteConversation(this)">
+                <i class="fas fa-trash"></i> Delete Conversation
+            </button>
             <a href="{{ url_for('forum.messages') }}" class="btn btn-secondary">Back to Messages</a>
             <a href="{{ url_for('forum.send_message', user_id=other_user.id) }}" class="btn btn-primary">Send New Message</a>
         </div>
     </div>
 
-    <div class="messages-container">
-        {% if messages %}
+    <div class="messages-container" id="messages-container">
+        {% if grouped_messages %}
+            {% for date_key, messages in grouped_messages %}
+            <div class="date-marker">
+                <span>{{ date_key.strftime('%B %d, %Y') if date_key != today else 'Today' }}</span>
+            </div>
             {% for message in messages %}
-            <div class="message {% if message.sender_id == current_user.id %}sent{% else %}received{% endif %}">
+            <div class="message {% if message.sender_id == current_user.id %}sent{% else %}received{% endif %}" data-message-id="{{ message.id }}">
                 <div class="message-content">
                     <p>{{ message.content }}</p>
-                    <small class="message-time">{{ message.created_at.strftime('%b %d, %Y %I:%M %p') }}</small>
+                    <small class="message-time">{{ message.created_at.strftime('%I:%M %p') }}</small>
+                    {% if message.sender_id == current_user.id and message.is_read %}
+                    <small class="read-receipt">✓✓</small>
+                    {% endif %}
+                    {% if message.sender_id == current_user.id %}
+                    <button class="delete-message-btn" onclick="deleteMessage({{ message.id }})" title="Delete message">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                    {% endif %}
                 </div>
             </div>
+            {% endfor %}
             {% endfor %}
         {% else %}
             <div class="no-messages">
@@ -28,6 +44,11 @@
                 <p><a href="{{ url_for('forum.send_message', user_id=other_user.id) }}">Send the first message</a></p>
             </div>
         {% endif %}
+
+        <!-- Typing indicator -->
+        <div class="typing-indicator" id="typing-indicator" style="display: none;">
+            <span id="typing-user-name"></span> is typing...
+        </div>
     </div>
 
     <div class="reply-form">
@@ -225,6 +246,82 @@
     border-color: #545b62;
 }
 
+/* Date marker styling */
+.date-marker {
+    text-align: center;
+    margin: 20px 0;
+    position: relative;
+}
+
+.date-marker span {
+    background-color: #fff;
+    color: #666;
+    padding: 5px 15px;
+    border-radius: 15px;
+    font-size: 0.9em;
+    border: 1px solid #ddd;
+}
+
+/* Read receipt styling */
+.read-receipt {
+    display: block;
+    text-align: right;
+    font-size: 0.8em;
+    color: rgba(255, 255, 255, 0.7);
+    margin-top: 2px;
+}
+
+/* Delete message button styling */
+.delete-message-btn {
+    position: absolute;
+    top: 5px;
+    right: 8px;
+    background: rgba(220, 53, 69, 0.8);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    font-size: 0.7rem;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.message.sent .message-content:hover .delete-message-btn {
+    display: flex;
+}
+
+.delete-message-btn:hover {
+    background: rgba(220, 53, 69, 1);
+    transform: scale(1.1);
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    color: white;
+    border-color: #dc3545;
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
+    border-color: #bd2130;
+}
+
+/* Typing indicator styling */
+.typing-indicator {
+    font-style: italic;
+    color: #666;
+    padding: 10px;
+    text-align: center;
+}
+
+.typing-indicator span {
+    font-weight: bold;
+}
+
 /* Scrollbar styling for messages container */
 .messages-container::-webkit-scrollbar {
     width: 6px;
@@ -244,4 +341,7 @@
     background: #a8a8a8;
 }
 </style>
+
+<!-- Chat functionality script -->
+<script src="{{ url_for('static', filename='js/chat.js') }}"></script>
 {% endblock %}

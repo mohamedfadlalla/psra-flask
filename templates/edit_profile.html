@@ -117,26 +117,24 @@
                         <small style="color: var(--text-secondary); font-size: 14px;">e.g., "Research, Pharmacology, Data Analysis"</small>
                     </div>
 
-                    <div>
-                        {{ profile_form.education.label(style="display: block; font-weight: bold; color: var(--text); margin-bottom: 5px;") }}
-                        {{ profile_form.education(style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 5px; font-size: 16px; min-height: 80px; resize: vertical;") }}
-                        {% if profile_form.education.errors %}
-                            <div style="color: red; font-size: 14px; margin-top: 5px;">
-                                {% for error in profile_form.education.errors %}{{ error }}{% endfor %}
-                            </div>
-                        {% endif %}
-                        <small style="color: var(--text-secondary); font-size: 14px;">Your educational background</small>
+                    <!-- Work Experience Section -->
+                    <div class="dynamic-section">
+                        <h3 style="margin-bottom: 15px; color: var(--primary-blue);">Work Experience</h3>
+                        <div id="experience-container">
+                            <!-- Experience entries will be added here dynamically -->
+                        </div>
+                        <button type="button" id="add-experience" class="btn-add" style="background: var(--secondary-blue); color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; margin-top: 10px;">Add Work Experience</button>
+                        {{ profile_form.experience_data(style="display: none;") }}
                     </div>
 
-                    <div>
-                        {{ profile_form.experience.label(style="display: block; font-weight: bold; color: var(--text); margin-bottom: 5px;") }}
-                        {{ profile_form.experience(style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 5px; font-size: 16px; min-height: 80px; resize: vertical;") }}
-                        {% if profile_form.experience.errors %}
-                            <div style="color: red; font-size: 14px; margin-top: 5px;">
-                                {% for error in profile_form.experience.errors %}{{ error }}{% endfor %}
-                            </div>
-                        {% endif %}
-                        <small style="color: var(--text-secondary); font-size: 14px;">Your work experience and internships</small>
+                    <!-- Education Section -->
+                    <div class="dynamic-section">
+                        <h3 style="margin-bottom: 15px; color: var(--primary-blue);">Education</h3>
+                        <div id="education-container">
+                            <!-- Education entries will be added here dynamically -->
+                        </div>
+                        <button type="button" id="add-education" class="btn-add" style="background: var(--secondary-blue); color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; margin-top: 10px;">Add Education</button>
+                        {{ profile_form.education_data(style="display: none;") }}
                     </div>
 
                     <div>
@@ -148,17 +146,6 @@
                             </div>
                         {% endif %}
                         <small style="color: var(--text-secondary); font-size: 14px;">Your LinkedIn profile URL</small>
-                    </div>
-
-                    <div>
-                        {{ profile_form.github_url.label(style="display: block; font-weight: bold; color: var(--text); margin-bottom: 5px;") }}
-                        {{ profile_form.github_url(style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 5px; font-size: 16px;") }}
-                        {% if profile_form.github_url.errors %}
-                            <div style="color: red; font-size: 14px; margin-top: 5px;">
-                                {% for error in profile_form.github_url.errors %}{{ error }}{% endfor %}
-                            </div>
-                        {% endif %}
-                        <small style="color: var(--text-secondary); font-size: 14px;">Your GitHub profile URL</small>
                     </div>
 
                     <div>
@@ -240,6 +227,17 @@
                         {% endif %}
                     </div>
 
+                    <div>
+                        {{ profile_form.profile_picture.label(style="display: block; font-weight: bold; color: var(--text); margin-bottom: 5px;") }}
+                        {{ profile_form.profile_picture(style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 5px; font-size: 16px;") }}
+                        <small style="color: var(--text-secondary); font-size: 14px;">Optional. Upload a profile picture (JPG, PNG, GIF). Will be cropped to a circle.</small>
+                        {% if profile_form.profile_picture.errors %}
+                            <div style="color: red; font-size: 14px; margin-top: 5px;">
+                                {% for error in profile_form.profile_picture.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
                     {{ profile_form.submit(class="btn", style="background: var(--primary-blue); color: white; padding: 12px; border: none; border-radius: 5px; font-size: 16px; cursor: pointer;") }}
                 </form>
             </div>
@@ -291,4 +289,215 @@
         </div>
     </div>
 </section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize data from form
+    let experienceData = [];
+    let educationData = [];
+
+    try {
+        const experienceJson = document.getElementById('experience_data').value;
+        if (experienceJson && experienceJson !== '[]') {
+            experienceData = JSON.parse(experienceJson);
+        }
+    } catch (e) {
+        console.log('Error parsing experience data:', e);
+    }
+
+    try {
+        const educationJson = document.getElementById('education_data').value;
+        if (educationJson && educationJson !== '[]') {
+            educationData = JSON.parse(educationJson);
+        }
+    } catch (e) {
+        console.log('Error parsing education data:', e);
+    }
+
+    // Function to create experience entry HTML
+    function createExperienceEntry(entry = null, index = null) {
+        const entryIndex = index !== null ? index : Date.now();
+        const data = entry || { company: '', title: '', start_date: '', end_date: '', description: '' };
+
+        return `
+            <div class="entry-item" data-index="${entryIndex}">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <h4>Work Experience</h4>
+                    <button type="button" class="remove-entry" style="background: #dc3545; color: white; border: none; padding: 4px 8px; border-radius: 3px; cursor: pointer;">Remove</button>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                    <div>
+                        <label style="display: block; font-weight: bold; margin-bottom: 3px;">Company</label>
+                        <input type="text" class="company" value="${data.company}" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" placeholder="Company name">
+                    </div>
+                    <div>
+                        <label style="display: block; font-weight: bold; margin-bottom: 3px;">Title</label>
+                        <input type="text" class="title" value="${data.title}" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" placeholder="Job title">
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                    <div>
+                        <label style="display: block; font-weight: bold; margin-bottom: 3px;">Start Date</label>
+                        <input type="month" class="start-date" value="${data.start_date}" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                    </div>
+                    <div>
+                        <label style="display: block; font-weight: bold; margin-bottom: 3px;">End Date (leave empty if current)</label>
+                        <input type="month" class="end-date" value="${data.end_date}" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                    </div>
+                </div>
+                <div>
+                    <label style="display: block; font-weight: bold; margin-bottom: 3px;">Description</label>
+                    <textarea class="description" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; min-height: 60px; resize: vertical;" placeholder="Describe your responsibilities and achievements">${data.description}</textarea>
+                </div>
+            </div>
+        `;
+    }
+
+    // Function to create education entry HTML
+    function createEducationEntry(entry = null, index = null) {
+        const entryIndex = index !== null ? index : Date.now();
+        const data = entry || { institution: '', degree: '', start_date: '', end_date: '', description: '' };
+
+        return `
+            <div class="entry-item" data-index="${entryIndex}">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <h4>Education</h4>
+                    <button type="button" class="remove-entry" style="background: #dc3545; color: white; border: none; padding: 4px 8px; border-radius: 3px; cursor: pointer;">Remove</button>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                    <div>
+                        <label style="display: block; font-weight: bold; margin-bottom: 3px;">Institution</label>
+                        <input type="text" class="institution" value="${data.institution}" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" placeholder="University/School name">
+                    </div>
+                    <div>
+                        <label style="display: block; font-weight: bold; margin-bottom: 3px;">Degree</label>
+                        <input type="text" class="degree" value="${data.degree}" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" placeholder="Degree/Program name">
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                    <div>
+                        <label style="display: block; font-weight: bold; margin-bottom: 3px;">Start Date</label>
+                        <input type="month" class="start-date" value="${data.start_date}" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                    </div>
+                    <div>
+                        <label style="display: block; font-weight: bold; margin-bottom: 3px;">End Date (leave empty if current)</label>
+                        <input type="month" class="end-date" value="${data.end_date}" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                    </div>
+                </div>
+                <div>
+                    <label style="display: block; font-weight: bold; margin-bottom: 3px;">Description</label>
+                    <textarea class="description" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; min-height: 60px; resize: vertical;" placeholder="Additional details about your studies">${data.description}</textarea>
+                </div>
+            </div>
+        `;
+    }
+
+    // Function to update hidden form fields
+    function updateHiddenFields() {
+        // Collect experience data
+        const experienceEntries = [];
+        document.querySelectorAll('#experience-container .entry-item').forEach(item => {
+            const company = item.querySelector('.company').value;
+            const title = item.querySelector('.title').value;
+            const startDate = item.querySelector('.start-date').value;
+            const endDate = item.querySelector('.end-date').value;
+            const description = item.querySelector('.description').value;
+
+            if (company || title || startDate || endDate || description) {
+                experienceEntries.push({
+                    company: company,
+                    title: title,
+                    start_date: startDate,
+                    end_date: endDate,
+                    description: description
+                });
+            }
+        });
+
+        // Collect education data
+        const educationEntries = [];
+        document.querySelectorAll('#education-container .entry-item').forEach(item => {
+            const institution = item.querySelector('.institution').value;
+            const degree = item.querySelector('.degree').value;
+            const startDate = item.querySelector('.start-date').value;
+            const endDate = item.querySelector('.end-date').value;
+            const description = item.querySelector('.description').value;
+
+            if (institution || degree || startDate || endDate || description) {
+                educationEntries.push({
+                    institution: institution,
+                    degree: degree,
+                    start_date: startDate,
+                    end_date: endDate,
+                    description: description
+                });
+            }
+        });
+
+        document.getElementById('experience_data').value = JSON.stringify(experienceEntries);
+        document.getElementById('education_data').value = JSON.stringify(educationEntries);
+    }
+
+    // Initialize existing entries
+    experienceData.forEach((entry, index) => {
+        document.getElementById('experience-container').insertAdjacentHTML('beforeend', createExperienceEntry(entry, index));
+    });
+
+    educationData.forEach((entry, index) => {
+        document.getElementById('education-container').insertAdjacentHTML('beforeend', createEducationEntry(entry, index));
+    });
+
+    // Add event listeners
+    document.getElementById('add-experience').addEventListener('click', function() {
+        document.getElementById('experience-container').insertAdjacentHTML('beforeend', createExperienceEntry());
+    });
+
+    document.getElementById('add-education').addEventListener('click', function() {
+        document.getElementById('education-container').insertAdjacentHTML('beforeend', createEducationEntry());
+    });
+
+    // Event delegation for remove buttons
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('remove-entry')) {
+            e.target.closest('.entry-item').remove();
+            updateHiddenFields();
+        }
+    });
+
+    // Update hidden fields on input changes
+    document.addEventListener('input', updateHiddenFields);
+    document.addEventListener('change', updateHiddenFields);
+
+    // Update hidden fields on form submit
+    document.querySelector('form').addEventListener('submit', updateHiddenFields);
+});
+</script>
+
+<style>
+.dynamic-section {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 20px 0;
+    background-color: #fafafa;
+}
+
+.entry-item {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 15px;
+    margin-bottom: 15px;
+}
+
+.entry-item h4 {
+    margin: 0 0 10px 0;
+    color: #333;
+    font-size: 1.1em;
+}
+
+.btn-add:hover {
+    opacity: 0.9;
+}
+</style>
 {% endblock %}

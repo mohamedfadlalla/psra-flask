@@ -464,6 +464,15 @@ footer .container {
     .main-nav ul li a {
         font-size: 1.2rem;
         color: var(--text-primary);
+        position: relative;
+        display: inline-block;
+    }
+
+    /* Ensure notification badge displays properly in mobile menu */
+    .main-nav .notification-badge {
+        position: static;
+        margin-left: 8px;
+        vertical-align: baseline;
     }
 }
 
@@ -485,5 +494,33 @@ footer .container {
 
     .main-nav ul li {
         margin-left: 20px;
+    }
+}
+
+/* Notification Badge for Unread Messages */
+.notification-badge {
+    background-color: #dc3545;
+    color: white;
+    border-radius: 50%;
+    padding: 2px 6px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    margin-left: 5px;
+    min-width: 18px;
+    height: 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    vertical-align: middle;
+    line-height: 1;
+}
+
+/* Responsive notification badge */
+@media (max-width: 768px) {
+    .notification-badge {
+        font-size: 0.7rem;
+        padding: 1px 5px;
+        min-width: 16px;
+        height: 16px;
     }
 }

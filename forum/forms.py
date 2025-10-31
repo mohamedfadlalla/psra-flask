@@ -50,10 +50,11 @@ class ProfileForm(FlaskForm):
     phone_number = StringField('Phone Number', validators=[Length(max=20)])
     whatsapp_number = StringField('WhatsApp Number (Optional)', validators=[Length(max=20)])
     skills = StringField('Skills (comma-separated)', validators=[Length(max=500)])
-    education = TextAreaField('Education', validators=[Length(max=1000)])
-    experience = TextAreaField('Experience', validators=[Length(max=1000)])
+    # These fields will be handled dynamically via JavaScript
+    # The actual data will be submitted as JSON strings
+    education_data = StringField('Education Data', validators=[Length(max=5000)])
+    experience_data = StringField('Experience Data', validators=[Length(max=5000)])
     linkedin_url = StringField('LinkedIn URL', validators=[Length(max=200)])
-    github_url = StringField('GitHub URL', validators=[Length(max=200)])
     website_url = StringField('Website URL', validators=[Length(max=200)])
     languages = StringField('Languages (comma-separated)', validators=[Length(max=500)])
     certifications = TextAreaField('Certifications', validators=[Length(max=1000)])
@@ -61,6 +62,7 @@ class ProfileForm(FlaskForm):
     publications = TextAreaField('Publications/Research', validators=[Length(max=1000)])
     professional_summary = TextAreaField('Professional Summary', validators=[Length(max=1000)])
     cover_photo = FileField('Cover Photo', validators=[FileAllowed(['jpg', 'jpeg', 'png', 'gif'], 'Images only!')])
+    profile_picture = FileField('Profile Picture', validators=[FileAllowed(['jpg', 'jpeg', 'png', 'gif'], 'Images only!')])
     submit = SubmitField('Update Profile')
 
 class PasswordChangeForm(FlaskForm):

@@ -1,8 +1,10 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager, login_user, logout_user, login_required, current_user
+from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from flask_migrate import Migrate
-from models import db, User
+from flask_socketio import SocketIO, emit, join_room, leave_room
+from models import db, User, Message
+from datetime import datetime
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your-secret-key-change-in-production'
@@ -18,9 +20,20 @@ login_manager.init_app(app)
 login_manager.login_view = 'forum.login'
 login_manager.login_message = 'Please log in to access this page.'
 
+# Initialize SocketIO with CORS enabled for real-time messaging
+socketio = SocketIO(app, cors_allowed_origins="*")
+
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
+
+# Context processor to make unread message count available to all templates
+@app.context_processor
+def inject_unread_messages():
+    if current_user.is_authenticated:
+        unread_count = Message.query.filter_by(receiver_id=current_user.id, is_read=False).count()
+        return {'unread_message_count': unread_count}
+    return {'unread_message_count': 0}
 
 # Import models to register them with db
 from models import Post, Comment, Like, Event, Message
@@ -130,7 +143,126 @@ def get_next_event():
         }
     return {'no_event': True}
 
+# API endpoint for unread message count
+@app.route('/api/unread-count')
+@login_required
+def get_unread_count():
+    unread_count = Message.query.filter_by(receiver_id=current_user.id, is_read=False).count()
+    return {'count': unread_count}
+
+# SocketIO event handlers for real-time messaging
+typing_users = {}  # Global dict to track typing status: {conversation_id: {user_id: True/False}}
+
+@socketio.on('join')
+def handle_join(data):
+    """User joins their personal room for receiving messages"""
+    user_id = data.get('user_id')
+    if user_id:
+        room = f"user_{user_id}"
+        join_room(room)
+        emit('joined', {'room': room})
+
+@socketio.on('send_message')
+def handle_send_message(data):
+    """Handle real-time message sending"""
+    sender_id = data.get('sender_id')
+    receiver_id = data.get('receiver_id')
+    content = data.get('content')
+
+    if not all([sender_id, receiver_id, content]):
+        emit('error', {'message': 'Missing required fields'})
+        return
+
+    # Create message in database
+    message = Message(
+        sender_id=sender_id,
+        receiver_id=receiver_id,
+        content=content
+    )
+    db.session.add(message)
+    db.session.commit()
+
+    # Prepare message data for emission
+    message_data = {
+        'id': message.id,
+        'sender_id': message.sender_id,
+        'receiver_id': message.receiver_id,
+        'content': message.content,
+        'is_read': message.is_read,
+        'read_at': message.read_at.isoformat() if message.read_at else None,
+        'created_at': message.created_at.isoformat(),
+        'sender_name': message.sender.name
+    }
+
+    # Send to receiver's room
+    receiver_room = f"user_{receiver_id}"
+    emit('new_message', message_data, room=receiver_room)
+
+    # Send confirmation to sender
+    emit('message_sent', message_data)
+
+@socketio.on('typing_start')
+def handle_typing_start(data):
+    """Handle typing start event"""
+    sender_id = data.get('sender_id')
+    receiver_id = data.get('receiver_id')
+
+    if sender_id and receiver_id:
+        conversation_id = f"{min(sender_id, receiver_id)}_{max(sender_id, receiver_id)}"
+        if conversation_id not in typing_users:
+            typing_users[conversation_id] = {}
+        typing_users[conversation_id][sender_id] = True
+
+        # Notify the receiver
+        receiver_room = f"user_{receiver_id}"
+        emit('typing_started', {'user_id': sender_id, 'user_name': User.query.get(sender_id).name}, room=receiver_room)
+
+@socketio.on('typing_stop')
+def handle_typing_stop(data):
+    """Handle typing stop event"""
+    sender_id = data.get('sender_id')
+    receiver_id = data.get('receiver_id')
+
+    if sender_id and receiver_id:
+        conversation_id = f"{min(sender_id, receiver_id)}_{max(sender_id, receiver_id)}"
+        if conversation_id in typing_users and sender_id in typing_users[conversation_id]:
+            typing_users[conversation_id][sender_id] = False
+
+        # Notify the receiver
+        receiver_room = f"user_{receiver_id}"
+        emit('typing_stopped', {'user_id': sender_id}, room=receiver_room)
+
+@socketio.on('mark_read')
+def handle_mark_read(data):
+    """Mark messages as read and notify sender"""
+    user_id = data.get('user_id')  # Current user (receiver)
+    other_user_id = data.get('other_user_id')  # Conversation partner
+
+    if user_id and other_user_id:
+        # Mark unread messages from other_user as read
+        unread_messages = Message.query.filter_by(
+            sender_id=other_user_id,
+            receiver_id=user_id,
+            is_read=False
+        ).all()
+
+        for message in unread_messages:
+            message.is_read = True
+            message.read_at = datetime.utcnow()
+
+        if unread_messages:
+            db.session.commit()
+
+            # Notify sender that messages were read
+            sender_room = f"user_{other_user_id}"
+            read_message_ids = [msg.id for msg in unread_messages]
+            emit('messages_read', {
+                'reader_id': user_id,
+                'message_ids': read_message_ids,
+                'read_at': datetime.utcnow().isoformat()
+            }, room=sender_room)
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-    app.run(debug=True)
+    socketio.run(app, debug=True)

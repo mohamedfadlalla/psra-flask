@@ -10,22 +10,31 @@
         {% else %}
         <div class="cover-photo" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
         {% endif %}
-            <div class="profile-info">
-                <h1>{{ current_user.name }}</h1>
-                {% if current_user.headline %}
-                <p class="headline">{{ current_user.headline }}</p>
-                {% endif %}
-                {% if current_user.location %}
-                <p class="location"><i class="fas fa-map-marker-alt"></i> {{ current_user.location }}</p>
-                {% endif %}
+            <div class="profile-content-wrapper">
+                <div class="profile-avatar">
+                    {% if current_user.profile_picture_url %}
+                    <img src="{{ current_user.profile_picture_url }}" alt="{{ current_user.name }}'s profile picture" class="avatar-image">
+                    {% else %}
+                    <div class="avatar-placeholder">
+                        {{ current_user.name[0].upper() }}
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="profile-info">
+                    <h1>{{ current_user.name }}</h1>
+                    {% if current_user.headline %}
+                    <p class="headline">{{ current_user.headline }}</p>
+                    {% endif %}
+                    {% if current_user.location %}
+                    <p class="location"><i class="fas fa-map-marker-alt"></i> {{ current_user.location }}</p>
+                    {% endif %}
+                    <a href="{{ url_for('forum.edit_profile') }}" class="btn btn-primary edit-profile-btn">Edit Profile</a>
+                </div>
             </div>
         </div>
     </div>
 
     <div class="profile-content">
-        <div class="profile-actions">
-            <a href="{{ url_for('forum.edit_profile') }}" class="btn btn-primary">Edit Profile</a>
-        </div>
 
         <div class="profile-section">
             <h2>About</h2>
@@ -43,18 +52,31 @@
         </div>
         {% endif %}
 
+        {% if current_user.skills %}
+        <div class="profile-section">
+            <h2><i class="fas fa-tools"></i> Skills</h2>
+            <div class="skills-tags">
+                {% for skill in current_user.skills.split(',') %}
+                <span class="skill-tag">{{ skill.strip() }}</span>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        {% if current_user.projects %}
+        <div class="profile-section">
+            <h2><i class="fas fa-project-diagram"></i> Projects</h2>
+            <div class="projects-content">
+                {{ current_user.projects | replace('\n', '<br>') | safe }}
+            </div>
+        </div>
+        {% endif %}
+
         <div class="profile-grid">
             <div class="profile-section">
                 <h3>Basic Information</h3>
                 <ul class="info-list">
                     <li><strong>Name:</strong> {{ current_user.name }}</li>
-                    <li><strong>Email:</strong> {{ current_user.email }}</li>
-                    {% if current_user.phone_number %}
-                    <li><strong>Phone:</strong> {{ current_user.phone_number }}</li>
-                    {% endif %}
-                    {% if current_user.whatsapp_number %}
-                    <li><strong>WhatsApp:</strong> {{ current_user.whatsapp_number }}</li>
-                    {% endif %}
                     <li><strong>Status:</strong> {{ current_user.status.title() }}</li>
                     {% if current_user.batch_number %}
                     <li><strong>Batch:</strong> {{ current_user.batch_number }}</li>
@@ -67,25 +89,59 @@
                 </ul>
             </div>
 
-            {% if current_user.skills or current_user.education or current_user.experience %}
             <div class="profile-section">
-                <h3>Professional Details</h3>
-                <ul class="info-list">
-                    {% if current_user.skills %}
-                    <li><strong>Skills:</strong> {{ current_user.skills }}</li>
+                <h3>Contact Details</h3>
+                <ul class="contact-list">
+                    <li><i class="fas fa-envelope"></i> <a href="mailto:{{ current_user.email }}">{{ current_user.email }}</a></li>
+                    {% if current_user.phone_number %}
+                    <li><i class="fas fa-phone"></i> <a href="tel:{{ current_user.phone_number }}">{{ current_user.phone_number }}</a></li>
                     {% endif %}
-                    {% if current_user.education %}
-                    <li><strong>Education:</strong> {{ current_user.education }}</li>
+                    {% if current_user.whatsapp_number %}
+                    <li><i class="fab fa-whatsapp"></i> <a href="https://wa.me/{{ current_user.whatsapp_number|replace('+', '')|replace(' ', '') }}" target="_blank">{{ current_user.whatsapp_number }}</a></li>
                     {% endif %}
-                    {% if current_user.experience %}
-                    <li><strong>Experience:</strong> {{ current_user.experience }}</li>
+                    {% if current_user.location %}
+                    <li><i class="fas fa-map-marker-alt"></i> {{ current_user.location }}</li>
                     {% endif %}
                 </ul>
             </div>
-            {% endif %}
+
         </div>
 
-        {% if current_user.languages or current_user.certifications or current_user.projects or current_user.publications %}
+        {% if experience_entries %}
+        <div class="profile-section">
+            <h2>Experience</h2>
+            <div class="timeline">
+                {% for entry in experience_entries %}
+                <div class="timeline-item {% if entry.type == 'education' %}education{% else %}work{% endif %}">
+                    <div class="timeline-marker"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-header">
+                            {% if entry.type == 'work' %}
+                                <h4>{{ entry.title }} at {{ entry.company }}</h4>
+                                <div class="timeline-type work-type">Work Experience</div>
+                            {% else %}
+                                <h4>{{ entry.degree }} at {{ entry.institution }}</h4>
+                                <div class="timeline-type education-type">Education</div>
+                            {% endif %}
+                        </div>
+                        <p class="date-range">
+                            {% if entry.start_date and entry.end_date %}
+                                {{ entry.start_date }} - {{ entry.end_date }}
+                            {% elif entry.start_date %}
+                                {{ entry.start_date }} - Present
+                            {% endif %}
+                        </p>
+                        {% if entry.description %}
+                        <p>{{ entry.description }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        {% if current_user.languages or current_user.certifications or current_user.publications %}
         <div class="profile-section">
             <h3>Additional Information</h3>
             <ul class="info-list">
@@ -95,9 +151,6 @@
                 {% if current_user.certifications %}
                 <li><strong>Certifications:</strong> {{ current_user.certifications }}</li>
                 {% endif %}
-                {% if current_user.projects %}
-                <li><strong>Projects:</strong> {{ current_user.projects }}</li>
-                {% endif %}
                 {% if current_user.publications %}
                 <li><strong>Publications:</strong> {{ current_user.publications }}</li>
                 {% endif %}
@@ -105,18 +158,13 @@
         </div>
         {% endif %}
 
-        {% if current_user.linkedin_url or current_user.github_url or current_user.website_url %}
+        {% if current_user.linkedin_url or current_user.website_url %}
         <div class="profile-section">
             <h3>Social Links</h3>
             <div class="social-links">
                 {% if current_user.linkedin_url %}
                 <a href="{{ current_user.linkedin_url }}" target="_blank" class="social-link">
                     <i class="fab fa-linkedin"></i> LinkedIn
-                </a>
-                {% endif %}
-                {% if current_user.github_url %}
-                <a href="{{ current_user.github_url }}" target="_blank" class="social-link">
-                    <i class="fab fa-github"></i> GitHub
                 </a>
                 {% endif %}
                 {% if current_user.website_url %}
@@ -142,10 +190,49 @@
     border-radius: 8px;
     position: relative;
     display: flex;
-    align-items: flex-end;
+    align-items: center;
     padding: 20px;
     color: white;
     text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+
+.profile-content-wrapper {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    gap: 20px;
+}
+
+.profile-avatar {
+    flex-shrink: 0;
+}
+
+.avatar-image, .avatar-placeholder {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    object-fit: cover;
+}
+
+.avatar-placeholder {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3em;
+    font-weight: bold;
+    color: white;
+}
+
+.profile-info {
+    flex: 1;
+    text-align: left;
+}
+
+.edit-profile-btn {
+    margin-top: 10px;
+    display: inline-block;
 }
 
 .profile-info h1 {
@@ -199,6 +286,32 @@
     margin-bottom: 10px;
     color: #555;
     font-size: 1.2em;
+}
+
+.skills-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.skill-tag {
+    background-color: #007bff;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.9em;
+    font-weight: 500;
+    display: inline-block;
+    transition: background-color 0.2s;
+}
+
+.skill-tag:hover {
+    background-color: #0056b3;
+}
+
+.projects-content {
+    line-height: 1.6;
+    color: #555;
 }
 
 .profile-grid {
@@ -278,18 +391,223 @@
     border-color: #0056b3;
 }
 
+.experience-list, .education-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.experience-item, .education-item {
+    padding: 15px;
+    border-left: 4px solid #007bff;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+}
+
+.experience-item h4, .education-item h4 {
+    margin: 0 0 5px 0;
+    color: #333;
+    font-size: 1.1em;
+}
+
+.date-range {
+    color: #666;
+    font-size: 0.9em;
+    margin: 5px 0;
+    font-style: italic;
+}
+
+.experience-item p, .education-item p {
+    margin: 8px 0 0 0;
+    color: #555;
+    line-height: 1.4;
+}
+
+.contact-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.contact-list li {
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    align-items: center;
+}
+
+.contact-list li:last-child {
+    border-bottom: none;
+}
+
+.contact-list i {
+    width: 20px;
+    margin-right: 10px;
+    color: #007bff;
+}
+
+.contact-list a {
+    color: #333;
+    text-decoration: none;
+}
+
+.contact-list a:hover {
+    color: #007bff;
+    text-decoration: underline;
+}
+
+.timeline {
+    position: relative;
+    padding-left: 30px;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background-color: #007bff;
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 30px;
+}
+
+.timeline-item:last-child {
+    margin-bottom: 0;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -22px;
+    top: 10px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: #007bff;
+    border: 2px solid #fff;
+    box-shadow: 0 0 0 2px #007bff;
+}
+
+.timeline-item.work .timeline-marker {
+    background-color: #28a745;
+    box-shadow: 0 0 0 2px #28a745;
+}
+
+.timeline-item.education .timeline-marker {
+    background-color: #ffc107;
+    box-shadow: 0 0 0 2px #ffc107;
+}
+
+.timeline-content {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    border-left: 4px solid #007bff;
+}
+
+.timeline-item.work .timeline-content {
+    border-left-color: #28a745;
+}
+
+.timeline-item.education .timeline-content {
+    border-left-color: #ffc107;
+}
+
+.timeline-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 10px;
+}
+
+.timeline-header h4 {
+    margin: 0;
+    color: #333;
+    font-size: 1.2em;
+}
+
+.timeline-type {
+    font-size: 0.8em;
+    font-weight: bold;
+    padding: 4px 8px;
+    border-radius: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.work-type {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.education-type {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.timeline-content .date-range {
+    color: #666;
+    font-size: 0.9em;
+    margin: 10px 0;
+    font-style: italic;
+}
+
+.timeline-content p {
+    margin: 10px 0 0 0;
+    color: #555;
+    line-height: 1.5;
+}
+
 @media (max-width: 768px) {
     .profile-grid {
         grid-template-columns: 1fr;
     }
 
     .cover-photo {
-        height: 150px;
+        height: 180px;
         padding: 15px;
+        align-items: flex-start;
+    }
+
+    .profile-content-wrapper {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 15px;
+    }
+
+    .profile-avatar {
+        order: -1;
+    }
+
+    .avatar-image, .avatar-placeholder {
+        width: 100px;
+        height: 100px;
+    }
+
+    .profile-info {
+        text-align: center;
     }
 
     .profile-info h1 {
         font-size: 1.5em;
+    }
+
+    .edit-profile-btn {
+        margin-top: 15px;
+    }
+
+    .skills-tags {
+        justify-content: center;
+    }
+
+    .skill-tag {
+        font-size: 0.8em;
+        padding: 4px 8px;
     }
 }
 </style>
