@@ -6,7 +6,9 @@ WTForms==3.0.1
 Werkzeug==2.3.7
 Flask-Migrate==4.0.5
 Flask-SocketIO==5.3.6
+Flask-CORS==4.0.0
 python-socketio==5.8.0
+PyJWT==2.8.0
 email_validator
 Pillow>=10.1.0
 gunicorn

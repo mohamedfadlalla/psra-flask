@@ -46,6 +46,10 @@ app.register_blueprint(forum_bp, url_prefix='/forum')
 from admin import admin_bp
 app.register_blueprint(admin_bp, url_prefix='/admin')
 
+# Register API blueprint
+from api import api_bp
+app.register_blueprint(api_bp)
+
 # Static Page Routes
 @app.route('/')
 def home():
