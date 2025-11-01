@@ -78,6 +78,9 @@
                     <li><a href="{{ url_for('home') }}" class="{% if request.endpoint == 'home' %}active{% endif %}">Home</a></li>
                     <li><a href="{{ url_for('research') }}">Research</a></li>
                     <li><a href="{{ url_for('forum.forum_main') }}">Forum</a></li>
+                    {% if current_user.is_authenticated %}
+                    <li><a href="{{ url_for('forum.users') }}">Find Users</a></li>
+                    {% endif %}
                     <li><a href="{{ url_for('events') }}">Events</a></li>
                     <li><a href="{{ url_for('support') }}">Support & Donations</a></li>
                     {% if not current_user.is_authenticated %}

@@ -3,6 +3,7 @@ from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.utils import secure_filename
 from PIL import Image
 import os
+import json
 from datetime import datetime
 from . import forum_bp
 from .forms import LoginForm, RegisterForm, PostForm, CommentForm, ProfileForm, PasswordChangeForm, MessageForm
@@ -482,3 +483,67 @@ def delete_conversation(user_id):
     # This would be sent via SocketIO in a real implementation
 
     return {'success': True, 'deleted_conversation_with': user_id}
+
+@forum_bp.route('/users')
+@login_required
+def users():
+    search = request.args.get('search', '').strip()
+    page = request.args.get('page', 1, type=int)
+    per_page = 20
+
+    query = User.query.filter(User.id != current_user.id)  # Exclude current user
+
+    if search:
+        # Search by name (case-insensitive partial match)
+        query = query.filter(User.name.ilike(f'%{search}%'))
+
+    # Order by name for consistent results
+    query = query.order_by(User.name)
+
+    # Paginate results
+    users_pagination = query.paginate(page=page, per_page=per_page, error_out=False)
+    users_list = users_pagination.items
+
+    return render_template('users.html',
+                         users=users_list,
+                         search=search,
+                         pagination=users_pagination)
+
+@forum_bp.route('/user/<int:user_id>')
+@login_required
+def user_profile(user_id):
+    user = User.query.get_or_404(user_id)
+
+    # Prevent users from viewing their own profile through this route
+    if user.id == current_user.id:
+        return redirect(url_for('forum.profile'))
+
+    # Parse JSON data for template
+    experience_entries = []
+    education_entries = []
+
+    if user.experience:
+        try:
+            experience_entries = json.loads(user.experience)
+        except (json.JSONDecodeError, TypeError):
+            experience_entries = []
+
+    if user.education:
+        try:
+            education_entries = json.loads(user.education)
+        except (json.JSONDecodeError, TypeError):
+            education_entries = []
+
+    # Combine experience and education into chronological timeline
+    combined_experience = []
+    for entry in experience_entries:
+        entry['type'] = 'work'
+        combined_experience.append(entry)
+    for entry in education_entries:
+        entry['type'] = 'education'
+        combined_experience.append(entry)
+
+    # Sort by start_date descending (most recent first)
+    combined_experience.sort(key=lambda x: x.get('start_date', ''), reverse=True)
+
+    return render_template('user_profile.html', user=user, experience_entries=combined_experience)
