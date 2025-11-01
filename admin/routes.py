@@ -6,6 +6,7 @@ from . import admin_bp
 from datetime import datetime
 import os
 from werkzeug.utils import secure_filename
+from utils.email_utils import send_event_notification
 
 def admin_required(f):
     @wraps(f)
@@ -212,7 +213,19 @@ def create_event():
             )
             db.session.add(event)
             db.session.commit()
-            flash('Event created successfully.', 'success')
+
+            # Send email notification to all users about the new event
+            try:
+                success_count, failure_count = send_event_notification(event)
+                if success_count > 0:
+                    flash(f'Event created successfully. Notifications sent to {success_count} users.', 'success')
+                else:
+                    flash('Event created successfully, but no email notifications were sent.', 'warning')
+            except Exception as e:
+                # Log the error but don't fail the event creation
+                current_app.logger.error(f"Failed to send event notification: {str(e)}")
+                flash('Event created successfully, but email notifications failed.', 'warning')
+
             return redirect(url_for('admin.manage_events'))
         except Exception as e:
             db.session.rollback()
