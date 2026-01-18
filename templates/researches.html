@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}Researches - PSRA{% endblock %}
+
+{% block content %}
+<section class="section py-12">
+    <div class="container mx-auto px-4">
+        <h1 class="text-3xl font-heading font-bold text-primary-blue mb-8 text-center">Research Publications</h1>
+        
+        <div class="bg-white shadow-md rounded-lg overflow-hidden">
+            {% if researches %}
+            <div class="overflow-x-auto">
+                <table class="min-w-full leading-normal">
+                    <thead>
+                        <tr>
+                            <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                Researcher
+                            </th>
+                            <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                Title
+                            </th>
+                            <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                Department
+                            </th>
+                            <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                Year
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for research in researches %}
+                        <tr>
+                            <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                                <p class="text-gray-900 whitespace-no-wrap font-medium">{{ research['Name of Researcher'] }}</p>
+                            </td>
+                            <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                                <a href="{{ research['DOI of the Research'] }}" target="_blank" class="text-primary-blue hover:text-blue-800 hover:underline">
+                                    {{ research['Title of Research'] }}
+                                </a>
+                            </td>
+                            <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                                <p class="text-gray-900 whitespace-no-wrap">{{ research['Department Name'] }}</p>
+                            </td>
+                            <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                                <span class="relative inline-block px-3 py-1 font-semibold text-green-900 leading-tight">
+                                    <span aria-hidden class="absolute inset-0 bg-green-200 opacity-50 rounded-full"></span>
+                                    <span class="relative">{{ research['Date'] }}</span>
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="p-8 text-center text-gray-500">
+                <p>No research publications found.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -7,6 +7,7 @@ from flask_mail import Mail
 from models import db, User, Message
 from datetime import datetime
 import os
+import csv
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your-secret-key-change-in-production'
@@ -69,7 +70,17 @@ def home():
 
 @app.route('/research')
 def research():
-    return render_template('placeholder.html', title='Research', content='Content for this page is coming soon. Please check back later.')
+    researches = []
+    csv_path = os.path.join(app.root_path, 'researches.csv')
+    if os.path.exists(csv_path):
+        try:
+            with open(csv_path, 'r', encoding='utf-8') as f:
+                reader = csv.DictReader(f)
+                researches = list(reader)
+        except Exception as e:
+            print(f"Error reading researches CSV: {e}")
+            
+    return render_template('researches.html', researches=researches)
 
 @app.route('/events')
 def events():
