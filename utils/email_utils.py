@@ -179,3 +179,217 @@ def send_event_notification(event):
 
     logging.info(f"Event notification sent: {success_count} successful, {failure_count} failed")
     return success_count, failure_count
+
+
+def send_event_reminder_email(user, event):
+    """
+    Send an event reminder email to a user.
+    
+    Args:
+        user: User model instance
+        event: Event model instance
+        
+    Returns:
+        bool: True if email sent successfully, False otherwise
+    """
+    event_date_str = event.event_date.strftime('%B %d, %Y')
+    event_time_str = event.event_time.strftime('%I:%M %p') if event.event_time else 'TBD'
+    
+    subject = f"Reminder: {event.title} - PSRA Event"
+    
+    html_template = """
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8">
+        <style>
+            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .header { background-color: #667eea; color: white; padding: 20px; text-align: center; }
+            .content { padding: 20px; background-color: #f9f9f9; }
+            .event-details { background-color: white; padding: 15px; border-radius: 5px; margin: 15px 0; }
+            .event-title { font-size: 24px; font-weight: bold; color: #667eea; margin-bottom: 10px; }
+            .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>Event Reminder</h1>
+            </div>
+            <div class="content">
+                <p>Dear {{ user.name }},</p>
+                
+                <p>This is a reminder that the following event is happening soon:</p>
+                
+                <div class="event-details">
+                    <div class="event-title">{{ event.title }}</div>
+                    <p><strong>Date:</strong> {{ event_date_str }}</p>
+                    <p><strong>Time:</strong> {{ event_time_str }}</p>
+                    {% if event.presenter %}
+                    <p><strong>Presenter:</strong> {{ event.presenter }}</p>
+                    {% endif %}
+                    {% if event.event_url %}
+                    <p><strong>Link:</strong> <a href="{{ event.event_url }}">Join Event</a></p>
+                    {% endif %}
+                </div>
+                
+                <p>Best regards,<br>PSRA Team</p>
+            </div>
+            <div class="footer">
+                <p>This is an automated notification from the PSRA website.</p>
+            </div>
+        </div>
+    </body>
+    </html>
+    """
+    
+    html_body = render_template_string(html_template, user=user, event=event, 
+                                        event_date_str=event_date_str, event_time_str=event_time_str)
+    
+    return send_email(subject, [user.email], html_body)
+
+
+def send_new_research_email(user, research):
+    """
+    Send a new research publication notification email.
+    
+    Args:
+        user: User model instance
+        research: Research model instance
+        
+    Returns:
+        bool: True if email sent successfully, False otherwise
+    """
+    subject = f"New Research: {research.title[:50]}... - PSRA"
+    
+    html_template = """
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8">
+        <style>
+            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .header { background-color: #667eea; color: white; padding: 20px; text-align: center; }
+            .content { padding: 20px; background-color: #f9f9f9; }
+            .research-details { background-color: white; padding: 15px; border-radius: 5px; margin: 15px 0; }
+            .research-title { font-size: 20px; font-weight: bold; color: #667eea; margin-bottom: 10px; }
+            .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>New Research Publication</h1>
+            </div>
+            <div class="content">
+                <p>Dear {{ user.name }},</p>
+                
+                <p>A new research publication has been added to our database:</p>
+                
+                <div class="research-details">
+                    <div class="research-title">{{ research.title }}</div>
+                    <p><strong>Author:</strong> {{ research.author.name }}</p>
+                    <p><strong>Department:</strong> {{ research.department }}</p>
+                    <p><strong>Year:</strong> {{ research.year }}</p>
+                    {% if research.doi_url %}
+                    <p><strong>Link:</strong> <a href="{{ research.doi_url }}">View Publication</a></p>
+                    {% endif %}
+                </div>
+                
+                <p>Visit our website to explore more research publications.</p>
+                
+                <p>Best regards,<br>PSRA Team</p>
+            </div>
+            <div class="footer">
+                <p>This is an automated notification from the PSRA website.</p>
+            </div>
+        </div>
+    </body>
+    </html>
+    """
+    
+    html_body = render_template_string(html_template, user=user, research=research)
+    
+    return send_email(subject, [user.email], html_body)
+
+
+def send_research_status_email(user, research, status, reason=None):
+    """
+    Send a research submission status update email.
+    
+    Args:
+        user: User model instance
+        research: Research model instance (or dict with title and author name)
+        status: 'approved' or 'rejected'
+        reason: Optional reason for rejection
+        
+    Returns:
+        bool: True if email sent successfully, False otherwise
+    """
+    if status == 'approved':
+        subject = "Your Research Submission Has Been Approved - PSRA"
+        status_color = "#28a745"
+        status_message = "Congratulations! Your research submission has been approved."
+    else:
+        subject = "Your Research Submission Has Been Rejected - PSRA"
+        status_color = "#dc3545"
+        status_message = "We're sorry, but your research submission has been rejected."
+    
+    # Handle both Research object and dict
+    if hasattr(research, 'title'):
+        title = research.title
+        author_name = research.author.name if research.author else 'Unknown'
+    else:
+        title = research.get('title', 'Unknown')
+        author_name = research.get('author_name', 'Unknown')
+    
+    html_template = """
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8">
+        <style>
+            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .header { background-color: {{ status_color }}; color: white; padding: 20px; text-align: center; }
+            .content { padding: 20px; background-color: #f9f9f9; }
+            .research-details { background-color: white; padding: 15px; border-radius: 5px; margin: 15px 0; }
+            .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>Research Submission Update</h1>
+            </div>
+            <div class="content">
+                <p>Dear {{ user.name }},</p>
+                
+                <p>{{ status_message }}</p>
+                
+                <div class="research-details">
+                    <p><strong>Title:</strong> {{ title }}</p>
+                    <p><strong>Author:</strong> {{ author_name }}</p>
+                </div>
+                
+                {% if reason %}
+                <p><strong>Reason:</strong> {{ reason }}</p>
+                {% endif %}
+                
+                <p>Best regards,<br>PSRA Team</p>
+            </div>
+            <div class="footer">
+                <p>This is an automated notification from the PSRA website.</p>
+            </div>
+        </div>
+    </body>
+    </html>
+    """
+    
+    html_body = render_template_string(html_template, user=user, title=title, 
+                                        author_name=author_name, status_message=status_message,
+                                        status_color=status_color, reason=reason)
+    
+    return send_email(subject, [user.email], html_body)

@@ -1,194 +1,288 @@
+"""
+PSRA Flask Application
+
+Main application module for the Pharmaceutical Studies and Research Association website.
+"""
+
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from flask_migrate import Migrate
 from flask_socketio import SocketIO, emit, join_room, leave_room
 from flask_mail import Mail
-from models import db, User, Message
 from datetime import datetime
 import os
 import csv
 
+from config import Config
+from models import db, User, Message, Post, Comment, Event, Research, Researcher
+from services import EventService, MessageService, ResearchService
+from utils.constants import FLASH_SUCCESS, FLASH_ERROR
+
+
+# Initialize Flask app
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'your-secret-key-change-in-production'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///psra.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['UPLOAD_FOLDER'] = 'static/profile_images'
+app.config.from_object(Config)
 
-# Configure Flask-Mail
-app.config['MAIL_SERVER'] = os.environ.get('MAIL_SERVER', 'smtp.gmail.com')
-app.config['MAIL_PORT'] = int(os.environ.get('MAIL_PORT', 587))
-app.config['MAIL_USE_TLS'] = os.environ.get('MAIL_USE_TLS', 'True').lower() == 'true'
-app.config['MAIL_USE_SSL'] = os.environ.get('MAIL_USE_SSL', 'False').lower() == 'true'
-app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME')
-app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
-app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('MAIL_DEFAULT_SENDER', os.environ.get('MAIL_USERNAME'))
-
-mail = Mail(app)
-
+# Initialize extensions
 db.init_app(app)
 migrate = Migrate(app, db)
+mail = Mail(app)
+socketio = SocketIO(app, cors_allowed_origins="*")
 
+# Initialize LoginManager
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'forum.login'
 login_manager.login_message = 'Please log in to access this page.'
 
-# Initialize SocketIO with CORS enabled for real-time messaging
-socketio = SocketIO(app, cors_allowed_origins="*")
 
 @login_manager.user_loader
 def load_user(user_id):
+    """Load user by ID for Flask-Login."""
     return User.query.get(int(user_id))
 
-# Context processor to make unread message count available to all templates
+
+# Context processor for unread message count
 @app.context_processor
 def inject_unread_messages():
+    """Make unread message count available to all templates."""
     if current_user.is_authenticated:
         unread_count = Message.query.filter_by(receiver_id=current_user.id, is_read=False).count()
         return {'unread_message_count': unread_count}
     return {'unread_message_count': 0}
 
-# Import models to register them with db
-from models import Post, Comment, Like, Event, Message
 
-# Register forum blueprint
+# Register blueprints
 from forum import forum_bp
 app.register_blueprint(forum_bp, url_prefix='/forum')
 
-# Register admin blueprint
 from admin import admin_bp
 app.register_blueprint(admin_bp, url_prefix='/admin')
 
-# Static Page Routes
+
+# ==================== Static Page Routes ====================
+
 @app.route('/')
 def home():
-    # Fetch recent comments for display on home page
-    from models import Comment
+    """Display home page with recent comments."""
     recent_comments = Comment.query.order_by(Comment.created_at.desc()).limit(5).all()
     return render_template('home.html', recent_comments=recent_comments)
 
+
 @app.route('/research')
 def research():
-    researches = []
-    csv_path = os.path.join(app.root_path, 'researches.csv')
-    if os.path.exists(csv_path):
-        try:
-            with open(csv_path, 'r', encoding='utf-8') as f:
-                reader = csv.DictReader(f)
-                researches = list(reader)
-        except Exception as e:
-            print(f"Error reading researches CSV: {e}")
-            
-    return render_template('researches.html', researches=researches)
+    """Display research publications page with filtering."""
+    # Get filter parameters
+    department = request.args.get('department', 'all')
+    year = request.args.get('year', 'all')
+    researcher_id = request.args.get('researcher', type=int)
+    researcher_type = request.args.get('researcher_type', 'all')
+    search_query = request.args.get('search', '').strip()
+    page = request.args.get('page', 1, type=int)
+    
+    # Apply filters using the service
+    pagination = ResearchService.filter_researches(
+        department=department,
+        year=year,
+        researcher_id=researcher_id,
+        researcher_type=researcher_type,
+        search_query=search_query if search_query else None,
+        page=page,
+        per_page=12
+    )
+    
+    # Get filter choices and statistics
+    year_choices = ResearchService.get_year_choices()
+    researchers = ResearchService.get_all_researchers()
+    statistics = ResearchService.get_research_statistics()
+    
+    return render_template(
+        'researches.html',
+        researches=pagination.items,
+        pagination=pagination,
+        department_choices=ResearchService.DEPARTMENT_CHOICES if hasattr(ResearchService, 'DEPARTMENT_CHOICES') else [],
+        year_choices=year_choices,
+        researcher_type_choices=ResearchService.RESEARCHER_TYPE_CHOICES if hasattr(ResearchService, 'RESEARCHER_TYPE_CHOICES') else [],
+        researchers=researchers,
+        statistics=statistics,
+        current_department=department,
+        current_year=year,
+        current_researcher=researcher_id,
+        current_researcher_type=researcher_type,
+        search_query=search_query
+    )
+
+
+@app.route('/researchers')
+def researchers():
+    """Display all researchers page."""
+    researchers_list = ResearchService.get_all_researchers()
+    statistics = ResearchService.get_research_statistics()
+    
+    return render_template(
+        'researchers.html',
+        researchers=researchers_list,
+        statistics=statistics
+    )
+
+
+@app.route('/researcher/<int:researcher_id>')
+def researcher_profile(researcher_id):
+    """Display researcher profile page."""
+    profile_data = ResearchService.get_researcher_profile(researcher_id)
+    
+    if not profile_data:
+        flash('Researcher not found.', FLASH_ERROR)
+        return redirect(url_for('researchers'))
+    
+    return render_template(
+        'researcher_profile.html',
+        researcher=profile_data['researcher'],
+        researches=profile_data['researches'],
+        departments=profile_data['departments'],
+        total_researches=profile_data['total_researches']
+    )
+
+
+@app.route('/submit-research', methods=['GET', 'POST'])
+@login_required
+def submit_research():
+    """Submit a new research for approval."""
+    from forum.forms import ResearchSubmissionForm
+    
+    form = ResearchSubmissionForm()
+    
+    if form.validate_on_submit():
+        research = ResearchService.submit_research(
+            title=form.title.data,
+            researcher_name=form.researcher_name.data,
+            department=form.department.data,
+            year=form.year.data,
+            doi_url=form.doi_url.data if form.doi_url.data else None,
+            researcher_type=form.researcher_type.data,
+            submitted_by=current_user.id
+        )
+        
+        flash('Your research has been submitted for approval. You will be notified once it is reviewed.', FLASH_SUCCESS)
+        return redirect(url_for('research'))
+    
+    return render_template(
+        'submit_research.html',
+        form=form
+    )
+
+
+@app.route('/api/search-researchers')
+def api_search_researchers():
+    """API endpoint to search researchers for autocomplete."""
+    query = request.args.get('q', '')
+    if len(query) < 2:
+        return jsonify([])
+    
+    researchers = ResearchService.search_researchers(query, limit=10)
+    return jsonify([{'id': r.id, 'name': r.name} for r in researchers])
+
 
 @app.route('/events')
 def events():
-    from models import Event
-    from datetime import datetime, date
+    """Display events page with categorized events."""
+    events_data = EventService.get_categorized_events()
+    return render_template('events.html', 
+                          live_events=events_data['live'],
+                          upcoming_events=events_data['upcoming'],
+                          archived_events=events_data['archived'])
 
-    today = date.today()
-    now = datetime.now().time()
-
-    # Archive past events automatically
-    past_events = Event.query.filter(
-        (Event.event_date < today) |
-        ((Event.event_date == today) & (Event.event_time <= now) & (Event.event_time.isnot(None)))
-    ).filter(Event.is_archived == False).all()
-
-    for event in past_events:
-        event.is_archived = True
-
-    if past_events:
-        db.session.commit()
-
-    # Get live events (today with future times)
-    live_events = Event.query.filter(
-        (Event.event_date == today) & (Event.event_time > now) & (Event.event_time.isnot(None))
-    ).filter(Event.is_archived == False).order_by(Event.event_time.asc()).all()
-
-    # Get upcoming events (future dates)
-    upcoming_events = Event.query.filter(Event.event_date > today).filter(Event.is_archived == False).order_by(Event.event_date.asc(), Event.event_time.asc()).all()
-
-    # Get archived events
-    archived_events = Event.query.filter(Event.is_archived == True).order_by(Event.event_date.desc(), Event.event_time.desc()).all()
-
-    return render_template('events.html', live_events=live_events, upcoming_events=upcoming_events, archived_events=archived_events)
 
 @app.route('/support')
 def support():
-    return render_template('placeholder.html', title='Support & Donations', content='Content for this page is coming soon. Please check back later.')
+    """Display support and donations page."""
+    return render_template('placeholder.html', 
+                          title='Support & Donations', 
+                          content='Content for this page is coming soon. Please check back later.')
+
 
 @app.route('/about')
 def about():
+    """Display about page."""
     return render_template('about.html')
+
 
 @app.route('/collaborate')
 def collaborate():
+    """Display collaborate page."""
     return render_template('collaborate.html')
+
 
 @app.route('/contact')
 def contact():
+    """Display contact page."""
     return render_template('contact.html')
+
 
 @app.route('/privacy')
 def privacy():
-    return render_template('placeholder.html', title='Privacy Policy', content='Content for this page is coming soon. Please check back later.')
+    """Display privacy policy page."""
+    return render_template('placeholder.html', 
+                          title='Privacy Policy', 
+                          content='Content for this page is coming soon. Please check back later.')
+
 
 @app.route('/faq')
 def faq():
-    return render_template('placeholder.html', title='FAQ', content='Content for this page is coming soon. Please check back later.')
+    """Display FAQ page."""
+    return render_template('placeholder.html', 
+                          title='FAQ', 
+                          content='Content for this page is coming soon. Please check back later.')
 
-# Forum main redirect
+
+# ==================== Forum Redirect ====================
+
 @app.route('/forum')
 def forum_redirect():
+    """Redirect /forum to main forum page."""
     return redirect(url_for('forum.forum_main'))
 
-# API route for next event
+
+# ==================== API Routes ====================
+
 @app.route('/api/next-event')
 def get_next_event():
-    from models import Event
-    from datetime import datetime, date
-
-    today = date.today()
-    next_event = Event.query.filter(
-        (Event.event_date > today) |
-        ((Event.event_date == today) & (Event.event_time > datetime.now().time()) & (Event.event_time.isnot(None)))
-    ).order_by(Event.event_date.asc(), Event.event_time.asc()).first()
-
+    """Get the next upcoming event as JSON."""
+    next_event = EventService.get_next_event()
+    
     if next_event:
-        event_datetime = datetime.combine(next_event.event_date, next_event.event_time) if next_event.event_time else datetime.combine(next_event.event_date, datetime.min.time())
-        return {
-            'title': next_event.title,
-            'description': next_event.description,
-            'event_datetime': event_datetime.isoformat(),
-            'has_time': next_event.event_time is not None,
-            'image_url': next_event.image_url
-        }
+        return EventService.get_event_data(next_event)
     return {'no_event': True}
 
-# API endpoint for unread message count
+
 @app.route('/api/unread-count')
 @login_required
 def get_unread_count():
+    """Get unread message count for current user."""
     unread_count = Message.query.filter_by(receiver_id=current_user.id, is_read=False).count()
     return {'count': unread_count}
 
-# SocketIO event handlers for real-time messaging
-typing_users = {}  # Global dict to track typing status: {conversation_id: {user_id: True/False}}
+
+# ==================== SocketIO Event Handlers ====================
+
+# Global dict to track typing status
+typing_users = {}
+
 
 @socketio.on('join')
 def handle_join(data):
-    """User joins their personal room for receiving messages"""
+    """Handle user joining their personal room."""
     user_id = data.get('user_id')
     if user_id:
         room = f"user_{user_id}"
         join_room(room)
         emit('joined', {'room': room})
 
+
 @socketio.on('send_message')
 def handle_send_message(data):
-    """Handle real-time message sending"""
+    """Handle real-time message sending."""
     sender_id = data.get('sender_id')
     receiver_id = data.get('receiver_id')
     content = data.get('content')
@@ -198,25 +292,10 @@ def handle_send_message(data):
         return
 
     # Create message in database
-    message = Message(
-        sender_id=sender_id,
-        receiver_id=receiver_id,
-        content=content
-    )
-    db.session.add(message)
-    db.session.commit()
-
+    message = MessageService.send_message(sender_id, receiver_id, content)
+    
     # Prepare message data for emission
-    message_data = {
-        'id': message.id,
-        'sender_id': message.sender_id,
-        'receiver_id': message.receiver_id,
-        'content': message.content,
-        'is_read': message.is_read,
-        'read_at': message.read_at.isoformat() if message.read_at else None,
-        'created_at': message.created_at.isoformat(),
-        'sender_name': message.sender.name
-    }
+    message_data = MessageService.get_message_data(message)
 
     # Send to receiver's room
     receiver_room = f"user_{receiver_id}"
@@ -225,9 +304,10 @@ def handle_send_message(data):
     # Send confirmation to sender
     emit('message_sent', message_data)
 
+
 @socketio.on('typing_start')
 def handle_typing_start(data):
-    """Handle typing start event"""
+    """Handle typing start event."""
     sender_id = data.get('sender_id')
     receiver_id = data.get('receiver_id')
 
@@ -239,11 +319,13 @@ def handle_typing_start(data):
 
         # Notify the receiver
         receiver_room = f"user_{receiver_id}"
-        emit('typing_started', {'user_id': sender_id, 'user_name': User.query.get(sender_id).name}, room=receiver_room)
+        user = User.query.get(sender_id)
+        emit('typing_started', {'user_id': sender_id, 'user_name': user.name}, room=receiver_room)
+
 
 @socketio.on('typing_stop')
 def handle_typing_stop(data):
-    """Handle typing stop event"""
+    """Handle typing stop event."""
     sender_id = data.get('sender_id')
     receiver_id = data.get('receiver_id')
 
@@ -256,35 +338,135 @@ def handle_typing_stop(data):
         receiver_room = f"user_{receiver_id}"
         emit('typing_stopped', {'user_id': sender_id}, room=receiver_room)
 
+
 @socketio.on('mark_read')
 def handle_mark_read(data):
-    """Mark messages as read and notify sender"""
-    user_id = data.get('user_id')  # Current user (receiver)
-    other_user_id = data.get('other_user_id')  # Conversation partner
+    """Mark messages as read and notify sender."""
+    user_id = data.get('user_id')
+    other_user_id = data.get('other_user_id')
 
     if user_id and other_user_id:
-        # Mark unread messages from other_user as read
-        unread_messages = Message.query.filter_by(
-            sender_id=other_user_id,
-            receiver_id=user_id,
-            is_read=False
-        ).all()
-
-        for message in unread_messages:
-            message.is_read = True
-            message.read_at = datetime.utcnow()
-
-        if unread_messages:
-            db.session.commit()
-
+        count = MessageService.mark_messages_as_read(user_id, other_user_id)
+        
+        if count > 0:
             # Notify sender that messages were read
             sender_room = f"user_{other_user_id}"
-            read_message_ids = [msg.id for msg in unread_messages]
             emit('messages_read', {
                 'reader_id': user_id,
-                'message_ids': read_message_ids,
                 'read_at': datetime.utcnow().isoformat()
             }, room=sender_room)
+
+
+# ==================== CLI Commands for Notifications ====================
+
+import click
+from utils.notification_utils import send_scheduled_event_reminders, send_new_research_alert
+from utils.email_utils import send_event_reminder_email, send_new_research_email
+
+
+@app.cli.command('send-event-reminders')
+def send_event_reminders_command():
+    """Send event reminder notifications to users who have them enabled.
+    
+    This command should be scheduled to run daily via a cron job or task scheduler.
+    Example cron entry: 0 9 * * * cd /path/to/app && flask send-event-reminders
+    """
+    click.echo('Sending event reminders...')
+    
+    try:
+        count = send_scheduled_event_reminders(
+            send_email_func=send_event_reminder_email
+        )
+        click.echo(f'Successfully sent {count} event reminders.')
+    except Exception as e:
+        click.echo(f'Error sending event reminders: {str(e)}', err=True)
+        raise
+
+
+@app.cli.command('send-new-research-alerts')
+@click.option('--research-id', type=int, help='Send alert for a specific research ID')
+def send_new_research_alerts_command(research_id):
+    """Send new research publication alerts to subscribed users.
+    
+    If research-id is provided, sends alert for that specific research.
+    Otherwise, sends alerts for all newly approved research from the last 24 hours.
+    """
+    click.echo('Sending new research alerts...')
+    
+    try:
+        if research_id:
+            # Send alert for specific research
+            research = Research.query.get(research_id)
+            if not research:
+                click.echo(f'Research with ID {research_id} not found.', err=True)
+                return
+            
+            count = send_new_research_alert(
+                research=research,
+                send_email_func=send_new_research_email
+            )
+            click.echo(f'Sent {count} alerts for research: {research.title[:50]}...')
+        else:
+            # Send alerts for research approved in last 24 hours
+            from datetime import timedelta
+            cutoff = datetime.utcnow() - timedelta(hours=24)
+            new_researches = Research.query.filter(
+                Research.is_approved == True,
+                Research.created_at >= cutoff
+            ).all()
+            
+            total_sent = 0
+            for research in new_researches:
+                count = send_new_research_alert(
+                    research=research,
+                    send_email_func=send_new_research_email
+                )
+                total_sent += count
+            
+            click.echo(f'Sent {total_sent} alerts for {len(new_researches)} new research publications.')
+    except Exception as e:
+        click.echo(f'Error sending new research alerts: {str(e)}', err=True)
+        raise
+
+
+@app.cli.command('notification-stats')
+def notification_stats_command():
+    """Display notification statistics."""
+    from models import NotificationLog
+    from datetime import timedelta
+    
+    # Get stats for different time periods
+    now = datetime.utcnow()
+    
+    # Last 24 hours
+    day_ago = now - timedelta(hours=24)
+    day_count = NotificationLog.query.filter(NotificationLog.sent_at >= day_ago).count()
+    
+    # Last 7 days
+    week_ago = now - timedelta(days=7)
+    week_count = NotificationLog.query.filter(NotificationLog.sent_at >= week_ago).count()
+    
+    # Last 30 days
+    month_ago = now - timedelta(days=30)
+    month_count = NotificationLog.query.filter(NotificationLog.sent_at >= month_ago).count()
+    
+    # By type
+    event_reminders = NotificationLog.query.filter_by(notification_type='event_reminder').count()
+    research_alerts = NotificationLog.query.filter_by(notification_type='new_research').count()
+    status_updates = NotificationLog.query.filter_by(notification_type='research_status').count()
+    
+    click.echo('\n=== Notification Statistics ===')
+    click.echo(f'Last 24 hours: {day_count}')
+    click.echo(f'Last 7 days: {week_count}')
+    click.echo(f'Last 30 days: {month_count}')
+    click.echo('\nBy Type:')
+    click.echo(f'  Event Reminders: {event_reminders}')
+    click.echo(f'  New Research Alerts: {research_alerts}')
+    click.echo(f'  Research Status Updates: {status_updates}')
+    click.echo(f'  Total: {event_reminders + research_alerts + status_updates}')
+
+
+# ==================== Application Entry Point ====================
 
 if __name__ == '__main__':
     with app.app_context():

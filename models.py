@@ -31,6 +31,10 @@ class User(UserMixin, db.Model):
     publications = db.Column(db.Text, nullable=True)  # Research publications
     professional_summary = db.Column(db.Text, nullable=True)  # Separate from about
     is_admin = db.Column(db.Boolean, default=False)
+    # Notification preferences
+    email_notifications_enabled = db.Column(db.Boolean, default=True)
+    event_reminders_enabled = db.Column(db.Boolean, default=True)
+    new_research_alerts_enabled = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     posts = db.relationship('Post', backref='author', lazy=True)
@@ -93,3 +97,67 @@ class Message(db.Model):
 
     sender = db.relationship('User', foreign_keys=[sender_id], backref='sent_messages')
     receiver = db.relationship('User', foreign_keys=[receiver_id], backref='received_messages')
+
+
+class Researcher(db.Model):
+    """Model for researchers (doctors and students) who author research papers."""
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(200), nullable=False, unique=True)
+    profile_picture_url = db.Column(db.String(200), default=None)
+    bio = db.Column(db.Text, nullable=True)
+    is_registered_user = db.Column(db.Boolean, default=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Relationship to research papers
+    researches = db.relationship('Research', backref='author', lazy=True, cascade='all, delete-orphan')
+    
+    def __repr__(self):
+        return f'<Researcher {self.name}>'
+
+
+class Research(db.Model):
+    """Model for research papers/publications."""
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(500), nullable=False)
+    doi_url = db.Column(db.String(500), nullable=True)
+    department = db.Column(db.String(100), nullable=False)
+    year = db.Column(db.Integer, nullable=False)
+    researcher_id = db.Column(db.Integer, db.ForeignKey('researcher.id'), nullable=False)
+    researcher_type = db.Column(db.String(20), default='doctor')  # 'doctor' or 'student'
+    is_approved = db.Column(db.Boolean, default=True)  # For submitted research pending approval
+    submitted_by = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)  # User who submitted
+    submitted_by_user = db.relationship('User', foreign_keys=[submitted_by], backref='submitted_researches')
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    def __repr__(self):
+        return f'<Research {self.title}>'
+    
+    @property
+    def department_choices(self):
+        """Return list of valid departments."""
+        return [
+            'Pharmaceutics & Drug Delivery',
+            'Pharmacology & Toxicology',
+            'Clinical Pharmacy & Pharmacy Practice',
+            'Pharmaceutical Chemistry'
+        ]
+
+
+class NotificationLog(db.Model):
+    """Model to track sent notifications."""
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)  # Null for bulk notifications
+    notification_type = db.Column(db.String(50), nullable=False)  # 'event_reminder', 'new_research', 'research_approved', 'research_rejected'
+    reference_id = db.Column(db.Integer, nullable=True)  # event_id or research_id
+    recipient_email = db.Column(db.String(120), nullable=False)  # Email sent to
+    subject = db.Column(db.String(200), nullable=False)  # Email subject
+    sent_at = db.Column(db.DateTime, default=datetime.utcnow)
+    status = db.Column(db.String(20), default='sent')  # 'sent', 'failed'
+    error_message = db.Column(db.Text, nullable=True)  # Error details if failed
+    
+    # Relationship to user
+    user = db.relationship('User', backref='notification_logs')
+    
+    def __repr__(self):
+        return f'<NotificationLog {self.notification_type} to {self.recipient_email}>'

@@ -1,27 +1,32 @@
-from flask import render_template, redirect, url_for, flash, request, jsonify, current_app
+"""
+Admin Routes Module
+
+Routes for admin panel functionality including content moderation and event management.
+"""
+
+from flask import render_template, redirect, url_for, flash, request, current_app
 from flask_login import login_required, current_user
-from functools import wraps
-from models import db, User, Post, Comment, Event
-from . import admin_bp
 from datetime import datetime
 import os
-from werkzeug.utils import secure_filename
-from utils.email_utils import send_event_notification
 
-def admin_required(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if not current_user.is_authenticated or not current_user.is_admin:
-            flash('Access denied. Admin privileges required.', 'error')
-            return redirect(url_for('home'))
-        return f(*args, **kwargs)
-    return decorated_function
+from . import admin_bp
+from models import db, User, Post, Comment, Event, Research, Researcher
+from utils.decorators import admin_required
+from utils.constants import FLASH_SUCCESS, FLASH_ERROR, FLASH_WARNING, DEFAULT_PER_PAGE
+from utils.image_utils import save_event_image, delete_file, get_event_image_path
+from utils.query_helpers import paginate_query
+from services import EventService, ResearchService
+from utils.email_utils import send_event_notification, send_research_status_email
+from utils.notification_utils import send_research_approved_notification, send_research_rejected_notification
+
+
+# ==================== Dashboard ====================
 
 @admin_bp.route('/')
 @login_required
 @admin_required
 def admin_dashboard():
-    # Get statistics for dashboard
+    """Display admin dashboard with statistics."""
     total_users = User.query.count()
     total_posts = Post.query.count()
     total_comments = Comment.query.count()
@@ -38,14 +43,15 @@ def admin_dashboard():
                          recent_posts=recent_posts,
                          recent_comments=recent_comments)
 
+
+# ==================== Post Management ====================
+
 @admin_bp.route('/posts')
 @login_required
 @admin_required
 def manage_posts():
+    """Display posts for management with filtering and pagination."""
     page = request.args.get('page', 1, type=int)
-    per_page = 20
-
-    # Get filter parameters
     search = request.args.get('search', '')
     category = request.args.get('category', '')
     author = request.args.get('author', '')
@@ -59,11 +65,10 @@ def manage_posts():
     if author:
         query = query.join(User).filter(User.name.contains(author))
 
-    posts = query.order_by(Post.created_at.desc()).paginate(page=page, per_page=per_page, error_out=False)
+    posts = paginate_query(query.order_by(Post.created_at.desc()), page)
 
     # Get unique categories for filter dropdown
-    categories = db.session.query(Post.category).distinct().all()
-    categories = [cat[0] for cat in categories]
+    categories = [cat[0] for cat in db.session.query(Post.category).distinct().all()]
 
     return render_template('admin/posts.html',
                          posts=posts,
@@ -72,10 +77,12 @@ def manage_posts():
                          author=author,
                          categories=categories)
 
+
 @admin_bp.route('/posts/<int:post_id>/edit', methods=['GET', 'POST'])
 @login_required
 @admin_required
 def edit_post(post_id):
+    """Edit a post."""
     post = Post.query.get_or_404(post_id)
 
     if request.method == 'POST':
@@ -85,38 +92,41 @@ def edit_post(post_id):
 
         try:
             db.session.commit()
-            flash('Post updated successfully.', 'success')
+            flash('Post updated successfully.', FLASH_SUCCESS)
             return redirect(url_for('admin.manage_posts'))
-        except Exception as e:
+        except Exception:
             db.session.rollback()
-            flash('Error updating post.', 'error')
+            flash('Error updating post.', FLASH_ERROR)
 
     return render_template('admin/edit_post.html', post=post)
+
 
 @admin_bp.route('/posts/<int:post_id>/delete', methods=['POST'])
 @login_required
 @admin_required
 def delete_post(post_id):
+    """Delete a post."""
     post = Post.query.get_or_404(post_id)
 
     try:
         db.session.delete(post)
         db.session.commit()
-        flash('Post deleted successfully.', 'success')
-    except Exception as e:
+        flash('Post deleted successfully.', FLASH_SUCCESS)
+    except Exception:
         db.session.rollback()
-        flash('Error deleting post.', 'error')
+        flash('Error deleting post.', FLASH_ERROR)
 
     return redirect(url_for('admin.manage_posts'))
+
+
+# ==================== Comment Management ====================
 
 @admin_bp.route('/comments')
 @login_required
 @admin_required
 def manage_comments():
+    """Display comments for management with filtering and pagination."""
     page = request.args.get('page', 1, type=int)
-    per_page = 20
-
-    # Get filter parameters
     search = request.args.get('search', '')
     author = request.args.get('author', '')
 
@@ -127,17 +137,19 @@ def manage_comments():
     if author:
         query = query.filter(User.name.contains(author))
 
-    comments = query.order_by(Comment.created_at.desc()).paginate(page=page, per_page=per_page, error_out=False)
+    comments = paginate_query(query.order_by(Comment.created_at.desc()), page)
 
     return render_template('admin/comments.html',
                          comments=comments,
                          search=search,
                          author=author)
 
+
 @admin_bp.route('/comments/<int:comment_id>/edit', methods=['GET', 'POST'])
 @login_required
 @admin_required
 def edit_comment(comment_id):
+    """Edit a comment."""
     comment = Comment.query.get_or_404(comment_id)
 
     if request.method == 'POST':
@@ -145,98 +157,100 @@ def edit_comment(comment_id):
 
         try:
             db.session.commit()
-            flash('Comment updated successfully.', 'success')
+            flash('Comment updated successfully.', FLASH_SUCCESS)
             return redirect(url_for('admin.manage_comments'))
-        except Exception as e:
+        except Exception:
             db.session.rollback()
-            flash('Error updating comment.', 'error')
+            flash('Error updating comment.', FLASH_ERROR)
 
     return render_template('admin/edit_comment.html', comment=comment)
+
 
 @admin_bp.route('/comments/<int:comment_id>/delete', methods=['POST'])
 @login_required
 @admin_required
 def delete_comment(comment_id):
+    """Delete a comment."""
     comment = Comment.query.get_or_404(comment_id)
 
     try:
         db.session.delete(comment)
         db.session.commit()
-        flash('Comment deleted successfully.', 'success')
-    except Exception as e:
+        flash('Comment deleted successfully.', FLASH_SUCCESS)
+    except Exception:
         db.session.rollback()
-        flash('Error deleting comment.', 'error')
+        flash('Error deleting comment.', FLASH_ERROR)
 
     return redirect(url_for('admin.manage_comments'))
+
+
+# ==================== Event Management ====================
 
 @admin_bp.route('/events')
 @login_required
 @admin_required
 def manage_events():
+    """Display all events for management."""
     events = Event.query.order_by(Event.event_date.asc(), Event.event_time.asc()).all()
     return render_template('admin/events.html', events=events)
+
 
 @admin_bp.route('/events/create', methods=['GET', 'POST'])
 @login_required
 @admin_required
 def create_event():
+    """Create a new event."""
     if request.method == 'POST':
         title = request.form.get('title')
         description = request.form.get('description')
         presenter = request.form.get('presenter')
         event_url = request.form.get('event_url')
-        event_date = request.form.get('event_date')
-        event_time = request.form.get('event_time')
+        event_date = EventService.parse_event_date(request.form.get('event_date'))
+        event_time = EventService.parse_event_time(request.form.get('event_time'))
 
+        # Handle image upload
         image_url = None
         if 'image' in request.files:
             file = request.files['image']
             if file and file.filename:
-                filename = secure_filename(file.filename)
-                # Save event images to static/images/ directory
-                images_dir = os.path.join(current_app.root_path, 'static', 'images')
-                os.makedirs(images_dir, exist_ok=True)
-                file_path = os.path.join(images_dir, filename)
-                file.save(file_path)
-                image_url = filename
+                image_url = save_event_image(file, current_app.root_path)
 
         try:
-            event = Event(
+            event = EventService.create_event(
                 title=title,
                 description=description,
                 presenter=presenter,
                 event_url=event_url,
-                event_date=datetime.strptime(event_date, '%Y-%m-%d').date(),
-                event_time=datetime.strptime(event_time, '%H:%M').time() if event_time else None,
+                event_date=event_date,
+                event_time=event_time,
                 image_url=image_url,
                 created_by=current_user.id
             )
-            db.session.add(event)
-            db.session.commit()
 
-            # Send email notification to all users about the new event
+            # Send email notification to all users
             try:
                 success_count, failure_count = send_event_notification(event)
                 if success_count > 0:
-                    flash(f'Event created successfully. Notifications sent to {success_count} users.', 'success')
+                    flash(f'Event created successfully. Notifications sent to {success_count} users.', FLASH_SUCCESS)
                 else:
-                    flash('Event created successfully, but no email notifications were sent.', 'warning')
+                    flash('Event created successfully, but no email notifications were sent.', FLASH_WARNING)
             except Exception as e:
-                # Log the error but don't fail the event creation
                 current_app.logger.error(f"Failed to send event notification: {str(e)}")
-                flash('Event created successfully, but email notifications failed.', 'warning')
+                flash('Event created successfully, but email notifications failed.', FLASH_WARNING)
 
             return redirect(url_for('admin.manage_events'))
-        except Exception as e:
+        except Exception:
             db.session.rollback()
-            flash('Error creating event.', 'error')
+            flash('Error creating event.', FLASH_ERROR)
 
     return render_template('admin/create_event.html')
+
 
 @admin_bp.route('/events/<int:event_id>/edit', methods=['GET', 'POST'])
 @login_required
 @admin_required
 def edit_event(event_id):
+    """Edit an event."""
     event = Event.query.get_or_404(event_id)
 
     if request.method == 'POST':
@@ -244,9 +258,8 @@ def edit_event(event_id):
         event.description = request.form.get('description')
         event.presenter = request.form.get('presenter')
         event.event_url = request.form.get('event_url')
-        event.event_date = datetime.strptime(request.form.get('event_date'), '%Y-%m-%d').date()
-        event_time = request.form.get('event_time')
-        event.event_time = datetime.strptime(event_time, '%H:%M').time() if event_time else None
+        event.event_date = EventService.parse_event_date(request.form.get('event_date'))
+        event.event_time = EventService.parse_event_time(request.form.get('event_time'))
 
         # Handle image upload
         if 'image' in request.files:
@@ -254,65 +267,245 @@ def edit_event(event_id):
             if file and file.filename:
                 # Delete old image if exists
                 if event.image_url:
-                    old_file_path = os.path.join(current_app.root_path, 'static', 'images', event.image_url)
-                    if os.path.exists(old_file_path):
-                        os.remove(old_file_path)
+                    old_file_path = get_event_image_path(event.image_url, current_app.root_path)
+                    delete_file(old_file_path)
 
-                filename = secure_filename(file.filename)
-                # Save event images to static/images/ directory
-                images_dir = os.path.join(current_app.root_path, 'static', 'images')
-                os.makedirs(images_dir, exist_ok=True)
-                file_path = os.path.join(images_dir, filename)
-                file.save(file_path)
-                event.image_url = filename
+                event.image_url = save_event_image(file, current_app.root_path)
 
         try:
             db.session.commit()
-            flash('Event updated successfully.', 'success')
+            flash('Event updated successfully.', FLASH_SUCCESS)
             return redirect(url_for('admin.manage_events'))
-        except Exception as e:
+        except Exception:
             db.session.rollback()
-            flash('Error updating event.', 'error')
+            flash('Error updating event.', FLASH_ERROR)
 
     return render_template('admin/edit_event.html', event=event)
+
 
 @admin_bp.route('/events/<int:event_id>/delete', methods=['POST'])
 @login_required
 @admin_required
 def delete_event(event_id):
+    """Delete an event."""
     event = Event.query.get_or_404(event_id)
 
     try:
         # Delete associated image file if exists
         if event.image_url:
-            file_path = os.path.join(current_app.root_path, 'static', 'images', event.image_url)
-            if os.path.exists(file_path):
-                os.remove(file_path)
+            file_path = get_event_image_path(event.image_url, current_app.root_path)
+            delete_file(file_path)
 
-        db.session.delete(event)
-        db.session.commit()
-        flash('Event deleted successfully.', 'success')
-    except Exception as e:
+        EventService.delete_event(event)
+        flash('Event deleted successfully.', FLASH_SUCCESS)
+    except Exception:
         db.session.rollback()
-        flash('Error deleting event.', 'error')
+        flash('Error deleting event.', FLASH_ERROR)
 
     return redirect(url_for('admin.manage_events'))
 
-@admin_bp.route('/api/events')
+
+# ==================== Research Submission Management ====================
+
+@admin_bp.route('/submissions')
 @login_required
 @admin_required
-def get_events_json():
-    events = Event.query.all()
-    events_data = []
+def manage_submissions():
+    """Manage research submissions pending approval."""
+    page = request.args.get('page', 1, type=int)
+    pagination = ResearchService.get_pending_submissions(page=page, per_page=15)
+    
+    return render_template('admin/submissions.html', pagination=pagination)
 
-    for event in events:
-        event_datetime = datetime.combine(event.event_date, event.event_time) if event.event_time else datetime.combine(event.event_date, datetime.min.time())
-        events_data.append({
-            'id': event.id,
-            'title': event.title,
-            'start': event_datetime.isoformat(),
-            'description': event.description,
-            'allDay': event.event_time is None
-        })
 
-    return jsonify(events_data)
+@admin_bp.route('/submissions/<int:research_id>/approve', methods=['POST'])
+@login_required
+@admin_required
+def approve_submission(research_id):
+    """Approve a research submission."""
+    research = ResearchService.get_research_by_id(research_id)
+    if not research:
+        flash('Research not found.', FLASH_ERROR)
+        return redirect(url_for('admin.manage_submissions'))
+    
+    if research.is_approved:
+        flash('This research is already approved.', FLASH_WARNING)
+        return redirect(url_for('admin.manage_submissions'))
+    
+    # Store submitter info before approval
+    submitter = research.submitted_by_user
+    
+    # Approve the research
+    approved_research = ResearchService.approve_research(research_id)
+    
+    # Send notification to the submitter if they exist
+    if submitter:
+        try:
+            send_research_approved_notification(
+                user=submitter,
+                research=approved_research,
+                send_email_func=send_research_status_email
+            )
+        except Exception as e:
+            # Log the error but don't fail the approval
+            current_app.logger.error(f"Failed to send approval notification: {str(e)}")
+    
+    flash(f'Research "{approved_research.title}" has been approved.', FLASH_SUCCESS)
+    return redirect(url_for('admin.manage_submissions'))
+
+
+@admin_bp.route('/submissions/<int:research_id>/reject', methods=['POST'])
+@login_required
+@admin_required
+def reject_submission(research_id):
+    """Reject (delete) a research submission."""
+    research = ResearchService.get_research_by_id(research_id)
+    if not research:
+        flash('Research not found.', FLASH_ERROR)
+        return redirect(url_for('admin.manage_submissions'))
+    
+    # Store info before rejection
+    title = research.title
+    submitter = research.submitted_by_user
+    reason = request.form.get('reason', '').strip()  # Optional rejection reason
+    
+    # Reject (delete) the research
+    success = ResearchService.reject_research(research_id)
+    
+    if success:
+        # Send notification to the submitter if they exist
+        if submitter:
+            try:
+                send_research_rejected_notification(
+                    user=submitter,
+                    research_title=title,
+                    reason=reason if reason else None,
+                    send_email_func=send_research_status_email
+                )
+            except Exception as e:
+                # Log the error but don't fail the rejection
+                current_app.logger.error(f"Failed to send rejection notification: {str(e)}")
+        
+        flash(f'Research "{title}" has been rejected and removed.', FLASH_SUCCESS)
+    else:
+        flash('Failed to reject research.', FLASH_ERROR)
+    
+    return redirect(url_for('admin.manage_submissions'))
+
+
+# ==================== Researcher Management ====================
+
+@admin_bp.route('/researchers')
+@login_required
+@admin_required
+def manage_researchers():
+    """Manage researchers."""
+    researchers = ResearchService.get_all_researchers()
+    return render_template('admin/researchers.html', researchers=researchers)
+
+
+@admin_bp.route('/researchers/<int:researcher_id>/edit', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def edit_researcher(researcher_id):
+    """Edit a researcher's information."""
+    researcher = ResearchService.get_researcher_by_id(researcher_id)
+    if not researcher:
+        flash('Researcher not found.', FLASH_ERROR)
+        return redirect(url_for('admin.manage_researchers'))
+    
+    if request.method == 'POST':
+        name = request.form.get('name')
+        bio = request.form.get('bio')
+        
+        if name:
+            updated = ResearchService.update_researcher(researcher_id, name=name, bio=bio)
+            if updated:
+                flash('Researcher updated successfully.', FLASH_SUCCESS)
+                return redirect(url_for('admin.manage_researchers'))
+            else:
+                flash('Failed to update researcher.', FLASH_ERROR)
+        else:
+            flash('Name is required.', FLASH_ERROR)
+    
+    return render_template('admin/edit_researcher.html', researcher=researcher)
+
+
+@admin_bp.route('/researchers/<int:researcher_id>/delete', methods=['POST'])
+@login_required
+@admin_required
+def delete_researcher(researcher_id):
+    """Delete a researcher and all their researches."""
+    success = ResearchService.delete_researcher(researcher_id)
+    
+    if success:
+        flash('Researcher and all their researches have been deleted.', FLASH_SUCCESS)
+    else:
+        flash('Failed to delete researcher.', FLASH_ERROR)
+    
+    return redirect(url_for('admin.manage_researchers'))
+
+
+# ==================== Research Management ====================
+
+@admin_bp.route('/researches')
+@login_required
+@admin_required
+def manage_researches():
+    """Manage all approved researches."""
+    page = request.args.get('page', 1, type=int)
+    pagination = ResearchService.filter_researches(page=page, per_page=20)
+    
+    return render_template('admin/researches.html', pagination=pagination)
+
+
+@admin_bp.route('/researches/<int:research_id>/edit', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def edit_research(research_id):
+    """Edit a research's information."""
+    research = ResearchService.get_research_by_id(research_id)
+    if not research:
+        flash('Research not found.', FLASH_ERROR)
+        return redirect(url_for('admin.manage_researches'))
+    
+    if request.method == 'POST':
+        title = request.form.get('title')
+        department = request.form.get('department')
+        year = request.form.get('year', type=int)
+        doi_url = request.form.get('doi_url')
+        researcher_type = request.form.get('researcher_type')
+        
+        if title and department and year:
+            updated = ResearchService.update_research(
+                research_id,
+                title=title,
+                department=department,
+                year=year,
+                doi_url=doi_url,
+                researcher_type=researcher_type
+            )
+            if updated:
+                flash('Research updated successfully.', FLASH_SUCCESS)
+                return redirect(url_for('admin.manage_researches'))
+            else:
+                flash('Failed to update research.', FLASH_ERROR)
+        else:
+            flash('Title, department, and year are required.', FLASH_ERROR)
+    
+    return render_template('admin/edit_research.html', research=research)
+
+
+@admin_bp.route('/researches/<int:research_id>/delete', methods=['POST'])
+@login_required
+@admin_required
+def delete_research(research_id):
+    """Delete a research."""
+    success = ResearchService.delete_research(research_id)
+    
+    if success:
+        flash('Research has been deleted.', FLASH_SUCCESS)
+    else:
+        flash('Failed to delete research.', FLASH_ERROR)
+    
+    return redirect(url_for('admin.manage_researches'))

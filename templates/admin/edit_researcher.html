@@ -1,0 +1,479 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Researcher - Admin - PSRA{% endblock %}
+
+{% block content %}
+<div class="edit-researcher-page">
+    <div class="container mx-auto px-4">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1>Edit Researcher</h1>
+            <p>Update researcher profile information</p>
+        </div>
+
+        <!-- Navigation -->
+        <div class="admin-nav">
+            <a href="{{ url_for('admin.admin_dashboard') }}" class="nav-link">
+                <i class="fas fa-tachometer-alt"></i> Dashboard
+            </a>
+            <a href="{{ url_for('admin.manage_submissions') }}" class="nav-link">
+                <i class="fas fa-file-alt"></i> Submissions
+            </a>
+            <a href="{{ url_for('admin.manage_researches') }}" class="nav-link">
+                <i class="fas fa-book"></i> Researches
+            </a>
+            <a href="{{ url_for('admin.manage_researchers') }}" class="nav-link active">
+                <i class="fas fa-users"></i> Researchers
+            </a>
+        </div>
+
+        <!-- Back Link -->
+        <div class="back-link">
+            <a href="{{ url_for('admin.manage_researchers') }}">
+                <i class="fas fa-arrow-left"></i> Back to Researchers
+            </a>
+        </div>
+
+        <!-- Edit Form -->
+        <div class="edit-form-container">
+            <form method="POST" class="edit-form">
+                
+                <!-- Researcher Info Section -->
+                <div class="form-section">
+                    <h2 class="section-title">
+                        <i class="fas fa-user"></i> Researcher Information
+                    </h2>
+                    
+                    <div class="form-group">
+                        <label for="name">Name <span class="required">*</span></label>
+                        <input type="text" id="name" name="name" 
+                               value="{{ researcher.name }}" required
+                               placeholder="Enter researcher name">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="bio">Biography</label>
+                        <textarea id="bio" name="bio" rows="5"
+                                  placeholder="Enter a brief biography about the researcher">{{ researcher.bio or '' }}</textarea>
+                    </div>
+                </div>
+
+                <!-- Research Statistics -->
+                <div class="form-section">
+                    <h2 class="section-title">
+                        <i class="fas fa-chart-bar"></i> Research Statistics
+                    </h2>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value">{{ researcher.researches|length }}</div>
+                            <div class="stat-label">Total Research Papers</div>
+                        </div>
+                        
+                        {% set doctor_count = researcher.researches|selectattr('researcher_type', 'equalto', 'doctor')|list|length %}
+                        {% set student_count = researcher.researches|selectattr('researcher_type', 'equalto', 'student')|list|length %}
+                        
+                        <div class="stat-card">
+                            <div class="stat-value">{{ doctor_count }}</div>
+                            <div class="stat-label">As Doctor</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-value">{{ student_count }}</div>
+                            <div class="stat-label">As Student</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Research Papers List -->
+                {% if researcher.researches %}
+                <div class="form-section">
+                    <h2 class="section-title">
+                        <i class="fas fa-book"></i> Research Papers ({{ researcher.researches|length }})
+                    </h2>
+                    
+                    <div class="research-list">
+                        {% for research in researcher.researches %}
+                        <div class="research-item">
+                            <div class="research-info">
+                                <h4>{{ research.title }}</h4>
+                                <div class="research-meta">
+                                    <span class="meta-badge department">{{ research.department }}</span>
+                                    <span class="meta-badge year">{{ research.year }}</span>
+                                    <span class="meta-badge type {{ research.researcher_type }}">
+                                        {{ research.researcher_type|title }}
+                                    </span>
+                                    {% if not research.is_approved %}
+                                    <span class="meta-badge pending">Pending Approval</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% if research.doi_url %}
+                            <a href="{{ research.doi_url }}" target="_blank" rel="noopener noreferrer" 
+                               class="btn btn-link">
+                                <i class="fas fa-external-link-alt"></i> DOI
+                            </a>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Account Linking -->
+                <div class="form-section">
+                    <h2 class="section-title">
+                        <i class="fas fa-link"></i> Account Linking
+                    </h2>
+                    
+                    <div class="account-status">
+                        {% if researcher.is_registered_user %}
+                        <div class="status-linked">
+                            <i class="fas fa-check-circle"></i>
+                            <span>This researcher is linked to a registered user account.</span>
+                        </div>
+                        {% else %}
+                        <div class="status-unlinked">
+                            <i class="fas fa-info-circle"></i>
+                            <span>This researcher is not linked to any registered user account.</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Save Changes
+                    </button>
+                    <a href="{{ url_for('admin.manage_researchers') }}" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+.edit-researcher-page {
+    padding: 40px 0 60px;
+}
+
+.page-header {
+    margin-bottom: 30px;
+}
+
+.page-header h1 {
+    font-size: 2rem;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.page-header p {
+    color: #666;
+}
+
+.admin-nav {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+}
+
+.nav-link {
+    padding: 10px 20px;
+    background: #f8f9fa;
+    color: #333;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: all 0.3s;
+}
+
+.nav-link:hover, .nav-link.active {
+    background: #667eea;
+    color: white;
+}
+
+.back-link {
+    margin-bottom: 20px;
+}
+
+.back-link a {
+    color: #667eea;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.back-link a:hover {
+    text-decoration: underline;
+}
+
+.edit-form-container {
+    max-width: 800px;
+}
+
+.edit-form {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+    overflow: hidden;
+}
+
+.form-section {
+    padding: 25px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.form-section:last-of-type {
+    border-bottom: none;
+}
+
+.section-title {
+    font-size: 1.1rem;
+    color: #333;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.section-title i {
+    color: #667eea;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group:last-child {
+    margin-bottom: 0;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #333;
+}
+
+.required {
+    color: #dc3545;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+}
+
+.stat-card {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #667eea;
+}
+
+.stat-label {
+    color: #666;
+    font-size: 0.9rem;
+    margin-top: 5px;
+}
+
+.research-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.research-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    gap: 15px;
+}
+
+.research-info h4 {
+    font-size: 0.95rem;
+    color: #333;
+    margin-bottom: 8px;
+    line-height: 1.4;
+}
+
+.research-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.meta-badge {
+    font-size: 0.75rem;
+    padding: 3px 10px;
+    border-radius: 15px;
+    background: #e9ecef;
+    color: #495057;
+}
+
+.meta-badge.department {
+    background: #e3f2fd;
+    color: #1565c0;
+}
+
+.meta-badge.year {
+    background: #f3e5f5;
+    color: #7b1fa2;
+}
+
+.meta-badge.type.doctor {
+    background: #d4edda;
+    color: #155724;
+}
+
+.meta-badge.type.student {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.meta-badge.pending {
+    background: #ffebee;
+    color: #c62828;
+}
+
+.btn-link {
+    padding: 8px 15px;
+    background: #667eea;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    white-space: nowrap;
+}
+
+.btn-link:hover {
+    background: #5a6fd6;
+}
+
+.account-status {
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.status-linked {
+    background: #d4edda;
+    color: #155724;
+    padding: 15px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.status-unlinked {
+    background: #fff3cd;
+    color: #856404;
+    padding: 15px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.form-actions {
+    padding: 25px;
+    background: #f8f9fa;
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.btn {
+    padding: 12px 25px;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+}
+
+.btn-primary {
+    background: #667eea;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #5a6fd6;
+}
+
+.btn-secondary {
+    background: #6c757d;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: #5a6268;
+}
+
+@media (max-width: 768px) {
+    .admin-nav {
+        flex-direction: column;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .research-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+    
+    .form-actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+</style>
+{% endblock %}

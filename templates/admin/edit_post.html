@@ -5,9 +5,19 @@
 {% block content %}
 <section class="section">
     <div class="container">
+        <!-- Admin Navigation -->
+        <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
+            <a href="{{ url_for('admin.admin_dashboard') }}" class="btn btn-outline">Dashboard</a>
+            <a href="{{ url_for('admin.manage_posts') }}" class="btn" style="background: #667eea; color: white;">Posts</a>
+            <a href="{{ url_for('admin.manage_comments') }}" class="btn btn-outline">Comments</a>
+            <a href="{{ url_for('admin.manage_events') }}" class="btn btn-outline">Events</a>
+            <a href="{{ url_for('admin.manage_submissions') }}" class="btn btn-outline" style="border-color: #ffc107; color: #856404;">Submissions</a>
+            <a href="{{ url_for('admin.manage_researchers') }}" class="btn btn-outline" style="border-color: #667eea; color: #667eea;">Researchers</a>
+            <a href="{{ url_for('admin.manage_researches') }}" class="btn btn-outline" style="border-color: #28a745; color: #28a745;">Researches</a>
+        </div>
+
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
             <h2>Edit Post</h2>
-            <a href="{{ url_for('admin.manage_posts') }}" class="btn btn-outline">Back to Posts</a>
         </div>
 
         <div class="card">

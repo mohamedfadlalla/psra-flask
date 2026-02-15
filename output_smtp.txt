@@ -1,0 +1,21 @@
+ERROR:root:Failed to send email: (534, b'5.7.9 Application-specific password required. For more information, go to\n5.7.9  https://support.google.com/mail/?p=InvalidSecondFactor ffacd0b85a97d-437969fd36dsm15836528f8f.0 - gsmtp')
+ERROR:root:Failed to send email: (534, b'5.7.9 Application-specific password required. For more information, go to\n5.7.9  https://support.google.com/mail/?p=InvalidSecondFactor 5b1f17b1804b1-4836cd7af87sm198687825e9.1 - gsmtp')
+ERROR:root:Failed to send email: (534, b'5.7.9 Application-specific password required. For more information, go to\n5.7.9  https://support.google.com/mail/?p=InvalidSecondFactor ffacd0b85a97d-43796abc21dsm15952658f8f.20 - gsmtp')
+Checking email configuration...
+Server: smtp.gmail.com
+Port: 587
+Username: psra.fpsa@gmail.com
+Sender: psra.fpsa@gmail.com
+
+Found 3 users with email addresses.
+
+WARNING: Skipping confirmation due to --force flag.
+
+Sending emails...
+Sending to admin@psra.com... FAILED
+Sending to mohamedbadrelmaarif@gmail.com... FAILED
+Sending to gunman4kill@gmail.com... FAILED
+
+Finished.
+Success: 0
+Failed: 3

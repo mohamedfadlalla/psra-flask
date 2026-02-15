@@ -1,0 +1,329 @@
+{% extends "base.html" %}
+
+{% block title %}Submit Research - PSRA{% endblock %}
+
+{% block content %}
+<div class="submit-research-page">
+    <div class="container mx-auto px-4">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1>Submit Research</h1>
+            <p>Share your research publication with the PSRA community</p>
+        </div>
+
+        <!-- Submission Form -->
+        <div class="form-container">
+            <form method="POST" action="{{ url_for('submit_research') }}" class="submission-form">
+                {{ form.hidden_tag() }}
+                
+                <!-- Research Title -->
+                <div class="form-group">
+                    <label for="title">Research Title <span class="required">*</span></label>
+                    {{ form.title(class="form-control", placeholder="Enter the full title of the research") }}
+                    {% if form.title.errors %}
+                    <div class="error-messages">
+                        {% for error in form.title.errors %}
+                        <span class="error">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Researcher Name -->
+                <div class="form-group">
+                    <label for="researcher_name">Researcher Name <span class="required">*</span></label>
+                    {{ form.researcher_name(class="form-control", placeholder="Enter the name of the researcher", list="researcher-suggestions") }}
+                    <datalist id="researcher-suggestions">
+                        <!-- Will be populated via JavaScript -->
+                    </datalist>
+                    {% if form.researcher_name.errors %}
+                    <div class="error-messages">
+                        {% for error in form.researcher_name.errors %}
+                        <span class="error">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    <small class="form-hint">Start typing to see existing researchers</small>
+                </div>
+                
+                <!-- Department -->
+                <div class="form-group">
+                    <label for="department">Department <span class="required">*</span></label>
+                    {{ form.department(class="form-control") }}
+                    {% if form.department.errors %}
+                    <div class="error-messages">
+                        {% for error in form.department.errors %}
+                        <span class="error">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Year -->
+                <div class="form-group">
+                    <label for="year">Year of Publication <span class="required">*</span></label>
+                    {{ form.year(class="form-control", placeholder="e.g., 2024", min="1990", max="2030") }}
+                    {% if form.year.errors %}
+                    <div class="error-messages">
+                        {% for error in form.year.errors %}
+                        <span class="error">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <!-- DOI URL -->
+                <div class="form-group">
+                    <label for="doi_url">DOI Link <span class="optional">(optional)</span></label>
+                    {{ form.doi_url(class="form-control", placeholder="https://doi.org/...") }}
+                    {% if form.doi_url.errors %}
+                    <div class="error-messages">
+                        {% for error in form.doi_url.errors %}
+                        <span class="error">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    <small class="form-hint">Provide a link to the publication (DOI, journal website, etc.)</small>
+                </div>
+                
+                <!-- Researcher Type -->
+                <div class="form-group">
+                    <label for="researcher_type">Researcher Type <span class="required">*</span></label>
+                    {{ form.researcher_type(class="form-control") }}
+                    {% if form.researcher_type.errors %}
+                    <div class="error-messages">
+                        {% for error in form.researcher_type.errors %}
+                        <span class="error">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Submit Button -->
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-paper-plane"></i> Submit for Review
+                    </button>
+                    <a href="{{ url_for('research') }}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Information Box -->
+        <div class="info-box">
+            <h3><i class="fas fa-info-circle"></i> Submission Guidelines</h3>
+            <ul>
+                <li>All submissions are reviewed by administrators before being published.</li>
+                <li>Ensure the research title is accurate and complete.</li>
+                <li>If the researcher already exists in our database, their profile will be updated.</li>
+                <li>You will be notified via email once your submission is approved or rejected.</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<style>
+.submit-research-page {
+    padding: 40px 0 60px;
+}
+
+.page-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.page-header h1 {
+    font-size: 2.2rem;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.page-header p {
+    color: #666;
+    font-size: 1.1rem;
+}
+
+.form-container {
+    max-width: 700px;
+    margin: 0 auto 40px;
+    background: white;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+}
+
+.submission-form .form-group {
+    margin-bottom: 25px;
+}
+
+.submission-form label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #333;
+}
+
+.required {
+    color: #dc3545;
+}
+
+.optional {
+    color: #6c757d;
+    font-weight: normal;
+    font-size: 0.85rem;
+}
+
+.form-control {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.form-hint {
+    display: block;
+    margin-top: 5px;
+    color: #6c757d;
+    font-size: 0.85rem;
+}
+
+.error-messages {
+    margin-top: 5px;
+}
+
+.error-messages .error {
+    display: block;
+    color: #dc3545;
+    font-size: 0.85rem;
+}
+
+.form-actions {
+    display: flex;
+    gap: 15px;
+    margin-top: 30px;
+}
+
+.btn {
+    padding: 12px 30px;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: none;
+}
+
+.btn-primary {
+    background: #667eea;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #5a6fd6;
+}
+
+.btn-secondary {
+    background: #6c757d;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: #5a6268;
+}
+
+.info-box {
+    max-width: 700px;
+    margin: 0 auto;
+    background: #f8f9fa;
+    padding: 25px 30px;
+    border-radius: 12px;
+    border-left: 4px solid #667eea;
+}
+
+.info-box h3 {
+    color: #333;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.info-box h3 i {
+    color: #667eea;
+}
+
+.info-box ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.info-box li {
+    color: #555;
+    margin-bottom: 8px;
+    line-height: 1.5;
+}
+
+.info-box li:last-child {
+    margin-bottom: 0;
+}
+
+@media (max-width: 768px) {
+    .form-container {
+        padding: 25px;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+    
+    .form-actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+</style>
+
+<script>
+// Researcher name autocomplete
+document.addEventListener('DOMContentLoaded', function() {
+    const nameInput = document.querySelector('input[name="researcher_name"]');
+    const datalist = document.getElementById('researcher-suggestions');
+    let debounceTimer;
+    
+    nameInput.addEventListener('input', function() {
+        clearTimeout(debounceTimer);
+        const query = this.value.trim();
+        
+        if (query.length < 2) {
+            datalist.innerHTML = '';
+            return;
+        }
+        
+        debounceTimer = setTimeout(function() {
+            fetch(`/api/search-researchers?q=${encodeURIComponent(query)}`)
+                .then(response => response.json())
+                .then(data => {
+                    datalist.innerHTML = '';
+                    data.forEach(researcher => {
+                        const option = document.createElement('option');
+                        option.value = researcher.name;
+                        datalist.appendChild(option);
+                    });
+                })
+                .catch(error => console.error('Error fetching researchers:', error));
+        }, 300);
+    });
+});
+</script>
+{% endblock %}

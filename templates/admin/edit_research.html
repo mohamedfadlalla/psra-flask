@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Research - Admin - PSRA{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+        <!-- Admin Navigation -->
+        <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
+            <a href="{{ url_for('admin.admin_dashboard') }}" class="btn btn-outline">Dashboard</a>
+            <a href="{{ url_for('admin.manage_posts') }}" class="btn btn-outline">Posts</a>
+            <a href="{{ url_for('admin.manage_comments') }}" class="btn btn-outline">Comments</a>
+            <a href="{{ url_for('admin.manage_events') }}" class="btn btn-outline">Events</a>
+            <a href="{{ url_for('admin.manage_submissions') }}" class="btn btn-outline" style="border-color: #ffc107; color: #856404;">Submissions</a>
+            <a href="{{ url_for('admin.manage_researchers') }}" class="btn btn-outline" style="border-color: #667eea; color: #667eea;">Researchers</a>
+            <a href="{{ url_for('admin.manage_researches') }}" class="btn" style="background: #28a745; color: white;">Researches</a>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+            <h2>Edit Research</h2>
+            <a href="{{ url_for('admin.manage_researches') }}" class="btn btn-outline">Back to Researches</a>
+        </div>
+
+        <!-- Edit Form -->
+        <div class="card">
+            <h3>Research Details</h3>
+            <form method="POST" style="margin-top: 20px;">
+                <div style="margin-bottom: 20px;">
+                    <label for="title" style="display: block; margin-bottom: 8px; font-weight: 500;">Title <span style="color: #dc3545;">*</span></label>
+                    <input type="text" id="title" name="title" value="{{ research.title }}" required
+                           style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 4px; font-size: 1rem;">
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                    <div>
+                        <label for="department" style="display: block; margin-bottom: 8px; font-weight: 500;">Department <span style="color: #dc3545;">*</span></label>
+                        <select id="department" name="department" required
+                                style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 4px; font-size: 1rem;">
+                            <option value="">Select Department</option>
+                            <option value="Pharmaceutics & Drug Delivery" {% if research.department == 'Pharmaceutics & Drug Delivery' %}selected{% endif %}>Pharmaceutics & Drug Delivery</option>
+                            <option value="Pharmacology & Toxicology" {% if research.department == 'Pharmacology & Toxicology' %}selected{% endif %}>Pharmacology & Toxicology</option>
+                            <option value="Clinical Pharmacy & Pharmacy Practice" {% if research.department == 'Clinical Pharmacy & Pharmacy Practice' %}selected{% endif %}>Clinical Pharmacy & Pharmacy Practice</option>
+                            <option value="Pharmaceutical Chemistry" {% if research.department == 'Pharmaceutical Chemistry' %}selected{% endif %}>Pharmaceutical Chemistry</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="year" style="display: block; margin-bottom: 8px; font-weight: 500;">Year <span style="color: #dc3545;">*</span></label>
+                        <input type="number" id="year" name="year" value="{{ research.year }}" min="1900" max="2100" required
+                               style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 4px; font-size: 1rem;">
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                    <div>
+                        <label for="researcher_type" style="display: block; margin-bottom: 8px; font-weight: 500;">Researcher Type</label>
+                        <select id="researcher_type" name="researcher_type"
+                                style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 4px; font-size: 1rem;">
+                            <option value="doctor" {% if research.researcher_type == 'doctor' %}selected{% endif %}>Doctor</option>
+                            <option value="student" {% if research.researcher_type == 'student' %}selected{% endif %}>Student</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="doi_url" style="display: block; margin-bottom: 8px; font-weight: 500;">DOI/URL</label>
+                        <input type="url" id="doi_url" name="doi_url" value="{{ research.doi_url or '' }}" placeholder="https://doi.org/..."
+                               style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 4px; font-size: 1rem;">
+                    </div>
+                </div>
+
+                <!-- Author Info (Read-only) -->
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                    <h4 style="margin-bottom: 10px; color: var(--text-muted);">Author Information</h4>
+                    <p style="margin: 0;">
+                        <strong>Author:</strong> 
+                        <a href="{{ url_for('researcher_profile', researcher_id=research.author.id) }}" style="color: #667eea;">
+                            {{ research.author.name }}
+                        </a>
+                    </p>
+                    <p style="margin: 5px 0 0 0; color: var(--text-muted); font-size: 0.9rem;">
+                        To change the author, please delete this research and create a new entry.
+                    </p>
+                </div>
+
+                <div style="display: flex; gap: 15px;">
+                    <button type="submit" class="btn" style="background: #28a745; color: white;">Save Changes</button>
+                    <a href="{{ url_for('admin.manage_researches') }}" class="btn btn-outline">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}

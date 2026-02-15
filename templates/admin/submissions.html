@@ -1,0 +1,401 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Submissions - Admin - PSRA{% endblock %}
+
+{% block content %}
+<div class="admin-submissions-page">
+    <div class="container mx-auto px-4">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1>Research Submissions</h1>
+            <p>Review and manage pending research submissions</p>
+        </div>
+
+        <!-- Navigation -->
+        <div class="admin-nav">
+            <a href="{{ url_for('admin.admin_dashboard') }}" class="nav-link">
+                <i class="fas fa-tachometer-alt"></i> Dashboard
+            </a>
+            <a href="{{ url_for('admin.manage_submissions') }}" class="nav-link active">
+                <i class="fas fa-file-alt"></i> Submissions
+            </a>
+            <a href="{{ url_for('admin.manage_researches') }}" class="nav-link">
+                <i class="fas fa-book"></i> Researches
+            </a>
+            <a href="{{ url_for('admin.manage_researchers') }}" class="nav-link">
+                <i class="fas fa-users"></i> Researchers
+            </a>
+        </div>
+
+        <!-- Submissions List -->
+        {% if pagination.items %}
+        <div class="submissions-count">
+            <p>{{ pagination.total }} pending submission{% if pagination.total != 1 %}s{% endif %}</p>
+        </div>
+
+        <div class="submissions-list">
+            {% for research in pagination.items %}
+            <div class="submission-card">
+                <div class="submission-header">
+                    <span class="submission-date">
+                        <i class="fas fa-calendar"></i> {{ research.created_at.strftime('%Y-%m-%d') }}
+                    </span>
+                    <span class="submission-department">{{ research.department }}</span>
+                </div>
+                
+                <h3 class="submission-title">{{ research.title }}</h3>
+                
+                <div class="submission-details">
+                    <div class="detail-item">
+                        <i class="fas fa-user"></i>
+                        <span>{{ research.author.name }}</span>
+                        <span class="type-badge {{ research.researcher_type }}">
+                            {{ research.researcher_type|title }}
+                        </span>
+                    </div>
+                    <div class="detail-item">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span>Year: {{ research.year }}</span>
+                    </div>
+                    {% if research.doi_url %}
+                    <div class="detail-item">
+                        <i class="fas fa-link"></i>
+                        <a href="{{ research.doi_url }}" target="_blank" rel="noopener noreferrer">
+                            View Publication
+                        </a>
+                    </div>
+                    {% endif %}
+                    {% if research.submitted_by %}
+                    <div class="detail-item">
+                        <i class="fas fa-paper-plane"></i>
+                        <span>Submitted by: {% if research.submitter %}{{ research.submitter.name }}{% else %}Unknown{% endif %}</span>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="submission-actions">
+                    <form action="{{ url_for('admin.approve_submission', research_id=research.id) }}" 
+                          method="POST" style="display: inline;">
+                        <button type="submit" class="btn btn-approve" 
+                                onclick="return confirm('Are you sure you want to approve this submission?')">
+                            <i class="fas fa-check"></i> Approve
+                        </button>
+                    </form>
+                    <form action="{{ url_for('admin.reject_submission', research_id=research.id) }}" 
+                          method="POST" style="display: inline;">
+                        <button type="submit" class="btn btn-reject" 
+                                onclick="return confirm('Are you sure you want to reject this submission? This will delete it permanently.')">
+                            <i class="fas fa-times"></i> Reject
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if pagination.pages > 1 %}
+        <div class="pagination">
+            {% if pagination.has_prev %}
+            <a href="{{ url_for('admin.manage_submissions', page=pagination.prev_num) }}" 
+               class="pagination-btn">
+                <i class="fas fa-chevron-left"></i> Previous
+            </a>
+            {% endif %}
+            
+            <div class="pagination-numbers">
+                {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                    {% if page_num %}
+                        {% if page_num == pagination.page %}
+                        <span class="pagination-number active">{{ page_num }}</span>
+                        {% else %}
+                        <a href="{{ url_for('admin.manage_submissions', page=page_num) }}" 
+                           class="pagination-number">{{ page_num }}</a>
+                        {% endif %}
+                    {% else %}
+                        <span class="pagination-ellipsis">...</span>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            
+            {% if pagination.has_next %}
+            <a href="{{ url_for('admin.manage_submissions', page=pagination.next_num) }}" 
+               class="pagination-btn">
+                Next <i class="fas fa-chevron-right"></i>
+            </a>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        {% else %}
+        <div class="no-submissions">
+            <i class="fas fa-inbox"></i>
+            <h3>No Pending Submissions</h3>
+            <p>All research submissions have been reviewed.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.admin-submissions-page {
+    padding: 40px 0 60px;
+}
+
+.page-header {
+    margin-bottom: 30px;
+}
+
+.page-header h1 {
+    font-size: 2rem;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.page-header p {
+    color: #666;
+}
+
+.admin-nav {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+}
+
+.nav-link {
+    padding: 10px 20px;
+    background: #f8f9fa;
+    color: #333;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: all 0.3s;
+}
+
+.nav-link:hover, .nav-link.active {
+    background: #667eea;
+    color: white;
+}
+
+.submissions-count {
+    margin-bottom: 20px;
+    color: #666;
+}
+
+.submissions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.submission-card {
+    background: white;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+    border-left: 4px solid #ffc107;
+}
+
+.submission-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+.submission-date {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.submission-department {
+    background: #e9ecef;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    color: #495057;
+}
+
+.submission-title {
+    font-size: 1.2rem;
+    color: #333;
+    margin-bottom: 15px;
+    line-height: 1.4;
+}
+
+.submission-details {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.detail-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #555;
+    font-size: 0.95rem;
+}
+
+.detail-item i {
+    color: #667eea;
+}
+
+.detail-item a {
+    color: #667eea;
+    text-decoration: none;
+}
+
+.detail-item a:hover {
+    text-decoration: underline;
+}
+
+.type-badge {
+    font-size: 0.75rem;
+    padding: 2px 8px;
+    border-radius: 10px;
+    background: #e9ecef;
+    color: #495057;
+}
+
+.type-badge.doctor {
+    background: #d4edda;
+    color: #155724;
+}
+
+.type-badge.student {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.submission-actions {
+    display: flex;
+    gap: 15px;
+}
+
+.btn {
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-approve {
+    background: #28a745;
+    color: white;
+}
+
+.btn-approve:hover {
+    background: #218838;
+}
+
+.btn-reject {
+    background: #dc3545;
+    color: white;
+}
+
+.btn-reject:hover {
+    background: #c82333;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin-top: 40px;
+}
+
+.pagination-btn {
+    padding: 10px 20px;
+    background: #667eea;
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: background 0.3s;
+}
+
+.pagination-btn:hover {
+    background: #5a6fd6;
+}
+
+.pagination-numbers {
+    display: flex;
+    gap: 5px;
+}
+
+.pagination-number {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: #333;
+    border-radius: 8px;
+    transition: background 0.3s;
+}
+
+.pagination-number:hover {
+    background: #e9ecef;
+}
+
+.pagination-number.active {
+    background: #667eea;
+    color: white;
+}
+
+.pagination-ellipsis {
+    padding: 0 10px;
+    color: #666;
+}
+
+.no-submissions {
+    text-align: center;
+    padding: 60px 20px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+}
+
+.no-submissions i {
+    font-size: 4rem;
+    color: #28a745;
+    margin-bottom: 20px;
+}
+
+.no-submissions h3 {
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.no-submissions p {
+    color: #666;
+}
+
+@media (max-width: 768px) {
+    .admin-nav {
+        flex-direction: column;
+    }
+    
+    .submission-details {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .submission-actions {
+        flex-direction: column;
+    }
+    
+    .submission-actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+</style>
+{% endblock %}

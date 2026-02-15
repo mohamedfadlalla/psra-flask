@@ -1,0 +1,339 @@
+{% extends "base.html" %}
+
+{% block title %}Researchers - PSRA{% endblock %}
+
+{% block content %}
+<div class="researchers-page">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="container mx-auto px-4">
+            <h1>Our Researchers</h1>
+            <p>Faculty members and students contributing to pharmaceutical research</p>
+        </div>
+    </div>
+
+    <!-- Statistics Section -->
+    {% if statistics %}
+    <div class="statistics-section">
+        <div class="container mx-auto px-4">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number">{{ statistics.total_researchers }}</div>
+                    <div class="stat-label">Total Researchers</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">{{ statistics.total_researches }}</div>
+                    <div class="stat-label">Publications</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">{{ statistics.departments|length }}</div>
+                    <div class="stat-label">Departments</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Top Researchers Section -->
+    {% if statistics.top_researchers %}
+    <div class="top-researchers-section">
+        <div class="container mx-auto px-4">
+            <h2>Top Contributors</h2>
+            <div class="top-researchers-grid">
+                {% for name, count in statistics.top_researchers %}
+                <div class="top-researcher-card">
+                    <div class="rank">{{ loop.index }}</div>
+                    <div class="researcher-info">
+                        <h3>{{ name }}</h3>
+                        <p>{{ count }} publication{{ count > 1 ? 's' : '' }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- All Researchers Section -->
+    <div class="all-researchers-section">
+        <div class="container mx-auto px-4">
+            <h2>All Researchers</h2>
+            
+            {% if researchers %}
+            <div class="researchers-grid">
+                {% for researcher in researchers %}
+                <a href="{{ url_for('researcher_profile', researcher_id=researcher.id) }}" class="researcher-card">
+                    <div class="researcher-avatar">
+                        {% if researcher.profile_picture_url %}
+                        <img src="{{ researcher.profile_picture_url }}" alt="{{ researcher.name }}">
+                        {% else %}
+                        <div class="avatar-placeholder">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="researcher-info">
+                        <h3>{{ researcher.name }}</h3>
+                        <p class="research-count">
+                            {{ researcher.researches|length }} publication{{ researcher.researches|length != 1 ? 's' : '' }}
+                        </p>
+                        {% if researcher.bio %}
+                        <p class="researcher-bio">{{ researcher.bio[:100] }}{% if researcher.bio|length > 100 %}...{% endif %}</p>
+                        {% endif %}
+                    </div>
+                    <div class="view-profile">
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+            
+            {% else %}
+            <div class="no-researchers">
+                <i class="fas fa-users"></i>
+                <h3>No researchers found</h3>
+                <p>Researchers will appear here once publications are added.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+.researchers-page {
+    padding-bottom: 60px;
+}
+
+.page-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 60px 0;
+    text-align: center;
+}
+
+.page-header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+}
+
+.page-header p {
+    font-size: 1.1rem;
+    opacity: 0.9;
+}
+
+.statistics-section {
+    background: #f8f9fa;
+    padding: 30px 0;
+    margin-top: -20px;
+}
+
+.stats-grid {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    flex-wrap: wrap;
+}
+
+.stat-card {
+    background: white;
+    padding: 25px 40px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.stat-number {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #667eea;
+}
+
+.stat-label {
+    color: #666;
+    font-size: 0.9rem;
+    margin-top: 5px;
+}
+
+.top-researchers-section {
+    padding: 50px 0;
+    background: white;
+}
+
+.top-researchers-section h2 {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #333;
+}
+
+.top-researchers-grid {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.top-researcher-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 25px 35px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    min-width: 250px;
+}
+
+.top-researcher-card .rank {
+    width: 40px;
+    height: 40px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+.top-researcher-card .researcher-info h3 {
+    font-size: 1.1rem;
+    margin-bottom: 5px;
+}
+
+.top-researcher-card .researcher-info p {
+    opacity: 0.9;
+    font-size: 0.9rem;
+}
+
+.all-researchers-section {
+    padding: 50px 0;
+    background: #f8f9fa;
+}
+
+.all-researchers-section h2 {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #333;
+}
+
+.researchers-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.researcher-card {
+    background: white;
+    border-radius: 12px;
+    padding: 25px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    text-decoration: none;
+    color: inherit;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.researcher-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 25px rgba(0,0,0,0.12);
+}
+
+.researcher-avatar {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: #e9ecef;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.researcher-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.avatar-placeholder {
+    font-size: 1.8rem;
+    color: #adb5bd;
+}
+
+.researcher-info {
+    flex: 1;
+}
+
+.researcher-info h3 {
+    font-size: 1.1rem;
+    color: #333;
+    margin-bottom: 5px;
+}
+
+.research-count {
+    color: #667eea;
+    font-size: 0.9rem;
+    margin-bottom: 5px;
+}
+
+.researcher-bio {
+    color: #666;
+    font-size: 0.85rem;
+    line-height: 1.4;
+}
+
+.view-profile {
+    color: #667eea;
+    font-size: 1.2rem;
+    transition: transform 0.3s;
+}
+
+.researcher-card:hover .view-profile {
+    transform: translateX(5px);
+}
+
+.no-researchers {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.no-researchers i {
+    font-size: 4rem;
+    color: #ddd;
+    margin-bottom: 20px;
+}
+
+.no-researchers h3 {
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.no-researchers p {
+    color: #666;
+}
+
+@media (max-width: 768px) {
+    .stats-grid {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .top-researchers-grid {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .top-researcher-card {
+        width: 100%;
+        max-width: 300px;
+    }
+    
+    .researchers-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+{% endblock %}

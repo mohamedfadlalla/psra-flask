@@ -5,72 +5,134 @@
 {% block content %}
 <section class="section">
     <div class="container">
-        <h2>Admin Dashboard</h2>
+        <div class="flex justify-between items-center mb-8">
+            <h2>Admin Dashboard</h2>
+            <span class="badge badge-primary">
+                <i class="fas fa-shield-alt"></i> Administrator
+            </span>
+        </div>
 
         <!-- Statistics Cards -->
-        <div class="grid" style="margin-bottom: 40px;">
-            <div class="card">
+        <div class="admin-stats">
+            <div class="admin-stat-card">
+                <div class="flex items-center justify-center mb-2">
+                    <i class="fas fa-users text-2xl" style="color: var(--primary-blue);"></i>
+                </div>
                 <h3>Total Users</h3>
-                <p style="font-size: 2rem; font-weight: bold; color: var(--text-secondary);">{{ total_users }}</p>
+                <div class="admin-stat-number">{{ total_users }}</div>
             </div>
-            <div class="card">
+            <div class="admin-stat-card">
+                <div class="flex items-center justify-center mb-2">
+                    <i class="fas fa-file-alt text-2xl" style="color: var(--accent-orange);"></i>
+                </div>
                 <h3>Total Posts</h3>
-                <p style="font-size: 2rem; font-weight: bold; color: var(--text-secondary);">{{ total_posts }}</p>
+                <div class="admin-stat-number">{{ total_posts }}</div>
             </div>
-            <div class="card">
+            <div class="admin-stat-card">
+                <div class="flex items-center justify-center mb-2">
+                    <i class="fas fa-comments text-2xl" style="color: var(--accent-green);"></i>
+                </div>
                 <h3>Total Comments</h3>
-                <p style="font-size: 2rem; font-weight: bold; color: var(--text-secondary);">{{ total_comments }}</p>
+                <div class="admin-stat-number">{{ total_comments }}</div>
             </div>
-            <div class="card">
+            <div class="admin-stat-card">
+                <div class="flex items-center justify-center mb-2">
+                    <i class="fas fa-calendar-alt text-2xl" style="color: var(--color-info);"></i>
+                </div>
                 <h3>Total Events</h3>
-                <p style="font-size: 2rem; font-weight: bold; color: var(--text-secondary);">{{ total_events }}</p>
+                <div class="admin-stat-number">{{ total_events }}</div>
             </div>
         </div>
 
         <!-- Quick Actions -->
-        <div class="card" style="margin-bottom: 40px;">
-            <h3>Quick Actions</h3>
-            <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-top: 20px;">
-                <a href="{{ url_for('admin.manage_posts') }}" class="btn">Manage Posts</a>
-                <a href="{{ url_for('admin.manage_comments') }}" class="btn">Manage Comments</a>
-                <a href="{{ url_for('admin.manage_events') }}" class="btn">Manage Events</a>
+        <div class="card mb-8">
+            <div class="card-header">
+                <h3 class="card-title"><i class="fas fa-bolt"></i> Quick Actions</h3>
+            </div>
+            <div class="card-body">
+                <div class="quick-actions">
+                    <a href="{{ url_for('admin.manage_posts') }}" class="btn btn-secondary">
+                        <i class="fas fa-file-alt"></i> Manage Posts
+                    </a>
+                    <a href="{{ url_for('admin.manage_comments') }}" class="btn btn-secondary">
+                        <i class="fas fa-comments"></i> Manage Comments
+                    </a>
+                    <a href="{{ url_for('admin.manage_events') }}" class="btn btn-secondary">
+                        <i class="fas fa-calendar-alt"></i> Manage Events
+                    </a>
+                    <a href="{{ url_for('admin.manage_submissions') }}" class="btn" style="background: var(--accent-orange); color: white;">
+                        <i class="fas fa-file-alt"></i> Submissions
+                    </a>
+                    <a href="{{ url_for('admin.manage_researchers') }}" class="btn" style="background: #667eea; color: white;">
+                        <i class="fas fa-users"></i> Researchers
+                    </a>
+                    <a href="{{ url_for('admin.manage_researches') }}" class="btn btn-success">
+                        <i class="fas fa-book"></i> Researches
+                    </a>
+                </div>
             </div>
         </div>
 
         <!-- Recent Activity -->
-        <div class="grid">
+        <div class="grid md:grid-cols-2">
             <div class="card">
-                <h3>Recent Posts</h3>
-                {% if recent_posts %}
-                    <ul style="list-style: none; padding: 0;">
-                        {% for post in recent_posts %}
-                        <li style="padding: 10px 0; border-bottom: 1px solid var(--border);">
-                            <strong><a href="{{ url_for('forum.post_detail', post_id=post.id) }}" style="text-decoration: none; color: var(--text-primary);">{{ post.title }}</a></strong>
-                            <br><small style="color: var(--text-muted);">by {{ post.author.name }} on {{ post.created_at.strftime('%B %d, %Y') }}</small>
-                        </li>
-                        {% endfor %}
-                    </ul>
-                {% else %}
-                    <p>No recent posts.</p>
-                {% endif %}
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fas fa-clock"></i> Recent Posts</h3>
+                </div>
+                <div class="card-body">
+                    {% if recent_posts %}
+                        <ul class="info-list">
+                            {% for post in recent_posts %}
+                            <li class="flex justify-between items-start">
+                                <div>
+                                    <strong>
+                                        <a href="{{ url_for('forum.post_detail', post_id=post.id) }}" class="text-primary">
+                                            {{ post.title }}
+                                        </a>
+                                    </strong>
+                                    <br><small class="text-muted">by {{ post.author.name }}</small>
+                                </div>
+                                <small class="text-muted">{{ post.created_at.strftime('%b %d') }}</small>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="text-muted">No recent posts.</p>
+                    {% endif %}
+                </div>
             </div>
 
             <div class="card">
-                <h3>Recent Comments</h3>
-                {% if recent_comments %}
-                    <ul style="list-style: none; padding: 0;">
-                        {% for comment in recent_comments %}
-                        <li style="padding: 10px 0; border-bottom: 1px solid var(--border);">
-                            <strong>{{ comment.author.name }}</strong> commented on
-                            <a href="{{ url_for('forum.post_detail', post_id=comment.post.id) }}" style="text-decoration: none; color: var(--text-primary);">{{ comment.post.title }}</a>
-                            <br><small style="color: var(--text-muted);">{{ comment.created_at.strftime('%B %d, %Y') }}</small>
-                            <br><small style="color: var(--text-secondary);">{{ comment.content[:100] }}{% if comment.content|length > 100 %}...{% endif %}</small>
-                        </li>
-                        {% endfor %}
-                    </ul>
-                {% else %}
-                    <p>No recent comments.</p>
-                {% endif %}
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fas fa-comment-dots"></i> Recent Comments</h3>
+                </div>
+                <div class="card-body">
+                    {% if recent_comments %}
+                        <ul class="info-list">
+                            {% for comment in recent_comments %}
+                            <li>
+                                <div class="flex items-center gap-2 mb-1">
+                                    <div class="avatar avatar-sm">
+                                        {% if comment.author.profile_picture_url %}
+                                        <img src="{{ comment.author.profile_picture_url }}" alt="{{ comment.author.name }}">
+                                        {% else %}
+                                        <span class="avatar-placeholder">{{ comment.author.name[0].upper() }}</span>
+                                        {% endif %}
+                                    </div>
+                                    <strong>{{ comment.author.name }}</strong>
+                                </div>
+                                <a href="{{ url_for('forum.post_detail', post_id=comment.post.id) }}" class="text-primary">
+                                    {{ comment.post.title }}
+                                </a>
+                                <p class="text-sm text-muted mt-1">{{ comment.content[:100] }}{% if comment.content|length > 100 %}...{% endif %}</p>
+                                <small class="text-muted">{{ comment.created_at.strftime('%B %d, %Y') }}</small>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="text-muted">No recent comments.</p>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </div>

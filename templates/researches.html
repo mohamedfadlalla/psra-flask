@@ -1,63 +1,229 @@
 {% extends "base.html" %}
 
-{% block title %}Researches - PSRA{% endblock %}
+{% block title %}Research Publications - PSRA{% endblock %}
 
 {% block content %}
-<section class="section py-12">
-    <div class="container mx-auto px-4">
-        <h1 class="text-3xl font-heading font-bold text-primary-blue mb-8 text-center">Research Publications</h1>
-        
-        <div class="bg-white shadow-md rounded-lg overflow-hidden">
-            {% if researches %}
-            <div class="overflow-x-auto">
-                <table class="min-w-full leading-normal">
-                    <thead>
-                        <tr>
-                            <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                Researcher
-                            </th>
-                            <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                Title
-                            </th>
-                            <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                Department
-                            </th>
-                            <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                Year
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for research in researches %}
-                        <tr>
-                            <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                                <p class="text-gray-900 whitespace-no-wrap font-medium">{{ research['Name of Researcher'] }}</p>
-                            </td>
-                            <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                                <a href="{{ research['DOI of the Research'] }}" target="_blank" class="text-primary-blue hover:text-blue-800 hover:underline">
-                                    {{ research['Title of Research'] }}
-                                </a>
-                            </td>
-                            <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                                <p class="text-gray-900 whitespace-no-wrap">{{ research['Department Name'] }}</p>
-                            </td>
-                            <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                                <span class="relative inline-block px-3 py-1 font-semibold text-green-900 leading-tight">
-                                    <span aria-hidden class="absolute inset-0 bg-green-200 opacity-50 rounded-full"></span>
-                                    <span class="relative">{{ research['Date'] }}</span>
-                                </span>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+<div class="researches-page">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="container">
+            <h1>Research Publications</h1>
+            <p>Explore research publications from our faculty and students</p>
+        </div>
+    </div>
+
+    <!-- Statistics Section -->
+    {% if statistics %}
+    <div class="statistics-section">
+        <div class="container">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number">{{ statistics.total_researches }}</div>
+                    <div class="stat-label">Total Publications</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">{{ statistics.total_researchers }}</div>
+                    <div class="stat-label">Researchers</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">{{ statistics.departments|length }}</div>
+                    <div class="stat-label">Departments</div>
+                </div>
             </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Filter Section -->
+    <div class="filter-section">
+        <div class="container">
+            <form method="GET" action="{{ url_for('research') }}" class="filter-form">
+                <div class="filter-grid">
+                    <!-- Search -->
+                    <div class="filter-group">
+                        <label class="form-label"><i class="fas fa-search"></i> Search</label>
+                        <input type="text" name="search" placeholder="Search by title or researcher..." 
+                               value="{{ search_query }}" class="form-input">
+                    </div>
+                    
+                    <!-- Department Filter -->
+                    <div class="filter-group">
+                        <label class="form-label"><i class="fas fa-building"></i> Department</label>
+                        <select name="department" class="form-select">
+                            {% for value, label in department_choices %}
+                            <option value="{{ value }}" {% if current_department == value %}selected{% endif %}>
+                                {{ label }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <!-- Year Filter -->
+                    <div class="filter-group">
+                        <label class="form-label"><i class="fas fa-calendar"></i> Year</label>
+                        <select name="year" class="form-select">
+                            {% for value, label in year_choices %}
+                            <option value="{{ value }}" {% if current_year == value %}selected{% endif %}>
+                                {{ label }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <!-- Researcher Filter -->
+                    <div class="filter-group">
+                        <label class="form-label"><i class="fas fa-user"></i> Researcher</label>
+                        <select name="researcher" class="form-select">
+                            <option value="">All Researchers</option>
+                            {% for researcher in researchers %}
+                            <option value="{{ researcher.id }}" 
+                                    {% if current_researcher == researcher.id %}selected{% endif %}>
+                                {{ researcher.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <!-- Researcher Type Filter -->
+                    <div class="filter-group">
+                        <label class="form-label"><i class="fas fa-graduation-cap"></i> Type</label>
+                        <select name="researcher_type" class="form-select">
+                            {% for value, label in researcher_type_choices %}
+                            <option value="{{ value }}" {% if current_researcher_type == value %}selected{% endif %}>
+                                {{ label }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Filter Buttons -->
+                <div class="filter-buttons">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-filter"></i> Apply Filters
+                    </button>
+                    <a href="{{ url_for('research') }}" class="btn btn-outline">
+                        <i class="fas fa-times"></i> Clear
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Results Section -->
+    <section class="section">
+        <div class="container">
+            {% if researches %}
+            <div class="results-count mb-4">
+                <p class="text-secondary">Showing {{ researches|length }} of {{ pagination.total }} publications</p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-3">
+                {% for research in researches %}
+                <div class="card research-card card-elevated">
+                    <div class="card-body">
+                        <div class="research-header flex justify-between items-center mb-3">
+                            <span class="badge badge-primary">{{ research.year }}</span>
+                            <span class="text-sm text-muted">{{ research.department }}</span>
+                        </div>
+                        <h3 class="research-title card-title">
+                            {% if research.doi_url %}
+                            <a href="{{ research.doi_url }}" target="_blank" rel="noopener noreferrer">
+                                {{ research.title }}
+                            </a>
+                            {% else %}
+                            {{ research.title }}
+                            {% endif %}
+                        </h3>
+                        <div class="research-author flex items-center gap-2 mb-3">
+                            <div class="avatar avatar-sm">
+                                {% if research.author.profile_picture_url %}
+                                <img src="{{ research.author.profile_picture_url }}" alt="{{ research.author.name }}">
+                                {% else %}
+                                <span class="avatar-placeholder">{{ research.author.name[0].upper() }}</span>
+                                {% endif %}
+                            </div>
+                            <div>
+                                <a href="{{ url_for('researcher_profile', researcher_id=research.author.id) }}" class="text-primary font-medium">
+                                    {{ research.author.name }}
+                                </a>
+                                <div class="text-sm text-muted">{{ research.researcher_type|title }}</div>
+                            </div>
+                        </div>
+                        {% if research.doi_url %}
+                        <div class="research-doi">
+                            <a href="{{ research.doi_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline">
+                                <i class="fas fa-external-link-alt"></i> View Publication
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Pagination -->
+            {% if pagination.pages > 1 %}
+            <div class="pagination flex justify-center items-center gap-2 mt-8">
+                {% if pagination.has_prev %}
+                <a href="{{ url_for('research', page=pagination.prev_num, department=current_department, year=current_year, researcher=current_researcher, researcher_type=current_researcher_type, search=search_query) }}" 
+                   class="btn btn-outline">
+                    <i class="fas fa-chevron-left"></i> Previous
+                </a>
+                {% endif %}
+                
+                <div class="pagination-numbers flex gap-1">
+                    {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                        {% if page_num %}
+                            {% if page_num == pagination.page %}
+                            <span class="btn btn-primary">{{ page_num }}</span>
+                            {% else %}
+                            <a href="{{ url_for('research', page=page_num, department=current_department, year=current_year, researcher=current_researcher, researcher_type=current_researcher_type, search=search_query) }}" 
+                               class="btn btn-outline">{{ page_num }}</a>
+                            {% endif %}
+                        {% else %}
+                            <span class="btn btn-ghost">...</span>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                
+                {% if pagination.has_next %}
+                <a href="{{ url_for('research', page=pagination.next_num, department=current_department, year=current_year, researcher=current_researcher, researcher_type=current_researcher_type, search=search_query) }}" 
+                   class="btn btn-outline">
+                    Next <i class="fas fa-chevron-right"></i>
+                </a>
+                {% endif %}
+            </div>
+            {% endif %}
+            
             {% else %}
-            <div class="p-8 text-center text-gray-500">
-                <p>No research publications found.</p>
+            <div class="card">
+                <div class="card-body text-center" style="padding: 60px 20px;">
+                    <div style="font-size: 4rem; color: var(--text-muted); margin-bottom: 20px;">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <h3 style="color: var(--text-secondary); margin-bottom: 10px;">No Research Publications Found</h3>
+                    <p style="color: var(--text-muted); margin-bottom: 20px;">Try adjusting your filters or search terms</p>
+                    <a href="{{ url_for('research') }}" class="btn btn-primary">
+                        <i class="fas fa-list"></i> View All Publications
+                    </a>
+                </div>
             </div>
             {% endif %}
         </div>
-    </div>
-</section>
+    </section>
+
+    <!-- Submit Research CTA -->
+    {% if current_user.is_authenticated %}
+    <section class="section" style="background-color: var(--bg-secondary);">
+        <div class="container text-center">
+            <h3>Have a research publication to share?</h3>
+            <p class="text-secondary mb-4">Submit your research to be included in our database</p>
+            <a href="{{ url_for('submit_research') }}" class="btn btn-primary btn-lg">
+                <i class="fas fa-plus"></i> Submit Research
+            </a>
+        </div>
+    </section>
+    {% endif %}
+</div>
 {% endblock %}

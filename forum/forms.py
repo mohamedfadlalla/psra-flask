@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField, SelectField
-from wtforms.validators import DataRequired, Email, EqualTo, Length, ValidationError
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField, SelectField, IntegerField
+from wtforms.validators import DataRequired, Email, EqualTo, Length, ValidationError, Optional, NumberRange
 from models import User
 
 class LoginForm(FlaskForm):
@@ -74,3 +74,38 @@ class PasswordChangeForm(FlaskForm):
 class MessageForm(FlaskForm):
     content = TextAreaField('Message', validators=[DataRequired(), Length(min=1, max=1000)])
     submit = SubmitField('Send Message')
+
+
+class ResearchSubmissionForm(FlaskForm):
+    """Form for submitting a new research."""
+    title = StringField('Research Title', validators=[
+        DataRequired(message='Title is required.'),
+        Length(min=5, max=500, message='Title must be between 5 and 500 characters.')
+    ])
+    researcher_name = StringField('Researcher Name', validators=[
+        DataRequired(message='Researcher name is required.'),
+        Length(min=2, max=200, message='Name must be between 2 and 200 characters.')
+    ])
+    department = SelectField('Department', validators=[
+        DataRequired(message='Department is required.')
+    ], choices=[
+        ('Pharmaceutics & Drug Delivery', 'Pharmaceutics & Drug Delivery'),
+        ('Pharmacology & Toxicology', 'Pharmacology & Toxicology'),
+        ('Clinical Pharmacy & Pharmacy Practice', 'Clinical Pharmacy & Pharmacy Practice'),
+        ('Pharmaceutical Chemistry', 'Pharmaceutical Chemistry')
+    ])
+    year = IntegerField('Year of Publication', validators=[
+        DataRequired(message='Year is required.'),
+        NumberRange(min=1990, max=2030, message='Year must be between 1990 and 2030.')
+    ])
+    doi_url = StringField('DOI Link', validators=[
+        Optional(),
+        Length(max=500, message='DOI URL must be less than 500 characters.')
+    ])
+    researcher_type = SelectField('Researcher Type', validators=[
+        DataRequired(message='Researcher type is required.')
+    ], choices=[
+        ('doctor', 'Doctor'),
+        ('student', 'Student')
+    ])
+    submit = SubmitField('Submit Research')

@@ -19,21 +19,24 @@
     <!-- Google Fonts: Montserrat for headings, Inter for body -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400&family=Montserrat:wght@600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Montserrat:wght@600;700&display=swap" rel="stylesheet">
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
                         primary: {
                             blue: '#2D577B',
-                            'blue-light': '#607D9B'
+                            'blue-light': '#607D9B',
+                            'blue-dark': '#1E3A5F'
                         },
                         accent: {
                             orange: '#F59E0B',
+                            'orange-hover': '#D97706',
                             green: '#4ADE80'
                         }
                     },
@@ -47,108 +50,328 @@
     </script>
 
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <!-- Font Awesome CDN for social media icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha512-Fo3rlrZj/k7ujTnHg4CGR2D7kSs0v4LLanw2qksYuRlEzO+tcaEPQogQ0KaoGN26/zrn20ImR1DfuLWnOo7aBA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <script src="{{ url_for('static', filename='js/script.js') }}" defer></script>
-
+    <!-- Font Awesome CDN for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZudtF+687T5A1KfcF6hA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    
     <!-- Socket.IO for real-time messaging -->
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
-
-    <!-- Microsoft Clarity Tracking Code -->
-    <script type="text/javascript">
-        (function(c,l,a,r,i,t,y){
-            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
-            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
-        })(window, document, "clarity", "script", "tmtmnerope");
-    </script>
 </head>
 <body>
-    <header>
+    <!-- Skip Link for Accessibility -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    
+    <!-- Toast Container -->
+    <div id="toast-container" class="toast-container" aria-live="polite"></div>
+    
+    <!-- Header -->
+    <header class="header" id="header">
         <div class="container">
             <div class="logo">
-                <a href="{{ url_for('home') }}">
+                <a href="{{ url_for('home') }}" aria-label="PSRA Home">
                     <img src="{{ url_for('static', filename='images/logo.png') }}" alt="PSRA Logo">
                 </a>
             </div>
 
             <!-- Main Navigation -->
-            <nav class="main-nav" id="main-nav">
-                <ul>
-                    <li><a href="{{ url_for('home') }}" class="{% if request.endpoint == 'home' %}active{% endif %}">Home</a></li>
-                    <li><a href="{{ url_for('research') }}">Research</a></li>
-                    <li><a href="{{ url_for('forum.forum_main') }}">Forum</a></li>
+            <nav class="nav-main" id="main-nav" role="navigation" aria-label="Main navigation">
+                <ul class="nav-list">
+                    <li><a href="{{ url_for('home') }}" class="nav-link {% if request.endpoint == 'home' %}active{% endif %}">Home</a></li>
+                    <li><a href="{{ url_for('research') }}" class="nav-link {% if request.endpoint == 'research' %}active{% endif %}">Research</a></li>
+                    <li><a href="{{ url_for('forum.forum_main') }}" class="nav-link {% if 'forum' in request.endpoint and 'login' not in request.endpoint and 'register' not in request.endpoint %}active{% endif %}">Forum</a></li>
                     {% if current_user.is_authenticated %}
-                    <li><a href="{{ url_for('forum.users') }}">Find Users</a></li>
+                    <li><a href="{{ url_for('forum.users') }}" class="nav-link {% if request.endpoint == 'forum.users' %}active{% endif %}">Find Users</a></li>
                     {% endif %}
-                    <li><a href="{{ url_for('events') }}">Events</a></li>
-                    <li><a href="{{ url_for('support') }}">Support & Donations</a></li>
+                    <li><a href="{{ url_for('events') }}" class="nav-link {% if request.endpoint == 'events' %}active{% endif %}">Events</a></li>
+                    <li><a href="{{ url_for('support') }}" class="nav-link {% if request.endpoint == 'support' %}active{% endif %}">Support</a></li>
+                    
                     {% if not current_user.is_authenticated %}
-                    <li><a href="{{ url_for('forum.login') }}">Sign In</a></li>
-                    <li><a href="{{ url_for('forum.register') }}">Sign Up</a></li>
+                    <li class="nav-auth-links">
+                        <a href="{{ url_for('forum.login') }}" class="btn btn-outline btn-sm">Sign In</a>
+                    </li>
+                    <li class="nav-auth-links">
+                        <a href="{{ url_for('forum.register') }}" class="btn btn-primary btn-sm">Sign Up</a>
+                    </li>
                     {% endif %}
+                    
                     {% if current_user.is_authenticated %}
-                    <li>
-                        <a href="{{ url_for('forum.messages') }}" class="{% if 'messages' in request.endpoint %}active{% endif %}">
-                            Messages
+                    <li class="nav-item-relative">
+                        <a href="{{ url_for('forum.messages') }}" class="nav-link {% if 'messages' in request.endpoint %}active{% endif %}" aria-label="Messages{% if unread_message_count > 0 %}, {{ unread_message_count }} unread{% endif %}">
+                            <i class="fas fa-envelope"></i>
+                            <span class="nav-text-hidden">Messages</span>
                             {% if unread_message_count > 0 %}
-                            <span class="notification-badge">{{ unread_message_count }}</span>
+                            <span class="notification-badge" aria-hidden="true">{{ unread_message_count }}</span>
                             {% endif %}
                         </a>
-                        <!-- Debug: unread_count={{ unread_message_count }}, authenticated={{ current_user.is_authenticated }} -->
                     </li>
-                    <li><a href="{{ url_for('forum.profile') }}" class="{% if 'profile' in request.endpoint %}active{% endif %}">Profile</a></li>
-                    <li><a href="{{ url_for('forum.logout') }}">Logout</a></li>
+                    
+                    <!-- User Dropdown -->
+                    <li class="nav-dropdown">
+                        <button class="nav-link user-dropdown-toggle" aria-expanded="false" aria-haspopup="true">
+                            <div class="avatar avatar-sm">
+                                {% if current_user.profile_picture_url %}
+                                <img src="{{ current_user.profile_picture_url }}" alt="{{ current_user.name }}'s profile picture">
+                                {% else %}
+                                <span class="avatar-placeholder">{{ current_user.name[0].upper() }}</span>
+                                {% endif %}
+                            </div>
+                            <span class="user-name">{{ current_user.name.split()[0] }}</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="nav-dropdown-menu user-dropdown-menu">
+                            <a href="{{ url_for('forum.profile') }}" class="nav-dropdown-item">
+                                <i class="fas fa-user"></i> My Profile
+                            </a>
+                            <a href="{{ url_for('forum.edit_profile') }}" class="nav-dropdown-item">
+                                <i class="fas fa-cog"></i> Edit Profile
+                            </a>
+                            {% if current_user.is_admin %}
+                            <div class="dropdown-divider"></div>
+                            <a href="{{ url_for('admin.admin_dashboard') }}" class="nav-dropdown-item">
+                                <i class="fas fa-shield-alt"></i> Admin Dashboard
+                            </a>
+                            {% endif %}
+                            <div class="dropdown-divider"></div>
+                            <a href="{{ url_for('forum.logout') }}" class="nav-dropdown-item text-danger">
+                                <i class="fas fa-sign-out-alt"></i> Logout
+                            </a>
+                        </div>
+                    </li>
                     {% endif %}
-                    {% if current_user.is_authenticated and current_user.is_admin %}
-                    <li><a href="{{ url_for('admin.admin_dashboard') }}" class="{% if 'admin' in request.endpoint %}active{% endif %}">Admin</a></li>
-                    {% endif %}
+                    
+                    <!-- Dark Mode Toggle -->
+                    <li class="nav-item-theme">
+                        <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode">
+                            <i class="fas fa-moon" id="theme-icon"></i>
+                        </button>
+                    </li>
                 </ul>
             </nav>
 
             <!-- Hamburger Menu Toggle Button -->
             <button class="menu-toggle" id="menu-toggle" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="main-nav">
-                <i class="fas fa-bars"></i>
+                <i class="fas fa-bars" id="menu-icon"></i>
             </button>
         </div>
     </header>
 
-    <main>
+    <!-- Main Content -->
+    <main id="main-content">
         {% block content %}{% endblock %}
     </main>
 
-    <footer>
+    <!-- Footer -->
+    <footer class="footer">
         <div class="container">
-            <div class="footer-column">
-                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="PSRA Logo" class="footer-logo">
-                <p>&copy; 2025 Pharmaceutical Studies and Research Association. All Rights Reserved.</p>
-            </div>
-            <div class="footer-column">
-                <h4>Links</h4>
-                <ul>
-                    <li><a href="{{ url_for('about') }}">About Us</a></li>
-                    <li><a href="{{ url_for('collaborate') }}">Collaborate with Us</a></li>
-                    <li><a href="{{ url_for('forum.login') }}">Login</a></li>
-                    <li><a href="{{ url_for('contact') }}">Contact Us</a></li>
-                </ul>
-            </div>
-            <div class="footer-column">
-                <h4>Resources</h4>
-                <ul>
-                    <li><a href="{{ url_for('privacy') }}">Privacy Policy</a></li>
-                    <li><a href="{{ url_for('faq') }}">FAQ</a></li>
-                </ul>
-            </div>
-            <div class="footer-column">
-                <h4>Follow Us</h4>
-                <div class="social-icons">
-                    <a href="https://www.facebook.com/fpsauofk" target="_blank" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
-                    <a href="https://www.instagram.com/fpsauofk" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-                    <a href="https://linkedin.com/in/faculty-of-pharmacy-students-association-uofk-96337621a" target="_blank" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+            <div class="footer-grid">
+                <div class="footer-column">
+                    <img src="{{ url_for('static', filename='images/logo.png') }}" alt="PSRA Logo" class="footer-logo">
+                    <p>Pharmaceutical Studies and Research Association - Advancing healthcare through research and collaboration.</p>
+                </div>
+                <div class="footer-column">
+                    <h4 class="footer-title">Quick Links</h4>
+                    <ul class="footer-links">
+                        <li><a href="{{ url_for('about') }}">About Us</a></li>
+                        <li><a href="{{ url_for('collaborate') }}">Collaborate</a></li>
+                        <li><a href="{{ url_for('contact') }}">Contact Us</a></li>
+                        <li><a href="{{ url_for('forum.forum_main') }}">Forum</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h4 class="footer-title">Resources</h4>
+                    <ul class="footer-links">
+                        <li><a href="{{ url_for('research') }}">Research Publications</a></li>
+                        <li><a href="{{ url_for('events') }}">Events</a></li>
+                        <li><a href="{{ url_for('privacy') }}">Privacy Policy</a></li>
+                        <li><a href="{{ url_for('faq') }}">FAQ</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h4 class="footer-title">Connect With Us</h4>
+                    <div class="social-icons">
+                        <a href="https://www.facebook.com/fpsauofk" target="_blank" rel="noopener noreferrer" class="social-icon facebook" aria-label="Facebook">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="https://www.instagram.com/fpsauofk" target="_blank" rel="noopener noreferrer" class="social-icon instagram" aria-label="Instagram">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="https://linkedin.com/in/faculty-of-pharmacy-students-association-uofk-96337621a" target="_blank" rel="noopener noreferrer" class="social-icon linkedin" aria-label="LinkedIn">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                    </div>
                 </div>
             </div>
+            <div class="footer-bottom">
+                <p>&copy; {{ now.year if now else 2025 }} Pharmaceutical Studies and Research Association. All Rights Reserved.</p>
+                <p>Created by <a href="https://mohamedfadlalla.github.io" target="_blank" rel="noopener noreferrer">Mohamed Fadlalla</a></p>
+            </div>
         </div>
-        <p class="text-center text-sm text-gray-500 mt-4">Created by <a href="https://mohamedfadlalla.github.io" target="_blank">MohamedFadlalla</a></p>
     </footer>
+
+    <!-- JavaScript -->
+    <script src="{{ url_for('static', filename='js/script.js') }}" defer></script>
+    
+    <script>
+        // Dark Mode Toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        const themeIcon = document.getElementById('theme-icon');
+        const html = document.documentElement;
+        
+        // Check for saved theme preference or system preference
+        const savedTheme = localStorage.getItem('theme');
+        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        
+        if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
+            html.setAttribute('data-theme', 'dark');
+            themeIcon.classList.remove('fa-moon');
+            themeIcon.classList.add('fa-sun');
+        }
+        
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = html.getAttribute('data-theme');
+            
+            if (currentTheme === 'dark') {
+                html.removeAttribute('data-theme');
+                localStorage.setItem('theme', 'light');
+                themeIcon.classList.remove('fa-sun');
+                themeIcon.classList.add('fa-moon');
+            } else {
+                html.setAttribute('data-theme', 'dark');
+                localStorage.setItem('theme', 'dark');
+                themeIcon.classList.remove('fa-moon');
+                themeIcon.classList.add('fa-sun');
+            }
+        });
+        
+        // Mobile Menu Toggle
+        const menuToggle = document.getElementById('menu-toggle');
+        const mainNav = document.getElementById('main-nav');
+        const menuIcon = document.getElementById('menu-icon');
+        
+        menuToggle.addEventListener('click', () => {
+            const isExpanded = menuToggle.getAttribute('aria-expanded') === 'true';
+            menuToggle.setAttribute('aria-expanded', !isExpanded);
+            mainNav.classList.toggle('active');
+            
+            if (mainNav.classList.contains('active')) {
+                menuIcon.classList.remove('fa-bars');
+                menuIcon.classList.add('fa-times');
+            } else {
+                menuIcon.classList.remove('fa-times');
+                menuIcon.classList.add('fa-bars');
+            }
+        });
+        
+        // Header Scroll Effect
+        const header = document.getElementById('header');
+        let lastScroll = 0;
+        
+        window.addEventListener('scroll', () => {
+            const currentScroll = window.pageYOffset;
+            
+            if (currentScroll > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+            
+            lastScroll = currentScroll;
+        });
+        
+        // User Dropdown Toggle (for mobile)
+        const dropdownToggles = document.querySelectorAll('.user-dropdown-toggle');
+        dropdownToggles.forEach(toggle => {
+            toggle.addEventListener('click', (e) => {
+                e.preventDefault();
+                const dropdown = toggle.nextElementSibling;
+                const isExpanded = toggle.getAttribute('aria-expanded') === 'true';
+                
+                // Close other dropdowns
+                document.querySelectorAll('.nav-dropdown-menu').forEach(menu => {
+                    if (menu !== dropdown) {
+                        menu.style.opacity = '0';
+                        menu.style.visibility = 'hidden';
+                        menu.style.transform = 'translateY(-10px)';
+                    }
+                });
+                
+                toggle.setAttribute('aria-expanded', !isExpanded);
+                
+                if (!isExpanded) {
+                    dropdown.style.opacity = '1';
+                    dropdown.style.visibility = 'visible';
+                    dropdown.style.transform = 'translateY(0)';
+                } else {
+                    dropdown.style.opacity = '0';
+                    dropdown.style.visibility = 'hidden';
+                    dropdown.style.transform = 'translateY(-10px)';
+                }
+            });
+        });
+        
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.nav-dropdown')) {
+                document.querySelectorAll('.nav-dropdown-menu').forEach(menu => {
+                    menu.style.opacity = '0';
+                    menu.style.visibility = 'hidden';
+                    menu.style.transform = 'translateY(-10px)';
+                });
+                document.querySelectorAll('.user-dropdown-toggle').forEach(toggle => {
+                    toggle.setAttribute('aria-expanded', 'false');
+                });
+            }
+        });
+        
+        // Toast Notification System
+        function showToast(message, type = 'info', duration = 5000) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'toast toast-' + type;
+            
+            const iconMap = {
+                success: 'fa-check-circle',
+                error: 'fa-exclamation-circle',
+                warning: 'fa-exclamation-triangle',
+                info: 'fa-info-circle'
+            };
+            
+            toast.innerHTML = `
+                <i class="fas ${iconMap[type]}"></i>
+                <span>${message}</span>
+                <button class="toast-close" aria-label="Close notification">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            
+            container.appendChild(toast);
+            
+            // Close button
+            toast.querySelector('.toast-close').addEventListener('click', () => {
+                toast.remove();
+            });
+            
+            // Auto remove
+            setTimeout(() => {
+                toast.style.animation = 'slideOut 0.3s ease forwards';
+                setTimeout(() => toast.remove(), 300);
+            }, duration);
+        }
+        
+        // Animate on scroll
+        const animateElements = document.querySelectorAll('.animate-on-scroll');
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate-in');
+                }
+            });
+        }, {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        });
+        
+        animateElements.forEach(el => observer.observe(el));
+    </script>
 </body>
 </html>

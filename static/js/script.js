@@ -1,4 +1,24 @@
-// Forum interactions
+/**
+ * PSRA - Main JavaScript File
+ * Pharmaceutical Studies and Research Association
+ * 
+ * Features:
+ * - Forum interactions (likes, filtering)
+ * - Dark mode toggle
+ * - Toast notifications
+ * - Scroll animations
+ * - Mobile navigation
+ * - Event countdown
+ */
+
+// ===========================================
+// FORUM INTERACTIONS
+// ===========================================
+
+/**
+ * Toggle like on a post
+ * @param {number} postId - The ID of the post to like/unlike
+ */
 function toggleLike(postId) {
     fetch(`/forum/post/${postId}/like`, {
         method: 'POST',
@@ -10,18 +30,22 @@ function toggleLike(postId) {
     .then(data => {
         const likeBtn = document.getElementById('like-btn');
         if (likeBtn) {
-            likeBtn.innerHTML = `👍 ${data.likes}`;
+            likeBtn.innerHTML = `<i class="fas fa-thumbs-up"></i> ${data.likes}`;
+            likeBtn.classList.toggle('liked', data.liked);
         }
     })
     .catch(error => {
         console.error('Error toggling like:', error);
-        alert('Error updating like. Please try again.');
+        showToast('Error updating like. Please try again.', 'error');
     });
 }
 
+/**
+ * Filter posts by category and search term
+ */
 function filterPosts() {
-    const category = document.getElementById('category-select').value;
-    const search = document.getElementById('search-input').value;
+    const category = document.getElementById('category-select')?.value || '';
+    const search = document.getElementById('search-input')?.value || '';
 
     fetch(`/forum/?category=${encodeURIComponent(category)}&search=${encodeURIComponent(search)}`, {
         headers: {
@@ -33,29 +57,37 @@ function filterPosts() {
         // Update the title
         const titleElement = document.querySelector('h2');
         if (titleElement) {
-            titleElement.textContent = `Forum > ${data.selected_category}`;
+            titleElement.innerHTML = `Forum <span class="text-secondary">› ${data.selected_category || 'All Discussions'}</span>`;
         }
 
         // Update the posts section
-        const postsContainer = document.querySelector('.container > div:last-child');
+        const postsContainer = document.querySelector('.forum-container > div:last-child');
+        if (!postsContainer) return;
+
         let postsHtml = '';
 
-        if (data.posts.length > 0) {
+        if (data.posts && data.posts.length > 0) {
             data.posts.forEach(post => {
                 postsHtml += `
-                <div class="card" style="margin-bottom: 20px;">
-                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
-                        <img src="/static/images/default-avatar.png" alt="Avatar" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
-                        <div>
-                            <strong>${post.author}</strong>
-                            <br><small style="color: var(--text-muted);">${post.created_at}</small>
+                <div class="card post-card">
+                    <div class="card-body">
+                        <div class="post-header">
+                            <div class="avatar avatar-md">
+                                <img src="/static/images/${post.author_avatar || 'default-avatar.png'}" alt="${post.author}">
+                            </div>
+                            <div class="post-author-info">
+                                <span class="post-author-name">${post.author}</span>
+                                <br><span class="post-date">${post.created_at}</span>
+                            </div>
                         </div>
-                    </div>
-                    <h3><a href="/forum/post/${post.id}" style="text-decoration: none; color: var(--text-primary);">${post.title}</a></h3>
-                    <p style="color: var(--text-secondary);">${post.content}</p>
-                    <div style="display: flex; gap: 20px; margin-top: 10px;">
-                        <span>👍 ${post.likes}</span>
-                        <span>💬 ${post.comments}</span>
+                        <h3 class="post-title">
+                            <a href="/forum/post/${post.id}">${post.title}</a>
+                        </h3>
+                        <p class="post-content">${post.content}</p>
+                        <div class="post-footer">
+                            <span><i class="fas fa-thumbs-up"></i> ${post.likes}</span>
+                            <span><i class="fas fa-comments"></i> ${post.comments}</span>
+                        </div>
                     </div>
                 </div>
                 `;
@@ -63,49 +95,294 @@ function filterPosts() {
         } else {
             postsHtml = `
             <div class="card">
-                <p>No discussions found. <a href="/forum/create">Start the first one!</a></p>
+                <div class="card-body text-center" style="padding: 40px;">
+                    <i class="fas fa-comments" style="font-size: 3rem; color: var(--text-muted); margin-bottom: 16px;"></i>
+                    <h3>No discussions found</h3>
+                    <p class="text-muted">Try different keywords or <a href="/forum/create">start a new discussion</a></p>
+                </div>
             </div>
             `;
         }
 
-        // Replace the content after the title
-        const titleDiv = postsContainer.querySelector('div');
-        const titleHtml = titleDiv ? titleDiv.outerHTML : '';
-        postsContainer.innerHTML = titleHtml + postsHtml;
+        // Find the posts container and update
+        const postsList = postsContainer.querySelector('.posts-list') || postsContainer;
+        postsList.innerHTML = postsHtml;
     })
     .catch(error => {
         console.error('Error filtering posts:', error);
+        showToast('Error loading posts. Please try again.', 'error');
     });
 }
 
+// ===========================================
+// TOAST NOTIFICATIONS
+// ===========================================
 
+/**
+ * Show a toast notification
+ * @param {string} message - The message to display
+ * @param {string} type - The type of toast (success, error, warning, info)
+ * @param {number} duration - Duration in milliseconds
+ */
+function showToast(message, type = 'info', duration = 5000) {
+    const container = document.getElementById('toast-container');
+    if (!container) return;
 
-// Upcoming event section functionality
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    
+    const iconMap = {
+        success: 'fa-check-circle',
+        error: 'fa-exclamation-circle',
+        warning: 'fa-exclamation-triangle',
+        info: 'fa-info-circle'
+    };
+
+    toast.innerHTML = `
+        <i class="fas ${iconMap[type] || iconMap.info}"></i>
+        <span>${message}</span>
+        <button class="toast-close" aria-label="Close notification">
+            <i class="fas fa-times"></i>
+        </button>
+    `;
+
+    container.appendChild(toast);
+
+    // Close button functionality
+    toast.querySelector('.toast-close').addEventListener('click', () => {
+        removeToast(toast);
+    });
+
+    // Auto remove after duration
+    setTimeout(() => {
+        removeToast(toast);
+    }, duration);
+}
+
+/**
+ * Remove a toast with animation
+ * @param {HTMLElement} toast - The toast element to remove
+ */
+function removeToast(toast) {
+    toast.style.animation = 'slideOut 0.3s ease forwards';
+    setTimeout(() => toast.remove(), 300);
+}
+
+// ===========================================
+// DARK MODE
+// ===========================================
+
+/**
+ * Initialize dark mode based on saved preference or system preference
+ */
+function initDarkMode() {
+    const savedTheme = localStorage.getItem('theme');
+    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    
+    if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        updateThemeIcon(true);
+    }
+}
+
+/**
+ * Toggle dark mode
+ */
+function toggleDarkMode() {
+    const html = document.documentElement;
+    const currentTheme = html.getAttribute('data-theme');
+    
+    if (currentTheme === 'dark') {
+        html.removeAttribute('data-theme');
+        localStorage.setItem('theme', 'light');
+        updateThemeIcon(false);
+    } else {
+        html.setAttribute('data-theme', 'dark');
+        localStorage.setItem('theme', 'dark');
+        updateThemeIcon(true);
+    }
+}
+
+/**
+ * Update the theme toggle icon
+ * @param {boolean} isDark - Whether dark mode is enabled
+ */
+function updateThemeIcon(isDark) {
+    const themeIcon = document.getElementById('theme-icon');
+    if (themeIcon) {
+        if (isDark) {
+            themeIcon.classList.remove('fa-moon');
+            themeIcon.classList.add('fa-sun');
+        } else {
+            themeIcon.classList.remove('fa-sun');
+            themeIcon.classList.add('fa-moon');
+        }
+    }
+}
+
+// ===========================================
+// MOBILE NAVIGATION
+// ===========================================
+
+/**
+ * Initialize mobile navigation toggle
+ */
+function initMobileNav() {
+    const menuToggle = document.getElementById('menu-toggle');
+    const mainNav = document.getElementById('main-nav');
+    const menuIcon = document.getElementById('menu-icon');
+
+    if (menuToggle && mainNav) {
+        menuToggle.addEventListener('click', () => {
+            const isExpanded = menuToggle.getAttribute('aria-expanded') === 'true';
+            menuToggle.setAttribute('aria-expanded', !isExpanded);
+            mainNav.classList.toggle('active');
+            
+            if (menuIcon) {
+                if (mainNav.classList.contains('active')) {
+                    menuIcon.classList.remove('fa-bars');
+                    menuIcon.classList.add('fa-times');
+                } else {
+                    menuIcon.classList.remove('fa-times');
+                    menuIcon.classList.add('fa-bars');
+                }
+            }
+        });
+    }
+}
+
+/**
+ * Initialize user dropdown menus
+ */
+function initDropdowns() {
+    const dropdownToggles = document.querySelectorAll('.user-dropdown-toggle');
+    
+    dropdownToggles.forEach(toggle => {
+        toggle.addEventListener('click', (e) => {
+            e.preventDefault();
+            const dropdown = toggle.nextElementSibling;
+            const isExpanded = toggle.getAttribute('aria-expanded') === 'true';
+            
+            // Close other dropdowns
+            document.querySelectorAll('.nav-dropdown-menu').forEach(menu => {
+                if (menu !== dropdown) {
+                    menu.style.opacity = '0';
+                    menu.style.visibility = 'hidden';
+                    menu.style.transform = 'translateY(-10px)';
+                }
+            });
+            
+            toggle.setAttribute('aria-expanded', !isExpanded);
+            
+            if (!isExpanded) {
+                dropdown.style.opacity = '1';
+                dropdown.style.visibility = 'visible';
+                dropdown.style.transform = 'translateY(0)';
+            } else {
+                dropdown.style.opacity = '0';
+                dropdown.style.visibility = 'hidden';
+                dropdown.style.transform = 'translateY(-10px)';
+            }
+        });
+    });
+
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.nav-dropdown')) {
+            document.querySelectorAll('.nav-dropdown-menu').forEach(menu => {
+                menu.style.opacity = '0';
+                menu.style.visibility = 'hidden';
+                menu.style.transform = 'translateY(-10px)';
+            });
+            document.querySelectorAll('.user-dropdown-toggle').forEach(toggle => {
+                toggle.setAttribute('aria-expanded', 'false');
+            });
+        }
+    });
+}
+
+// ===========================================
+// HEADER SCROLL EFFECT
+// ===========================================
+
+/**
+ * Add shadow to header on scroll
+ */
+function initHeaderScroll() {
+    const header = document.getElementById('header');
+    if (!header) return;
+
+    window.addEventListener('scroll', () => {
+        if (window.pageYOffset > 50) {
+            header.classList.add('scrolled');
+        } else {
+            header.classList.remove('scrolled');
+        }
+    });
+}
+
+// ===========================================
+// SCROLL ANIMATIONS
+// ===========================================
+
+/**
+ * Initialize scroll-triggered animations
+ */
+function initScrollAnimations() {
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('animate-in');
+            }
+        });
+    }, observerOptions);
+
+    const animatedElements = document.querySelectorAll('.animate-on-scroll');
+    animatedElements.forEach(element => {
+        observer.observe(element);
+    });
+}
+
+// ===========================================
+// EVENT COUNTDOWN
+// ===========================================
+
+/**
+ * Update upcoming event section
+ */
 function updateUpcomingEvent() {
     fetch('/api/next-event')
         .then(response => response.json())
         .then(data => {
             const upcomingSection = document.getElementById('upcoming-event');
+            if (!upcomingSection) return;
 
             if (data.no_event) {
                 upcomingSection.style.display = 'none';
                 return;
             }
 
-            // Show upcoming event section
             upcomingSection.style.display = 'block';
 
             // Update event info
-            document.getElementById('upcoming-event-title').textContent = data.title;
+            const titleEl = document.getElementById('upcoming-event-title');
+            if (titleEl) titleEl.textContent = data.title;
 
             // Handle event image
             const imageContainer = document.getElementById('upcoming-event-image');
             const imageElement = document.getElementById('upcoming-event-img');
-            if (data.image_url) {
-                imageElement.src = '/static/images/' + data.image_url;
-                imageContainer.style.display = 'block';
-            } else {
-                imageContainer.style.display = 'none';
+            if (imageContainer && imageElement) {
+                if (data.image_url) {
+                    imageElement.src = '/static/images/' + data.image_url;
+                    imageContainer.style.display = 'block';
+                } else {
+                    imageContainer.style.display = 'none';
+                }
             }
 
             // Format date
@@ -120,10 +397,13 @@ function updateUpcomingEvent() {
                 dateString += ' (All Day)';
             }
 
-            document.getElementById('upcoming-event-date').textContent = dateString;
-            document.getElementById('upcoming-event-description').textContent = data.description || '';
+            const dateEl = document.getElementById('upcoming-event-date');
+            if (dateEl) dateEl.textContent = dateString;
 
-            // Calculate time remaining for upcoming event countdown
+            const descEl = document.getElementById('upcoming-event-description');
+            if (descEl) descEl.textContent = data.description || '';
+
+            // Calculate time remaining
             const now = new Date();
             const timeDiff = eventDate - now;
 
@@ -133,23 +413,191 @@ function updateUpcomingEvent() {
                 const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
                 const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
 
-                document.getElementById('upcoming-days').textContent = days.toString().padStart(2, '0');
-                document.getElementById('upcoming-hours').textContent = hours.toString().padStart(2, '0');
-                document.getElementById('upcoming-minutes').textContent = minutes.toString().padStart(2, '0');
-                document.getElementById('upcoming-seconds').textContent = seconds.toString().padStart(2, '0');
+                const daysEl = document.getElementById('upcoming-days');
+                const hoursEl = document.getElementById('upcoming-hours');
+                const minutesEl = document.getElementById('upcoming-minutes');
+                const secondsEl = document.getElementById('upcoming-seconds');
+
+                if (daysEl) daysEl.textContent = days.toString().padStart(2, '0');
+                if (hoursEl) hoursEl.textContent = hours.toString().padStart(2, '0');
+                if (minutesEl) minutesEl.textContent = minutes.toString().padStart(2, '0');
+                if (secondsEl) secondsEl.textContent = seconds.toString().padStart(2, '0');
             } else {
-                // Event has passed, hide section
                 upcomingSection.style.display = 'none';
             }
         })
         .catch(error => {
             console.error('Error fetching next event:', error);
-            document.getElementById('upcoming-event').style.display = 'none';
+            const upcomingSection = document.getElementById('upcoming-event');
+            if (upcomingSection) upcomingSection.style.display = 'none';
         });
 }
 
-// Add event listeners when DOM is loaded
+// ===========================================
+// PASSWORD TOGGLE
+// ===========================================
+
+/**
+ * Toggle password visibility
+ * @param {string} fieldId - The ID of the password field
+ */
+function togglePassword(fieldId) {
+    const input = document.getElementById(fieldId);
+    const icon = document.getElementById(fieldId + '-toggle-icon');
+    
+    if (!input) return;
+
+    if (input.type === 'password') {
+        input.type = 'text';
+        if (icon) {
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        }
+    } else {
+        input.type = 'password';
+        if (icon) {
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
+    }
+}
+
+// ===========================================
+// UTILITY FUNCTIONS
+// ===========================================
+
+/**
+ * Debounce function for performance optimization
+ * @param {Function} func - The function to debounce
+ * @param {number} wait - The wait time in milliseconds
+ */
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+/**
+ * Smooth scroll to element
+ * @param {string} targetId - The ID of the target element
+ */
+function smoothScrollTo(targetId) {
+    const targetElement = document.querySelector(targetId);
+    if (targetElement) {
+        targetElement.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+        });
+    }
+}
+
+// ===========================================
+// LAZY LOADING
+// ===========================================
+
+/**
+ * Initialize lazy loading for images
+ */
+function initLazyLoading() {
+    const images = document.querySelectorAll('img[data-src]');
+
+    if ('IntersectionObserver' in window) {
+        const imageObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const img = entry.target;
+                    img.src = img.dataset.src;
+                    img.removeAttribute('data-src');
+                    imageObserver.unobserve(img);
+                }
+            });
+        });
+
+        images.forEach(img => imageObserver.observe(img));
+    } else {
+        // Fallback for browsers without IntersectionObserver
+        images.forEach(img => {
+            img.src = img.dataset.src;
+            img.removeAttribute('data-src');
+        });
+    }
+}
+
+// ===========================================
+// FORM VALIDATION HELPERS
+// ===========================================
+
+/**
+ * Show form error
+ * @param {string} fieldId - The ID of the field
+ * @param {string} message - The error message
+ */
+function showFormError(fieldId, message) {
+    const field = document.getElementById(fieldId);
+    if (!field) return;
+
+    field.classList.add('error');
+    
+    // Remove existing error message
+    const existingError = field.parentElement.querySelector('.form-error');
+    if (existingError) existingError.remove();
+
+    // Add new error message
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'form-error';
+    errorDiv.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${message}`;
+    field.parentElement.appendChild(errorDiv);
+}
+
+/**
+ * Clear form error
+ * @param {string} fieldId - The ID of the field
+ */
+function clearFormError(fieldId) {
+    const field = document.getElementById(fieldId);
+    if (!field) return;
+
+    field.classList.remove('error');
+    const existingError = field.parentElement.querySelector('.form-error');
+    if (existingError) existingError.remove();
+}
+
+// ===========================================
+// INITIALIZATION
+// ===========================================
+
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize dark mode
+    initDarkMode();
+    
+    // Initialize theme toggle
+    const themeToggle = document.getElementById('theme-toggle');
+    if (themeToggle) {
+        themeToggle.addEventListener('click', toggleDarkMode);
+    }
+
+    // Initialize mobile navigation
+    initMobileNav();
+    
+    // Initialize dropdowns
+    initDropdowns();
+    
+    // Initialize header scroll effect
+    initHeaderScroll();
+    
+    // Initialize scroll animations
+    initScrollAnimations();
+    
+    // Initialize lazy loading
+    initLazyLoading();
+
+    // Forum search and filter
     const searchInput = document.getElementById('search-input');
     const categorySelect = document.getElementById('category-select');
 
@@ -164,198 +612,27 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize upcoming event section if on home page
     if (document.getElementById('upcoming-event')) {
         updateUpcomingEvent();
-        // Update upcoming event every second
         setInterval(updateUpcomingEvent, 1000);
     }
-});
 
-// Debounce function for search input
-function debounce(func, wait) {
-    let timeout;
-    return function executedFunction(...args) {
-        const later = () => {
-            clearTimeout(timeout);
-            func(...args);
-        };
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-    };
-}
-
-// Password toggle functionality
-function togglePassword(fieldId) {
-    const input = document.getElementById(fieldId);
-    const button = input.nextElementSibling;
-
-    if (input.type === 'password') {
-        input.type = 'text';
-        button.textContent = '🙈';
-    } else {
-        input.type = 'password';
-        button.textContent = '👁️';
-    }
-}
-
-// ===========================================
-// SCROLL-TRIGGERED ANIMATIONS
-// ===========================================
-
-// Intersection Observer for scroll animations
-const observerOptions = {
-    threshold: 0.1,
-    rootMargin: '0px 0px -50px 0px'
-};
-
-const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            entry.target.classList.add('animate-in');
-        }
-    });
-}, observerOptions);
-
-// Observe all elements with animate-on-scroll class
-function initScrollAnimations() {
-    const animatedElements = document.querySelectorAll('.animate-on-scroll');
-    animatedElements.forEach(element => {
-        observer.observe(element);
-    });
-}
-
-// ===========================================
-// ENHANCED INTERACTIONS
-// ===========================================
-
-// Smooth scroll for anchor links
-function initSmoothScrolling() {
-    const anchorLinks = document.querySelectorAll('a[href^="#"]');
-    anchorLinks.forEach(link => {
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(link => {
         link.addEventListener('click', function(e) {
             const targetId = this.getAttribute('href');
-            const targetElement = document.querySelector(targetId);
-
-            if (targetElement) {
+            if (targetId !== '#') {
                 e.preventDefault();
-                targetElement.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
-                });
+                smoothScrollTo(targetId);
             }
         });
     });
-}
-
-// Card hover effects enhancement
-function initCardInteractions() {
-    const cards = document.querySelectorAll('.goal-card, .discussion-card, .partner-card');
-
-    cards.forEach(card => {
-        card.addEventListener('mouseenter', function() {
-            this.style.transform = 'translateY(-8px) scale(1.02)';
-        });
-
-        card.addEventListener('mouseleave', function() {
-            this.style.transform = 'translateY(0) scale(1)';
-        });
-    });
-}
-
-// Button ripple effect enhancement
-function initButtonEffects() {
-    const buttons = document.querySelectorAll('mui-button');
-
-    buttons.forEach(button => {
-        button.addEventListener('click', function(e) {
-            const ripple = document.createElement('span');
-            const rect = this.getBoundingClientRect();
-            const size = Math.max(rect.width, rect.height);
-            const x = e.clientX - rect.left - size / 2;
-            const y = e.clientY - rect.top - size / 2;
-
-            ripple.style.width = ripple.style.height = size + 'px';
-            ripple.style.left = x + 'px';
-            ripple.style.top = y + 'px';
-            ripple.classList.add('ripple-effect');
-
-            this.appendChild(ripple);
-
-            setTimeout(() => {
-                ripple.remove();
-            }, 600);
-        });
-    });
-}
-
-// ===========================================
-// PERFORMANCE OPTIMIZATIONS
-// ===========================================
-
-// Lazy loading for images
-function initLazyLoading() {
-    const images = document.querySelectorAll('img[data-src]');
-
-    if ('IntersectionObserver' in window) {
-        const imageObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const img = entry.target;
-                    img.src = img.dataset.src;
-                    img.classList.remove('lazy');
-                    imageObserver.unobserve(img);
-                }
-            });
-        });
-
-        images.forEach(img => imageObserver.observe(img));
-    } else {
-        // Fallback for browsers without IntersectionObserver
-        images.forEach(img => {
-            img.src = img.dataset.src;
-        });
-    }
-}
-
-// ===========================================
-// INITIALIZATION
-// ===========================================
-
-// Wait for the DOM to be fully loaded before running the script
-document.addEventListener('DOMContentLoaded', function () {
-    // Initialize scroll animations
-    initScrollAnimations();
-
-    // Initialize smooth scrolling
-    initSmoothScrolling();
-
-    // Initialize card interactions
-    initCardInteractions();
-
-    // Initialize button effects
-    initButtonEffects();
-
-    // Initialize lazy loading
-    initLazyLoading();
-
-    // Mobile menu toggle
-    const menuToggle = document.getElementById('menu-toggle');
-    const mainNav = document.getElementById('main-nav');
-    const icon = menuToggle.querySelector('i');
-
-    if (menuToggle && mainNav) {
-        menuToggle.addEventListener('click', function () {
-            // Toggle the .is-active class on the nav menu
-            mainNav.classList.toggle('is-active');
-
-            // Toggle the hamburger/close icon
-            if (mainNav.classList.contains('is-active')) {
-                icon.classList.remove('fa-bars');
-                icon.classList.add('fa-times'); // The 'X' icon
-                menuToggle.setAttribute('aria-expanded', 'true');
-            } else {
-                icon.classList.remove('fa-times');
-                icon.classList.add('fa-bars');
-                menuToggle.setAttribute('aria-expanded', 'false');
-            }
-        });
-    }
 });
+
+// Export functions for global use
+window.toggleLike = toggleLike;
+window.filterPosts = filterPosts;
+window.showToast = showToast;
+window.toggleDarkMode = toggleDarkMode;
+window.togglePassword = togglePassword;
+window.smoothScrollTo = smoothScrollTo;
+window.showFormError = showFormError;
+window.clearFormError = clearFormError;

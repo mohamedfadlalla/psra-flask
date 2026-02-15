@@ -1,110 +1,708 @@
 {% extends "base.html" %}
 
-{% block title %}Register - PSRA Forum{% endblock %}
+{% block title %}Create Account - PSRA{% endblock %}
 
 {% block content %}
-<section class="section">
-    <div class="container" style="max-width: 400px; margin: 0 auto;">
-        <h1>Create Account</h1>
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div style="padding: 10px; margin-bottom: 20px; border: 1px solid {% if category == 'error' %}red{% else %}green{% endif %}; background-color: {% if category == 'error' %}#ffe6e6{% else %}#e6ffe6{% endif %};">
-                        {{ message }}
+<div class="auth-page">
+    <div class="auth-container auth-container-wide">
+        <!-- Left Side - Branding -->
+        <div class="auth-branding">
+            <div class="auth-branding-content">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="PSRA Logo" class="auth-logo">
+                <h1>Join PSRA</h1>
+                <p>Become part of a vibrant community of pharmaceutical researchers and students. Access resources, collaborate on projects, and advance your career.</p>
+                <div class="auth-features">
+                    <div class="auth-feature">
+                        <i class="fas fa-users"></i>
+                        <span>Connect with Researchers</span>
                     </div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
-        <form method="post" enctype="multipart/form-data" style="display: flex; flex-direction: column; gap: 20px;">
-            {{ form.hidden_tag() }}
-            <div>
-                {{ form.email.label }}
-                {{ form.email(style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 5px;") }}
-                {% if form.email.errors %}
-                    <div style="color: red; font-size: 14px;">
-                        {% for error in form.email.errors %}{{ error }}{% endfor %}
+                    <div class="auth-feature">
+                        <i class="fas fa-book-open"></i>
+                        <span>Publish Your Research</span>
                     </div>
-                {% endif %}
+                    <div class="auth-feature">
+                        <i class="fas fa-award"></i>
+                        <span>Build Your Profile</span>
+                    </div>
+                </div>
             </div>
-            <div>
-                {{ form.name.label }}
-                {{ form.name(style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 5px;") }}
-                {% if form.name.errors %}
-                    <div style="color: red; font-size: 14px;">
-                        {% for error in form.name.errors %}{{ error }}{% endfor %}
+        </div>
+        
+        <!-- Right Side - Register Form -->
+        <div class="auth-form-section auth-form-scrollable">
+            <div class="auth-form-container auth-form-wide">
+                <div class="auth-form-header">
+                    <h2>Create Account</h2>
+                    <p>Fill in your details to get started</p>
+                </div>
+                
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}">
+                                <i class="fas fa-{% if category == 'error' %}exclamation-circle{% else %}check-circle{% endif %} alert-icon"></i>
+                                <div class="alert-content">{{ message }}</div>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+                
+                <form method="post" enctype="multipart/form-data" class="auth-form">
+                    {{ form.hidden_tag() }}
+                    
+                    <!-- Personal Information -->
+                    <div class="form-section">
+                        <h3 class="form-section-title">
+                            <i class="fas fa-user"></i>
+                            Personal Information
+                        </h3>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="name" class="form-label">Full Name</label>
+                                {{ form.name(class="form-input", placeholder="Enter your full name", id="name") }}
+                                {% if form.name.errors %}
+                                    <div class="form-error">
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                        {% for error in form.name.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="email" class="form-label">Email Address</label>
+                                {{ form.email(class="form-input", placeholder="Enter your email", id="email") }}
+                                {% if form.email.errors %}
+                                    <div class="form-error">
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                        {% for error in form.email.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
                     </div>
-                {% endif %}
-            </div>
-            <div>
-                {{ form.is_member() }} {{ form.is_member.label }}
-                {% if form.is_member.errors %}
-                    <div style="color: red; font-size: 14px;">
-                        {% for error in form.is_member.errors %}{{ error }}{% endfor %}
+                    
+                    <!-- Contact Information -->
+                    <div class="form-section">
+                        <h3 class="form-section-title">
+                            <i class="fas fa-phone-alt"></i>
+                            Contact Information
+                        </h3>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="phone_number" class="form-label">Phone Number</label>
+                                {{ form.phone_number(class="form-input", placeholder="+249 XXX XXX XXXX", id="phone_number") }}
+                                {% if form.phone_number.errors %}
+                                    <div class="form-error">
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                        {% for error in form.phone_number.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="whatsapp_number" class="form-label">WhatsApp Number</label>
+                                {{ form.whatsapp_number(class="form-input", placeholder="+249 XXX XXX XXXX", id="whatsapp_number") }}
+                                {% if form.whatsapp_number.errors %}
+                                    <div class="form-error">
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                        {% for error in form.whatsapp_number.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
                     </div>
-                {% endif %}
-            </div>
-            <div>
-                {{ form.phone_number.label }}
-                {{ form.phone_number(style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 5px;") }}
-                {% if form.phone_number.errors %}
-                    <div style="color: red; font-size: 14px;">
-                        {% for error in form.phone_number.errors %}{{ error }}{% endfor %}
+                    
+                    <!-- Profile Picture -->
+                    <div class="form-section">
+                        <h3 class="form-section-title">
+                            <i class="fas fa-camera"></i>
+                            Profile Picture
+                        </h3>
+                        
+                        <div class="form-group">
+                            <div class="file-upload-wrapper">
+                                <label for="profile_picture" class="file-upload-label">
+                                    <div class="file-upload-preview" id="image-preview">
+                                        <i class="fas fa-user-circle"></i>
+                                        <span>Click to upload photo</span>
+                                    </div>
+                                    {{ form.profile_picture(class="file-upload-input", id="profile_picture", accept="image/*") }}
+                                </label>
+                                <p class="form-hint">Optional. JPG, PNG or GIF. Max 2MB.</p>
+                            </div>
+                            {% if form.profile_picture.errors %}
+                                <div class="form-error">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    {% for error in form.profile_picture.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
                     </div>
-                {% endif %}
-            </div>
-            <div>
-                {{ form.whatsapp_number.label }}
-                {{ form.whatsapp_number(style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 5px;") }}
-                {% if form.whatsapp_number.errors %}
-                    <div style="color: red; font-size: 14px;">
-                        {% for error in form.whatsapp_number.errors %}{{ error }}{% endfor %}
+                    
+                    <!-- Security -->
+                    <div class="form-section">
+                        <h3 class="form-section-title">
+                            <i class="fas fa-shield-alt"></i>
+                            Security
+                        </h3>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="password" class="form-label">Password</label>
+                                <div class="password-input-wrapper">
+                                    {{ form.password(class="form-input", placeholder="Create a password", id="password") }}
+                                    <button type="button" class="password-toggle" onclick="togglePassword('password')" aria-label="Toggle password visibility">
+                                        <i class="fas fa-eye" id="password-toggle-icon"></i>
+                                    </button>
+                                </div>
+                                <div class="password-strength" id="password-strength">
+                                    <div class="strength-bar">
+                                        <div class="strength-fill" id="strength-fill"></div>
+                                    </div>
+                                    <span class="strength-text" id="strength-text">Password strength</span>
+                                </div>
+                                {% if form.password.errors %}
+                                    <div class="form-error">
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                        {% for error in form.password.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="confirm_password" class="form-label">Confirm Password</label>
+                                <div class="password-input-wrapper">
+                                    {{ form.confirm_password(class="form-input", placeholder="Confirm your password", id="confirm_password") }}
+                                    <button type="button" class="password-toggle" onclick="togglePassword('confirm_password')" aria-label="Toggle password visibility">
+                                        <i class="fas fa-eye" id="confirm_password-toggle-icon"></i>
+                                    </button>
+                                </div>
+                                {% if form.confirm_password.errors %}
+                                    <div class="form-error">
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                        {% for error in form.confirm_password.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
                     </div>
-                {% endif %}
-            </div>
-            <div>
-                {{ form.profile_picture.label }}
-                {{ form.profile_picture(style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 5px;") }}
-                <small style="color: var(--text-secondary); font-size: 14px;">Optional. Upload a profile picture (JPG, PNG, GIF). Max size will be automatically resized.</small>
-                {% if form.profile_picture.errors %}
-                    <div style="color: red; font-size: 14px;">
-                        {% for error in form.profile_picture.errors %}{{ error }}{% endfor %}
+                    
+                    <!-- Membership -->
+                    <div class="form-section">
+                        <h3 class="form-section-title">
+                            <i class="fas fa-id-card"></i>
+                            Membership
+                        </h3>
+                        
+                        <div class="form-group">
+                            <div class="membership-option">
+                                {{ form.is_member(class="form-check-input", id="is_member") }}
+                                <label for="is_member" class="membership-label">
+                                    <span class="membership-title">I am a PSRA Member</span>
+                                    <span class="membership-desc">Check this if you're already a member of PSRA</span>
+                                </label>
+                            </div>
+                            {% if form.is_member.errors %}
+                                <div class="form-error">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    {% for error in form.is_member.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
                     </div>
-                {% endif %}
-            </div>
-            <div style="position: relative;">
-                {{ form.password.label }}
-                {{ form.password(style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 5px;") }}
-                <button type="button" onclick="togglePassword('password')" style="position: absolute; right: 10px; top: 35px; background: none; border: none; cursor: pointer; font-size: 18px;">👁️</button>
-                {% if form.password.errors %}
-                    <div style="color: red; font-size: 14px;">
-                        {% for error in form.password.errors %}{{ error }}{% endfor %}
+                    
+                    <!-- Terms -->
+                    <div class="form-section">
+                        <div class="form-group">
+                            <div class="terms-checkbox">
+                                {{ form.agree_terms(class="form-check-input", id="agree_terms") }}
+                                <label for="agree_terms" class="terms-label">
+                                    I agree to the <a href="{{ url_for('forum.terms') }}" target="_blank">Terms and Conditions</a> and <a href="{{ url_for('privacy') }}" target="_blank">Privacy Policy</a>
+                                </label>
+                            </div>
+                            {% if form.agree_terms.errors %}
+                                <div class="form-error">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    {% for error in form.agree_terms.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
                     </div>
-                {% endif %}
+                    
+                    <button type="submit" class="btn btn-primary btn-lg w-full">
+                        <i class="fas fa-user-plus"></i>
+                        Create Account
+                    </button>
+                </form>
+                
+                <div class="auth-divider">
+                    <span>or sign up with</span>
+                </div>
+                
+                <div class="social-auth">
+                    <button type="button" class="btn btn-outline social-btn">
+                        <i class="fab fa-google"></i>
+                        Google
+                    </button>
+                    <button type="button" class="btn btn-outline social-btn">
+                        <i class="fab fa-linkedin-in"></i>
+                        LinkedIn
+                    </button>
+                </div>
+                
+                <div class="auth-footer">
+                    <p>Already have an account? <a href="{{ url_for('forum.login') }}">Sign in</a></p>
+                </div>
             </div>
-            <div style="position: relative;">
-                {{ form.confirm_password.label }}
-                {{ form.confirm_password(style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 5px;") }}
-                <button type="button" onclick="togglePassword('confirm_password')" style="position: absolute; right: 10px; top: 35px; background: none; border: none; cursor: pointer; font-size: 18px;">👁️</button>
-                {% if form.confirm_password.errors %}
-                    <div style="color: red; font-size: 14px;">
-                        {% for error in form.confirm_password.errors %}{{ error }}{% endfor %}
-                    </div>
-                {% endif %}
-            </div>
-            <div>
-                {{ form.agree_terms() }} {{ form.agree_terms.label }}
-                {% if form.agree_terms.errors %}
-                    <div style="color: red; font-size: 14px;">
-                        {% for error in form.agree_terms.errors %}{{ error }}{% endfor %}
-                    </div>
-                {% endif %}
-                <br><small>By registering, you agree to our <a href="{{ url_for('forum.terms') }}" target="_blank">Terms and Conditions</a>.</small>
-            </div>
-            {{ form.submit(class="btn") }}
-        </form>
-        <p style="text-align: center; margin-top: 20px;">
-            Already have an account? <a href="{{ url_for('forum.login') }}">Login</a>
-        </p>
+        </div>
     </div>
-</section>
+</div>
+
+<style>
+.auth-page {
+    min-height: 100vh;
+    display: flex;
+    background-color: var(--bg-secondary);
+}
+
+.auth-container {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    background-color: var(--bg-primary);
+    box-shadow: var(--shadow-xl);
+    overflow: hidden;
+}
+
+.auth-container-wide {
+    max-width: 1400px;
+}
+
+/* Branding Section */
+.auth-branding {
+    background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-light) 100%);
+    color: var(--text-inverse);
+    padding: var(--space-12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.auth-branding-content {
+    max-width: 400px;
+    text-align: center;
+}
+
+.auth-logo {
+    width: 80px;
+    height: auto;
+    margin-bottom: var(--space-6);
+    filter: brightness(0) invert(1);
+}
+
+.auth-branding h1 {
+    font-size: var(--font-size-3xl);
+    margin-bottom: var(--space-4);
+    color: var(--text-inverse);
+}
+
+.auth-branding p {
+    font-size: var(--font-size-base);
+    opacity: 0.9;
+    line-height: var(--line-height-relaxed);
+    margin-bottom: var(--space-8);
+}
+
+.auth-features {
+    text-align: left;
+}
+
+.auth-feature {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3) 0;
+    font-size: var(--font-size-sm);
+}
+
+.auth-feature i {
+    width: 24px;
+    font-size: var(--font-size-lg);
+    opacity: 0.9;
+}
+
+/* Form Section */
+.auth-form-section {
+    padding: var(--space-8);
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    background-color: var(--bg-primary);
+}
+
+.auth-form-scrollable {
+    overflow-y: auto;
+    max-height: 100vh;
+}
+
+.auth-form-container {
+    width: 100%;
+    max-width: 500px;
+}
+
+.auth-form-wide {
+    max-width: 600px;
+}
+
+.auth-form-header {
+    text-align: center;
+    margin-bottom: var(--space-6);
+}
+
+.auth-form-header h2 {
+    font-size: var(--font-size-2xl);
+    margin-bottom: var(--space-2);
+}
+
+.auth-form-header p {
+    color: var(--text-secondary);
+    margin-bottom: 0;
+}
+
+/* Form Sections */
+.form-section {
+    margin-bottom: var(--space-6);
+    padding-bottom: var(--space-6);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.form-section:last-of-type {
+    border-bottom: none;
+    margin-bottom: var(--space-4);
+}
+
+.form-section-title {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+    color: var(--primary-blue);
+    margin-bottom: var(--space-4);
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.form-section-title i {
+    font-size: var(--font-size-sm);
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-4);
+}
+
+/* File Upload */
+.file-upload-wrapper {
+    position: relative;
+}
+
+.file-upload-label {
+    display: block;
+    cursor: pointer;
+}
+
+.file-upload-input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+}
+
+.file-upload-preview {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    padding: var(--space-6);
+    background-color: var(--bg-secondary);
+    border: 2px dashed var(--border-color);
+    border-radius: var(--radius-lg);
+    text-align: center;
+    transition: all var(--transition-fast);
+}
+
+.file-upload-preview:hover {
+    border-color: var(--primary-blue);
+    background-color: rgba(45, 87, 123, 0.05);
+}
+
+.file-upload-preview i {
+    font-size: var(--font-size-4xl);
+    color: var(--text-muted);
+}
+
+.file-upload-preview span {
+    color: var(--text-secondary);
+    font-size: var(--font-size-sm);
+}
+
+.file-upload-preview.has-image {
+    padding: 0;
+    border-style: solid;
+}
+
+.file-upload-preview.has-image img {
+    width: 100%;
+    max-height: 150px;
+    object-fit: cover;
+    border-radius: var(--radius-md);
+}
+
+/* Password Strength */
+.password-strength {
+    margin-top: var(--space-2);
+}
+
+.strength-bar {
+    height: 4px;
+    background-color: var(--bg-tertiary);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+    margin-bottom: var(--space-1);
+}
+
+.strength-fill {
+    height: 100%;
+    width: 0;
+    transition: all var(--transition-normal);
+    border-radius: var(--radius-full);
+}
+
+.strength-fill.weak { width: 25%; background-color: var(--color-error); }
+.strength-fill.fair { width: 50%; background-color: var(--color-warning); }
+.strength-fill.good { width: 75%; background-color: var(--color-info); }
+.strength-fill.strong { width: 100%; background-color: var(--color-success); }
+
+.strength-text {
+    font-size: var(--font-size-xs);
+    color: var(--text-muted);
+}
+
+/* Membership Option */
+.membership-option {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+    padding: var(--space-4);
+    background-color: var(--bg-secondary);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.membership-option:hover {
+    background-color: var(--bg-tertiary);
+}
+
+.membership-option input {
+    margin-top: var(--space-1);
+}
+
+.membership-label {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    cursor: pointer;
+}
+
+.membership-title {
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-primary);
+}
+
+.membership-desc {
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+}
+
+/* Terms Checkbox */
+.terms-checkbox {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+}
+
+.terms-label {
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+    line-height: var(--line-height-relaxed);
+    cursor: pointer;
+}
+
+.terms-label a {
+    color: var(--primary-blue);
+    text-decoration: underline;
+}
+
+/* Social Auth */
+.auth-divider {
+    display: flex;
+    align-items: center;
+    margin: var(--space-5) 0;
+    color: var(--text-muted);
+    font-size: var(--font-size-sm);
+}
+
+.auth-divider::before,
+.auth-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background-color: var(--border-color);
+}
+
+.auth-divider span {
+    padding: 0 var(--space-4);
+}
+
+.social-auth {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-3);
+    margin-bottom: var(--space-5);
+}
+
+.social-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+}
+
+.social-btn i {
+    font-size: var(--font-size-lg);
+}
+
+/* Auth Footer */
+.auth-footer {
+    text-align: center;
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--border-color);
+}
+
+.auth-footer p {
+    color: var(--text-secondary);
+    margin-bottom: 0;
+}
+
+.auth-footer a {
+    color: var(--primary-blue);
+    font-weight: var(--font-weight-semibold);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .auth-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .auth-branding {
+        display: none;
+    }
+    
+    .auth-form-section {
+        padding: var(--space-6) var(--space-4);
+        max-height: none;
+    }
+}
+
+@media (max-width: 640px) {
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .social-auth {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
+<script>
+function togglePassword(inputId) {
+    const input = document.getElementById(inputId);
+    const icon = document.getElementById(inputId + '-toggle-icon');
+    
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+    } else {
+        input.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+    }
+}
+
+// Password strength checker
+document.getElementById('password').addEventListener('input', function() {
+    const password = this.value;
+    const strengthFill = document.getElementById('strength-fill');
+    const strengthText = document.getElementById('strength-text');
+    
+    let strength = 0;
+    let strengthClass = '';
+    let strengthLabel = '';
+    
+    if (password.length >= 8) strength++;
+    if (password.match(/[a-z]/) && password.match(/[A-Z]/)) strength++;
+    if (password.match(/[0-9]/)) strength++;
+    if (password.match(/[^a-zA-Z0-9]/)) strength++;
+    
+    switch(strength) {
+        case 0:
+        case 1:
+            strengthClass = 'weak';
+            strengthLabel = 'Weak password';
+            break;
+        case 2:
+            strengthClass = 'fair';
+            strengthLabel = 'Fair password';
+            break;
+        case 3:
+            strengthClass = 'good';
+            strengthLabel = 'Good password';
+            break;
+        case 4:
+            strengthClass = 'strong';
+            strengthLabel = 'Strong password';
+            break;
+    }
+    
+    strengthFill.className = 'strength-fill ' + strengthClass;
+    strengthText.textContent = strengthLabel;
+});
+
+// Image preview
+document.getElementById('profile_picture').addEventListener('change', function(e) {
+    const preview = document.getElementById('image-preview');
+    const file = e.target.files[0];
+    
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.innerHTML = '<img src="' + e.target.result + '" alt="Profile preview">';
+            preview.classList.add('has-image');
+        };
+        reader.readAsDataURL(file);
+    } else {
+        preview.innerHTML = '<i class="fas fa-user-circle"></i><span>Click to upload photo</span>';
+        preview.classList.remove('has-image');
+    }
+});
+</script>
 {% endblock %}
