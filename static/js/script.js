@@ -169,58 +169,6 @@ function removeToast(toast) {
 }
 
 // ===========================================
-// DARK MODE
-// ===========================================
-
-/**
- * Initialize dark mode based on saved preference or system preference
- */
-function initDarkMode() {
-    const savedTheme = localStorage.getItem('theme');
-    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    
-    if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
-        document.documentElement.setAttribute('data-theme', 'dark');
-        updateThemeIcon(true);
-    }
-}
-
-/**
- * Toggle dark mode
- */
-function toggleDarkMode() {
-    const html = document.documentElement;
-    const currentTheme = html.getAttribute('data-theme');
-    
-    if (currentTheme === 'dark') {
-        html.removeAttribute('data-theme');
-        localStorage.setItem('theme', 'light');
-        updateThemeIcon(false);
-    } else {
-        html.setAttribute('data-theme', 'dark');
-        localStorage.setItem('theme', 'dark');
-        updateThemeIcon(true);
-    }
-}
-
-/**
- * Update the theme toggle icon
- * @param {boolean} isDark - Whether dark mode is enabled
- */
-function updateThemeIcon(isDark) {
-    const themeIcon = document.getElementById('theme-icon');
-    if (themeIcon) {
-        if (isDark) {
-            themeIcon.classList.remove('fa-moon');
-            themeIcon.classList.add('fa-sun');
-        } else {
-            themeIcon.classList.remove('fa-sun');
-            themeIcon.classList.add('fa-moon');
-        }
-    }
-}
-
-// ===========================================
 // MOBILE NAVIGATION
 // ===========================================
 
@@ -576,15 +524,6 @@ function clearFormError(fieldId) {
 // ===========================================
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize dark mode
-    initDarkMode();
-    
-    // Initialize theme toggle
-    const themeToggle = document.getElementById('theme-toggle');
-    if (themeToggle) {
-        themeToggle.addEventListener('click', toggleDarkMode);
-    }
-
     // Initialize mobile navigation
     initMobileNav();
     
@@ -634,7 +573,6 @@ document.addEventListener('DOMContentLoaded', function() {
 window.toggleLike = toggleLike;
 window.filterPosts = filterPosts;
 window.showToast = showToast;
-window.toggleDarkMode = toggleDarkMode;
 window.togglePassword = togglePassword;
 window.smoothScrollTo = smoothScrollTo;
 window.showFormError = showFormError;
