@@ -953,17 +953,27 @@ img {
     justify-content: center;
     width: 44px;
     height: 44px;
-    background: none;
-    border: none;
+    background: #ffffff;
+    border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
     color: var(--text-primary);
     font-size: var(--font-size-xl);
     cursor: pointer;
     transition: background-color var(--transition-fast);
+    z-index: 9999;
+    visibility: visible;
+    opacity: 1;
+    position: relative;
+    flex-shrink: 0;
 }
 
 .menu-toggle:hover {
     background-color: var(--bg-secondary);
+}
+
+.menu-toggle:focus {
+    outline: 2px solid var(--primary-blue);
+    outline-offset: 2px;
 }
 
 /* Dropdown Menu */
