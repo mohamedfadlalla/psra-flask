@@ -238,6 +238,9 @@ function initMobileNav() {
             menuToggle.setAttribute('aria-expanded', !isExpanded);
             mainNav.classList.toggle('active');
             
+            // Toggle body scroll lock
+            document.body.classList.toggle('menu-open');
+            
             if (menuIcon) {
                 if (mainNav.classList.contains('active')) {
                     menuIcon.classList.remove('fa-bars');

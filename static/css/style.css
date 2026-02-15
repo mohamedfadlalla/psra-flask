@@ -2015,6 +2015,38 @@ img {
     
     .nav-main.active {
         display: block;
+        position: fixed;
+        top: 60px;
+        left: 0;
+        right: 0;
+        background: var(--bg-primary);
+        max-height: calc(100vh - 60px);
+        overflow-y: auto;
+        box-shadow: var(--shadow-lg);
+        z-index: var(--z-fixed);
+    }
+    
+    .nav-main.active .nav-list {
+        padding: var(--space-3);
+    }
+    
+    /* Prevent body scroll when mobile menu is open */
+    body.menu-open {
+        overflow: hidden;
+    }
+    
+    /* Touch-friendly dropdown items on mobile */
+    .nav-dropdown-item {
+        padding: var(--space-3) var(--space-4);
+        min-height: 44px;
+        cursor: pointer;
+    }
+    
+    /* Make nav links touch-friendly on mobile */
+    .nav-link {
+        min-height: 44px;
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
     }
     
     .nav-list {
@@ -2223,11 +2255,14 @@ img {
 @media print {
     .header,
     .footer,
-    .menu-toggle,
     .btn,
     .toast-container,
     .modal-backdrop,
     .theme-toggle {
+        display: none !important;
+    }
+    
+    .menu-toggle {
         display: none !important;
     }
     
