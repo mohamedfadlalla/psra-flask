@@ -137,4 +137,30 @@
         </div>
     </div>
 </section>
+
+<style>
+/* Mobile Quick Actions Enhancement */
+@media (max-width: 768px) {
+    .quick-actions {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--space-2);
+    }
+    
+    .quick-actions .btn {
+        width: 100%;
+        justify-content: center;
+        font-size: var(--font-size-sm);
+        padding: var(--space-3);
+    }
+}
+
+@media (max-width: 480px) {
+    .quick-actions {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+    </div>
+</section>
 {% endblock %}

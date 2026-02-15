@@ -5,7 +5,7 @@
 {% block content %}
 <section class="section">
     <div class="container">
-        <h2>Events</h2>
+        <h2 class="page-title">Events</h2>
 
         <!-- Live Events Section -->
         {% if live_events %}
@@ -219,4 +219,169 @@
         {% endif %}
     </div>
 </section>
+
+<style>
+/* Events Page Mobile Styles */
+.page-title {
+    margin-bottom: var(--space-6);
+}
+
+.events-section {
+    margin-bottom: var(--space-10);
+}
+
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-bottom: var(--space-6);
+    font-size: var(--font-size-xl);
+}
+
+.events-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+}
+
+.event-card {
+    transition: transform var(--transition-normal);
+}
+
+.event-card:hover {
+    transform: translateY(-2px);
+}
+
+.event-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: var(--space-4);
+    margin-bottom: var(--space-4);
+}
+
+.event-header h3 {
+    font-size: var(--font-size-lg);
+    margin: 0;
+    flex: 1;
+}
+
+.event-date {
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-lg);
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.live-date {
+    background-color: var(--color-error-bg);
+    color: var(--color-error);
+    border: 1px solid var(--color-error);
+}
+
+.upcoming-date {
+    background-color: var(--color-warning-bg);
+    color: var(--color-warning);
+    border: 1px solid var(--color-warning);
+}
+
+.archived-date {
+    background-color: var(--bg-tertiary);
+    color: var(--text-secondary);
+}
+
+.event-presenter {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    color: var(--text-secondary);
+    margin-bottom: var(--space-4);
+    font-size: var(--font-size-sm);
+}
+
+.event-image {
+    margin-bottom: var(--space-4);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+
+.event-image img {
+    width: 100%;
+    height: auto;
+    max-height: 300px;
+    object-fit: cover;
+}
+
+.event-description {
+    color: var(--text-secondary);
+    line-height: var(--line-height-relaxed);
+    margin-bottom: var(--space-4);
+}
+
+.event-link {
+    margin-bottom: var(--space-4);
+}
+
+.event-meta {
+    font-size: var(--font-size-sm);
+    color: var(--text-muted);
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--border-color);
+}
+
+.badge-live {
+    background-color: var(--color-error);
+    color: white;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+.badge-warning {
+    background-color: var(--color-warning);
+    color: white;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .event-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .event-date {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: var(--space-2);
+    }
+    
+    .event-image img {
+        max-height: 200px;
+    }
+    
+    .event-link .btn {
+        width: 100%;
+    }
+    
+    .section-title {
+        font-size: var(--font-size-lg);
+        flex-wrap: wrap;
+    }
+}
+
+@media (max-width: 480px) {
+    .page-title {
+        font-size: var(--font-size-2xl);
+    }
+    
+    .event-header h3 {
+        font-size: var(--font-size-base);
+    }
+}
+</style>
 {% endblock %}

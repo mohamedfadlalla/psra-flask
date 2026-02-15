@@ -5,8 +5,16 @@
 {% block content %}
 <section class="section">
     <div class="container forum-container">
+        <!-- Mobile Filter Toggle Button -->
+        <button class="forum-filter-toggle md:hidden" id="forum-filter-toggle" aria-label="Toggle filters">
+            <i class="fas fa-filter"></i> Filters
+        </button>
+        
+        <!-- Mobile Overlay -->
+        <div class="forum-overlay" id="forum-overlay"></div>
+        
         <!-- Left Sidebar -->
-        <div class="forum-sidebar">
+        <div class="forum-sidebar" id="forum-sidebar">
             <div class="card">
                 <div class="card-body">
                     <h3><i class="fas fa-search"></i> Search Discussion</h3>
@@ -141,5 +149,33 @@ searchInput.addEventListener('keypress', function(e) {
 });
 
 categorySelect.addEventListener('change', applyFilters);
+
+// Mobile sidebar toggle
+const filterToggle = document.getElementById('forum-filter-toggle');
+const sidebar = document.getElementById('forum-sidebar');
+const overlay = document.getElementById('forum-overlay');
+
+if (filterToggle && sidebar && overlay) {
+    filterToggle.addEventListener('click', () => {
+        sidebar.classList.toggle('active');
+        overlay.classList.toggle('active');
+        document.body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : '';
+    });
+    
+    overlay.addEventListener('click', () => {
+        sidebar.classList.remove('active');
+        overlay.classList.remove('active');
+        document.body.style.overflow = '';
+    });
+    
+    // Close sidebar when a filter is applied on mobile
+    categorySelect.addEventListener('change', () => {
+        if (window.innerWidth < 768) {
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+    });
+}
 </script>
 {% endblock %}
