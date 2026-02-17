@@ -59,6 +59,18 @@ def register():
         db.session.add(user)
         db.session.commit()
 
+        # Handle profile picture upload if provided
+        if form.profile_picture.data:
+            profile_url = process_profile_picture(
+                form.profile_picture.data,
+                user.id,
+                current_app.config['UPLOAD_FOLDER'],
+                current_app.root_path
+            )
+            if profile_url:
+                user.profile_picture_url = profile_url
+                db.session.commit()
+
         flash('Account created successfully! You can now log in.', FLASH_SUCCESS)
         return redirect(url_for('forum.login'))
     

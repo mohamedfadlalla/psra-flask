@@ -62,7 +62,7 @@
                     <div class="post-header">
                         <div class="avatar avatar-md">
                             {% if post.author.profile_picture_url %}
-                            <img src="{{ url_for('static', filename='images/' + post.author.profile_picture_url) }}" alt="{{ post.author.name }}'s avatar">
+                            <img src="{{ post.author.profile_picture_url }}" alt="{{ post.author.name }}'s avatar">
                             {% else %}
                             <span class="avatar-placeholder">{{ post.author.name[0].upper() }}</span>
                             {% endif %}

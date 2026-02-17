@@ -11,7 +11,13 @@
         <!-- Post -->
         <div class="card" style="margin-bottom: 40px;">
             <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
-                <img src="{{ url_for('static', filename='images/' + (post.author.profile_picture_url or 'default-avatar.png')) }}" alt="Avatar" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;">
+                {% if post.author.profile_picture_url %}
+                    <img src="{{ post.author.profile_picture_url }}" alt="Avatar" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;">
+                {% else %}
+                    <div style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 20px;">
+                        {{ post.author.name[0].upper() }}
+                    </div>
+                {% endif %}
                 <div>
                     <strong>{{ post.author.name }}</strong>
                     <br><small style="color: var(--text-muted);">{{ post.created_at.strftime('%B %d, %Y at %I:%M %p') }}</small>
@@ -37,7 +43,13 @@
         {% for comment in comments %}
         <div class="card" style="margin-bottom: 20px;">
             <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
-                <img src="{{ url_for('static', filename='images/' + (comment.author.profile_picture_url or 'default-avatar.png')) }}" alt="Avatar" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+                {% if comment.author.profile_picture_url %}
+                    <img src="{{ comment.author.profile_picture_url }}" alt="Avatar" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+                {% else %}
+                    <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 16px;">
+                        {{ comment.author.name[0].upper() }}
+                    </div>
+                {% endif %}
                 <div>
                     <strong>{{ comment.author.name }}</strong>
                     <br><small style="color: var(--text-muted);">{{ comment.created_at.strftime('%B %d, %Y at %I:%M %p') }}</small>
