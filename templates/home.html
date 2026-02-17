@@ -131,7 +131,11 @@
                 <div class="p-6">
                     <div class="discussion-header flex items-center gap-3 mb-4">
                         <div class="discussion-avatar w-12 h-12 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
-                            <img src="{{ url_for('static', filename='images/' + (comment.author.profile_picture_url or 'default-avatar.png')) }}" alt="Avatar" class="w-full h-full object-cover">
+                            {% if comment.author.profile_picture_url %}
+                            <img src="{{ comment.author.profile_picture_url }}" alt="{{ comment.author.name }}'s avatar" class="w-full h-full object-cover">
+                            {% else %}
+                            <span class="avatar-placeholder flex items-center justify-center w-full h-full bg-primary-blue text-white font-semibold text-lg">{{ comment.author.name[0].upper() }}</span>
+                            {% endif %}
                         </div>
                         <div class="discussion-meta flex-1">
                             <h4 class="author-name text-lg font-semibold text-primary-blue font-heading">{{ comment.author.name }}</h4>
@@ -183,30 +187,30 @@
         </div>
         <div class="partners-grid grid grid-cols-1 md:grid-cols-3 gap-8">
             <div class="partner-card bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 animate-on-scroll partner-card-1">
-                <div class="p-8 text-center">
+                <a href="https://web.facebook.com/pharm.uofk" target="_blank" rel="noopener noreferrer" class="block p-8 text-center hover:bg-gray-50 transition-colors duration-300">
                     <div class="partner-logo-container h-24 flex items-center justify-center bg-gray-50 rounded-lg mb-6">
                         <img src="{{ url_for('static', filename='images/uofk.jpg') }}" alt="Faculty of Pharmacy, UofK Logo" class="partner-logo max-w-full max-h-full object-contain grayscale hover:grayscale-0 transition-all duration-300">
                     </div>
                     <h3 class="partner-name text-lg font-semibold text-gray-700 font-heading">Faculty of Pharmacy, UofK</h3>
-                </div>
+                </a>
             </div>
 
             <div class="partner-card bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 animate-on-scroll partner-card-2">
-                <div class="p-8 text-center">
+                <a href="https://web.facebook.com/FPSA.IPSF" target="_blank" rel="noopener noreferrer" class="block p-8 text-center hover:bg-gray-50 transition-colors duration-300">
                     <div class="partner-logo-container h-24 flex items-center justify-center bg-gray-50 rounded-lg mb-6">
                         <img src="{{ url_for('static', filename='images/fpsa.jpg') }}" alt="FPSA Logo" class="partner-logo max-w-full max-h-full object-contain grayscale hover:grayscale-0 transition-all duration-300">
                     </div>
                     <h3 class="partner-name text-lg font-semibold text-gray-700 font-heading">FPSA</h3>
-                </div>
+                </a>
             </div>
 
             <div class="partner-card bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 animate-on-scroll partner-card-3">
-                <div class="p-8 text-center">
+                <a href="https://t.me/psrafpsa" target="_blank" rel="noopener noreferrer" class="block p-8 text-center hover:bg-gray-50 transition-colors duration-300">
                     <div class="partner-logo-container h-24 flex items-center justify-center bg-gray-50 rounded-lg mb-6">
                         <img src="{{ url_for('static', filename='images/PharmaRx.png') }}" alt="PharmaRx Logo" class="partner-logo max-w-full max-h-full object-contain grayscale hover:grayscale-0 transition-all duration-300">
                     </div>
                     <h3 class="partner-name text-lg font-semibold text-gray-700 font-heading">PharmaRx</h3>
-                </div>
+                </a>
             </div>
         </div>
     </div>
