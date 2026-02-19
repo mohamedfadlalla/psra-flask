@@ -20,11 +20,15 @@ from models import db, User, Message, Post, Comment, Event, Research, Researcher
 from services import EventService, MessageService, ResearchService
 from utils.constants import FLASH_SUCCESS, FLASH_ERROR
 from extensions import oauth
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 
 # Initialize Flask app
 app = Flask(__name__)
 app.config.from_object(Config)
+
+# Add ProxyFix middleware to handle reverse proxy headers
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
 
 # Initialize extensions
 db.init_app(app)
@@ -290,7 +294,11 @@ def forum_redirect():
 @app.route('/login/google')
 def login_google():
     """Initiate Google OAuth login."""
-    redirect_uri = url_for('google_callback', _external=True)
+    # Force HTTPS for the callback URL if in production
+    if os.environ.get('FLASK_ENV') == 'production':
+        redirect_uri = url_for('google_callback', _external=True, _scheme='https')
+    else:
+        redirect_uri = url_for('google_callback', _external=True)
     return google.authorize_redirect(redirect_uri)
 
 
