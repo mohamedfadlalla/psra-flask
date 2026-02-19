@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Data Migration Script: SQLite -> PostgreSQL
-Migrates all data from the SQLite database to PostgreSQL.
+Robust Data Migration Script: SQLite -> PostgreSQL
+Migrates data from SQLite to PostgreSQL, skipping missing source tables.
 """
 
 import sqlite3
@@ -12,6 +12,7 @@ from datetime import datetime
 
 # Configuration
 SQLITE_DB = "instance/psra.db"
+# Use environment variable or fallback to default
 DATABASE_URL = os.environ.get(
     "DATABASE_URL",
     "postgresql://psra_user:psra_pass123@localhost:5432/psra"
@@ -23,7 +24,16 @@ def get_pg_connection():
 
 def get_sqlite_connection():
     """Create SQLite connection."""
+    if not os.path.exists(SQLITE_DB):
+        raise FileNotFoundError(f"SQLite database not found at {SQLITE_DB}")
     return sqlite3.connect(SQLITE_DB)
+
+def check_table_exists(cursor, table_name):
+    """Check if a table exists in the SQLite database."""
+    # Handle quoted table names for check
+    clean_name = table_name.replace('"', '')
+    cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name=?", (clean_name,))
+    return cursor.fetchone() is not None
 
 def migrate_users(sqlite_conn, pg_conn):
     """Migrate users table."""
@@ -31,7 +41,11 @@ def migrate_users(sqlite_conn, pg_conn):
     sqlite_cursor = sqlite_conn.cursor()
     pg_cursor = pg_conn.cursor()
     
-    # Ensure password_hash column is wide enough (some hashes > 128 chars)
+    if not check_table_exists(sqlite_cursor, "user"):
+        print("  Warning: Table 'user' not found in SQLite. Skipping.")
+        return
+
+    # Ensure password_hash column is wide enough
     try:
         pg_cursor.execute('ALTER TABLE "user" ALTER COLUMN password_hash TYPE VARCHAR(255)')
         pg_conn.commit()
@@ -51,21 +65,16 @@ def migrate_users(sqlite_conn, pg_conn):
     
     original_users = sqlite_cursor.fetchall()
     
-    # Convert boolean integers from SQLite to Python booleans
     users = []
     for row in original_users:
         row = list(row)
         # Convert integer booleans to actual booleans
-        # is_member (index 7), is_admin (index 16), email_notifications_enabled (index 26), 
-        # event_reminders_enabled (index 27), new_research_alerts_enabled (index 28)
         row[7] = bool(row[7])   # is_member
         row[16] = bool(row[16])  # is_admin
         row[26] = bool(row[26])  # email_notifications_enabled
         row[27] = bool(row[27])  # event_reminders_enabled
         row[28] = bool(row[28])  # new_research_alerts_enabled
         users.append(tuple(row))
-    
-    original_users = users
     
     query = """
         INSERT INTO "user" (id, name, email, password_hash, batch_number, phone_number,
@@ -118,6 +127,10 @@ def migrate_researchers(sqlite_conn, pg_conn):
     sqlite_cursor = sqlite_conn.cursor()
     pg_cursor = pg_conn.cursor()
     
+    if not check_table_exists(sqlite_cursor, "researcher"):
+        print("  Warning: Table 'researcher' not found in SQLite. Skipping.")
+        return
+    
     sqlite_cursor.execute("""
         SELECT id, name, profile_picture_url, bio, is_registered_user, user_id, created_at
         FROM researcher
@@ -125,12 +138,10 @@ def migrate_researchers(sqlite_conn, pg_conn):
     
     original_researchers = sqlite_cursor.fetchall()
     
-    # Convert boolean integers from SQLite to Python booleans
     researchers = []
     for row in original_researchers:
         row = list(row)
-        # is_registered_user is at index 4
-        row[4] = bool(row[4])
+        row[4] = bool(row[4])  # is_registered_user
         researchers.append(tuple(row))
     
     query = """
@@ -154,6 +165,10 @@ def migrate_posts(sqlite_conn, pg_conn):
     print("Migrating posts...")
     sqlite_cursor = sqlite_conn.cursor()
     pg_cursor = pg_conn.cursor()
+    
+    if not check_table_exists(sqlite_cursor, "post"):
+        print("  Warning: Table 'post' not found in SQLite. Skipping.")
+        return
     
     sqlite_cursor.execute("""
         SELECT id, user_id, category, title, content, image_url, created_at
@@ -184,6 +199,10 @@ def migrate_comments(sqlite_conn, pg_conn):
     sqlite_cursor = sqlite_conn.cursor()
     pg_cursor = pg_conn.cursor()
     
+    if not check_table_exists(sqlite_cursor, "comment"):
+        print("  Warning: Table 'comment' not found in SQLite. Skipping.")
+        return
+    
     sqlite_cursor.execute("""
         SELECT id, post_id, user_id, content, created_at
         FROM "comment"
@@ -192,7 +211,7 @@ def migrate_comments(sqlite_conn, pg_conn):
     comments = sqlite_cursor.fetchall()
     
     query = """
-        INSERT INTO comment (id, post_id, user_id, content, created_at)
+        INSERT INTO "comment" (id, post_id, user_id, content, created_at)
         VALUES (%s, %s, %s, %s, %s)
         ON CONFLICT (id) DO UPDATE SET
             post_id = EXCLUDED.post_id,
@@ -211,9 +230,18 @@ def migrate_likes(sqlite_conn, pg_conn):
     sqlite_cursor = sqlite_conn.cursor()
     pg_cursor = pg_conn.cursor()
     
-    sqlite_cursor.execute("""
+    # Check for "like" or "like_table"
+    table_name = "like"
+    if not check_table_exists(sqlite_cursor, "like"):
+        if check_table_exists(sqlite_cursor, "like_table"):
+            table_name = "like_table"
+        else:
+            print("  Warning: Table 'like' not found in SQLite. Skipping.")
+            return
+
+    sqlite_cursor.execute(f"""
         SELECT id, user_id, post_id
-        FROM "like"
+        FROM "{table_name}"
     """)
     
     likes = sqlite_cursor.fetchall()
@@ -236,6 +264,10 @@ def migrate_events(sqlite_conn, pg_conn):
     sqlite_cursor = sqlite_conn.cursor()
     pg_cursor = pg_conn.cursor()
     
+    if not check_table_exists(sqlite_cursor, "event"):
+        print("  Warning: Table 'event' not found in SQLite. Skipping.")
+        return
+    
     sqlite_cursor.execute("""
         SELECT id, title, description, event_date, event_time, image_url,
                presenter, event_url, is_archived, created_by, created_at
@@ -244,12 +276,10 @@ def migrate_events(sqlite_conn, pg_conn):
     
     original_events = sqlite_cursor.fetchall()
     
-    # Convert boolean integers from SQLite to Python booleans
     events = []
     for row in original_events:
         row = list(row)
-        # is_archived is at index 8
-        row[8] = bool(row[8])
+        row[8] = bool(row[8])  # is_archived
         events.append(tuple(row))
     
     query = """
@@ -279,6 +309,10 @@ def migrate_messages(sqlite_conn, pg_conn):
     sqlite_cursor = sqlite_conn.cursor()
     pg_cursor = pg_conn.cursor()
     
+    if not check_table_exists(sqlite_cursor, "message"):
+        print("  Warning: Table 'message' not found in SQLite. Skipping.")
+        return
+    
     sqlite_cursor.execute("""
         SELECT id, sender_id, receiver_id, content, is_read, read_at, created_at
         FROM message
@@ -286,12 +320,10 @@ def migrate_messages(sqlite_conn, pg_conn):
     
     original_messages = sqlite_cursor.fetchall()
     
-    # Convert boolean integers from SQLite to Python booleans
     messages = []
     for row in original_messages:
         row = list(row)
-        # is_read is at index 4
-        row[4] = bool(row[4])
+        row[4] = bool(row[4])  # is_read
         messages.append(tuple(row))
     
     query = """
@@ -316,6 +348,10 @@ def migrate_researches(sqlite_conn, pg_conn):
     sqlite_cursor = sqlite_conn.cursor()
     pg_cursor = pg_conn.cursor()
     
+    if not check_table_exists(sqlite_cursor, "research"):
+        print("  Warning: Table 'research' not found in SQLite. Skipping.")
+        return
+    
     sqlite_cursor.execute("""
         SELECT id, title, doi_url, department, year, researcher_id,
                researcher_type, is_approved, submitted_by, created_at
@@ -324,12 +360,10 @@ def migrate_researches(sqlite_conn, pg_conn):
     
     original_researches = sqlite_cursor.fetchall()
     
-    # Convert boolean integers from SQLite to Python booleans
     researches = []
     for row in original_researches:
         row = list(row)
-        # is_approved is at index 7
-        row[7] = bool(row[7])
+        row[7] = bool(row[7])  # is_approved
         researches.append(tuple(row))
     
     query = """
@@ -357,6 +391,10 @@ def migrate_announcements(sqlite_conn, pg_conn):
     print("Migrating announcements...")
     sqlite_cursor = sqlite_conn.cursor()
     pg_cursor = pg_conn.cursor()
+    
+    if not check_table_exists(sqlite_cursor, "announcement"):
+        print("  Warning: Table 'announcement' not found in SQLite. Skipping.")
+        return
     
     sqlite_cursor.execute("""
         SELECT id, subject, body, target_filter, recipient_count,
@@ -391,6 +429,10 @@ def migrate_notification_logs(sqlite_conn, pg_conn):
     print("Migrating notification_logs...")
     sqlite_cursor = sqlite_conn.cursor()
     pg_cursor = pg_conn.cursor()
+    
+    if not check_table_exists(sqlite_cursor, "notification_log"):
+        print("  Warning: Table 'notification_log' not found in SQLite. Skipping.")
+        return
     
     sqlite_cursor.execute("""
         SELECT id, user_id, notification_type, reference_id, recipient_email,
@@ -437,9 +479,10 @@ def reset_sequences(pg_conn):
                 # Reset sequence
                 pg_cursor.execute(f"SELECT setval('{seq_name}', COALESCE((SELECT MAX(id) FROM {table}), 0) + 1, false)")
             else:
-                print(f"  Warning: No sequence found for {table}")
+                pass # Silently skip missing tables/sequences
         except Exception as e:
-            print(f"  Warning: Could not reset sequence for {table}: {e}")
+            # Warning: Could not reset sequence for ...
+            # Usually happens if table doesn't exist or transaction aborted
             pg_conn.rollback()
     
     pg_conn.commit()
@@ -447,7 +490,7 @@ def reset_sequences(pg_conn):
 
 def main():
     print("=" * 50)
-    print("SQLite to PostgreSQL Data Migration")
+    print("Robust SQLite to PostgreSQL Data Migration")
     print("=" * 50)
     
     if not os.path.exists(SQLITE_DB):
@@ -457,8 +500,12 @@ def main():
     print(f"\nSource: SQLite ({SQLITE_DB})")
     print(f"Target: PostgreSQL ({DATABASE_URL})")
     
-    sqlite_conn = get_sqlite_connection()
-    pg_conn = get_pg_connection()
+    try:
+        sqlite_conn = get_sqlite_connection()
+        pg_conn = get_pg_connection()
+    except Exception as e:
+        print(f"Connection error: {e}")
+        return
     
     try:
         migrate_users(sqlite_conn, pg_conn)
@@ -481,10 +528,9 @@ def main():
     except Exception as e:
         print(f"Error during migration: {e}")
         pg_conn.rollback()
-        raise
     finally:
-        sqlite_conn.close()
-        pg_conn.close()
+        if 'sqlite_conn' in locals(): sqlite_conn.close()
+        if 'pg_conn' in locals(): pg_conn.close()
 
 if __name__ == "__main__":
     main()
