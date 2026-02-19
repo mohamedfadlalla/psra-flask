@@ -9,7 +9,8 @@ class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    password_hash = db.Column(db.String(128), nullable=False)
+    password_hash = db.Column(db.String(128), nullable=True)
+    google_id = db.Column(db.String(100), unique=True, nullable=True)
     batch_number = db.Column(db.Integer, nullable=True)
     phone_number = db.Column(db.String(20), nullable=True)
     whatsapp_number = db.Column(db.String(20), nullable=True)
@@ -46,6 +47,8 @@ class User(UserMixin, db.Model):
         self.password_hash = generate_password_hash(password)
 
     def check_password(self, password):
+        if self.password_hash is None:
+            return False
         return check_password_hash(self.password_hash, password)
 
 class Post(db.Model):

@@ -105,7 +105,8 @@ Core entity representing system users (students, alumni, undergraduates).
 | `id` | Integer | PK | Auto-inc | Unique identifier |
 | `name` | String(100) | Not Null | | Full name |
 | `email` | String(120) | UK, Not Null | | Email address (unique) |
-| `password_hash` | String(128) | Not Null | | Hashed password |
+| `password_hash` | String(128) | Nullable | | Hashed password (nullable for OAuth users) |
+| `google_id` | String(100) | UK, Nullable | | Google OAuth ID for Sign in with Google |
 | `batch_number` | Integer | Nullable | | Batch number (e.g., 2023) |
 | `phone_number` | String(20) | Nullable | | Contact number |
 | `whatsapp_number` | String(20) | Nullable | | WhatsApp contact |

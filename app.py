@@ -4,7 +4,7 @@ PSRA Flask Application
 Main application module for the Pharmaceutical Studies and Research Association website.
 """
 
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from flask_migrate import Migrate
@@ -13,11 +13,13 @@ from flask_mail import Mail
 from datetime import datetime
 import os
 import csv
+import json
 
 from config import Config
 from models import db, User, Message, Post, Comment, Event, Research, Researcher
 from services import EventService, MessageService, ResearchService
 from utils.constants import FLASH_SUCCESS, FLASH_ERROR
+from extensions import oauth
 
 
 # Initialize Flask app
@@ -35,6 +37,34 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'forum.login'
 login_manager.login_message = 'Please log in to access this page.'
+
+# Initialize OAuth
+oauth.init_app(app)
+
+# Load Google OAuth credentials from client_secret.json
+def get_google_oauth_credentials():
+    """Load Google OAuth credentials from client_secret.json."""
+    client_secret_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'client_secret.json')
+    if os.path.exists(client_secret_path):
+        with open(client_secret_path, 'r') as f:
+            credentials = json.load(f)
+            web_creds = credentials.get('web', {})
+            return {
+                'client_id': web_creds.get('client_id'),
+                'client_secret': web_creds.get('client_secret')
+            }
+    return {'client_id': None, 'client_secret': None}
+
+google_creds = get_google_oauth_credentials()
+
+# Register Google OAuth provider
+google = oauth.register(
+    name='google',
+    client_id=google_creds['client_id'],
+    client_secret=google_creds['client_secret'],
+    server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
+    client_kwargs={'scope': 'openid email profile'}
+)
 
 
 @login_manager.user_loader
@@ -242,6 +272,68 @@ def faq():
 def forum_redirect():
     """Redirect /forum to main forum page."""
     return redirect(url_for('forum.forum_main'))
+
+
+# ==================== Google OAuth Routes ====================
+
+@app.route('/login/google')
+def login_google():
+    """Initiate Google OAuth login."""
+    redirect_uri = url_for('google_callback', _external=True)
+    return google.authorize_redirect(redirect_uri)
+
+
+@app.route('/auth/google/callback')
+def google_callback():
+    """Handle Google OAuth callback."""
+    try:
+        token = google.authorize_access_token()
+        user_info = token.get('userinfo')
+        
+        if not user_info:
+            # Fallback: fetch user info from Google
+            user_info = google.get('https://www.googleapis.com/oauth2/v3/userinfo').json()
+        
+        google_id = user_info.get('sub')
+        email = user_info.get('email')
+        name = user_info.get('name', email.split('@')[0])
+        
+        if not email:
+            flash('Unable to get email from Google account.', FLASH_ERROR)
+            return redirect(url_for('forum.login'))
+        
+        # Check if user exists by Google ID
+        user = User.query.filter_by(google_id=google_id).first()
+        
+        if not user:
+            # Check if user exists by email
+            user = User.query.filter_by(email=email).first()
+            if user:
+                # Link Google account to existing user
+                user.google_id = google_id
+                db.session.commit()
+            else:
+                # Create new user
+                user = User(
+                    email=email,
+                    name=name,
+                    google_id=google_id,
+                    status='student'
+                )
+                db.session.add(user)
+                db.session.commit()
+        
+        # Log in the user
+        login_user(user)
+        flash(f'Welcome, {user.name}!', FLASH_SUCCESS)
+        
+        # Redirect to the next page or home
+        next_page = request.args.get('next')
+        return redirect(next_page) if next_page else redirect(url_for('home'))
+        
+    except Exception as e:
+        flash(f'Google login failed: {str(e)}', FLASH_ERROR)
+        return redirect(url_for('forum.login'))
 
 
 # ==================== API Routes ====================

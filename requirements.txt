@@ -13,3 +13,5 @@ email_validator
 Pillow>=10.1.0
 gunicorn
 psycopg2-binary
+authlib>=1.2.0
+requests>=2.28.0
