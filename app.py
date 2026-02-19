@@ -41,9 +41,20 @@ login_manager.login_message = 'Please log in to access this page.'
 # Initialize OAuth
 oauth.init_app(app)
 
-# Load Google OAuth credentials from client_secret.json
+# Load Google OAuth credentials from client_secret.json or environment variables
 def get_google_oauth_credentials():
-    """Load Google OAuth credentials from client_secret.json."""
+    """Load Google OAuth credentials from client_secret.json or environment variables."""
+    # First try environment variables
+    client_id = os.environ.get('GOOGLE_CLIENT_ID')
+    client_secret = os.environ.get('GOOGLE_CLIENT_SECRET')
+    
+    if client_id and client_secret:
+        return {
+            'client_id': client_id,
+            'client_secret': client_secret
+        }
+
+    # Fallback to client_secret.json
     client_secret_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'client_secret.json')
     if os.path.exists(client_secret_path):
         with open(client_secret_path, 'r') as f:
