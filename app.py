@@ -294,11 +294,16 @@ def forum_redirect():
 @app.route('/login/google')
 def login_google():
     """Initiate Google OAuth login."""
-    # Force HTTPS for the callback URL if in production
-    if os.environ.get('FLASK_ENV') == 'production':
-        redirect_uri = url_for('google_callback', _external=True, _scheme='https')
-    else:
-        redirect_uri = url_for('google_callback', _external=True)
+    # Use explicitly configured redirect URI if available (best for production)
+    redirect_uri = os.environ.get('GOOGLE_REDIRECT_URI')
+    
+    if not redirect_uri:
+        # Fallback to auto-generated URL
+        if os.environ.get('FLASK_ENV') == 'production':
+            redirect_uri = url_for('google_callback', _external=True, _scheme='https')
+        else:
+            redirect_uri = url_for('google_callback', _external=True)
+            
     return google.authorize_redirect(redirect_uri)
 
 
