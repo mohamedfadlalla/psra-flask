@@ -1,0 +1,315 @@
+{% extends "base.html" %}
+
+{% block title %}Send Announcement - Admin - PSRA{% endblock %}
+
+{% block content %}
+<div class="send-announcement-page">
+    <div class="container mx-auto px-4">
+        <div class="page-header">
+            <h1>Send Announcement</h1>
+            <p>Send an email announcement to all or selected users</p>
+        </div>
+
+        <div class="admin-nav">
+            <a href="{{ url_for('admin.admin_dashboard') }}" class="nav-link">
+                <i class="fas fa-tachometer-alt"></i> Dashboard
+            </a>
+            <a href="{{ url_for('admin.manage_announcements') }}" class="nav-link">
+                <i class="fas fa-bullhorn"></i> Announcements
+            </a>
+        </div>
+
+        {% if not mail_configured %}
+        <div class="alert alert-error">
+            <i class="fas fa-exclamation-triangle"></i>
+            <strong>Email Not Configured:</strong> {{ mail_error }}. Announcements will be saved but emails cannot be sent.
+        </div>
+        {% endif %}
+
+        <div class="form-container">
+            <form method="POST" action="{{ url_for('admin.send_announcement') }}" id="announcement-form">
+                <div class="form-section">
+                    <h3><i class="fas fa-edit"></i> Announcement Content</h3>
+                    
+                    <div class="form-group">
+                        <label for="subject">Subject *</label>
+                        <input type="text" id="subject" name="subject" required 
+                               placeholder="Enter announcement subject" maxlength="200">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="body">Message *</label>
+                        <textarea id="body" name="body" required 
+                                  placeholder="Enter your announcement message..."
+                                  rows="8"></textarea>
+                        <small class="form-hint">The message will be sent as formatted text to recipients.</small>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3><i class="fas fa-filter"></i> Target Audience</h3>
+                    
+                    <div class="form-group">
+                        <label>User Status</label>
+                        <div class="checkbox-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="target_status" value="student" checked>
+                                <span class="checkmark"></span>
+                                Students
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="target_status" value="alumni" checked>
+                                <span class="checkmark"></span>
+                                Alumni
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="target_status" value="undergraduate" checked>
+                                <span class="checkmark"></span>
+                                Undergraduates
+                            </label>
+                        </div>
+                        <small class="form-hint">Select all statuses or specific ones to target.</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="members_only" id="members_only">
+                            <span class="checkmark"></span>
+                            Members Only
+                        </label>
+                        <small class="form-hint">Only send to users who are marked as PSRA members.</small>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <a href="{{ url_for('admin.manage_announcements') }}" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary" id="send-btn">
+                        <i class="fas fa-paper-plane"></i> Send Announcement
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+.send-announcement-page {
+    padding: 40px 0 60px;
+}
+
+.page-header {
+    margin-bottom: 30px;
+}
+
+.page-header h1 {
+    font-size: 2rem;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.page-header p {
+    color: #666;
+}
+
+.admin-nav {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+}
+
+.nav-link {
+    padding: 10px 20px;
+    background: #f8f9fa;
+    color: #333;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: all 0.3s;
+}
+
+.nav-link:hover {
+    background: #2D577B;
+    color: white;
+}
+
+.alert {
+    padding: 15px 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.alert-error {
+    background: #fff3cd;
+    border: 1px solid #ffc107;
+    color: #856404;
+}
+
+.alert-error i {
+    font-size: 1.2rem;
+}
+
+.form-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.form-section {
+    background: white;
+    border-radius: 12px;
+    padding: 25px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+}
+
+.form-section h3 {
+    font-size: 1.1rem;
+    color: #333;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.form-section h3 i {
+    color: #2D577B;
+    margin-right: 10px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group:last-child {
+    margin-bottom: 0;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.form-group input[type="text"],
+.form-group textarea {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    font-family: inherit;
+}
+
+.form-group input[type="text"]:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #2D577B;
+    box-shadow: 0 0 0 3px rgba(45, 87, 123, 0.1);
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 150px;
+}
+
+.form-hint {
+    display: block;
+    margin-top: 6px;
+    color: #666;
+    font-size: 0.85rem;
+}
+
+.checkbox-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    font-weight: normal;
+    color: #555;
+}
+
+.checkbox-label input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: #2D577B;
+}
+
+.form-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: flex-end;
+    padding: 20px 0;
+}
+
+.btn {
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+}
+
+.btn-primary {
+    background: #2D577B;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #1E3A5F;
+}
+
+.btn-secondary {
+    background: #e9ecef;
+    color: #333;
+}
+
+.btn-secondary:hover {
+    background: #dee2e6;
+}
+
+@media (max-width: 768px) {
+    .admin-nav {
+        flex-direction: column;
+    }
+    
+    .checkbox-group {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+    
+    .form-actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+</style>
+
+<script>
+document.getElementById('announcement-form').addEventListener('submit', function(e) {
+    const sendBtn = document.getElementById('send-btn');
+    sendBtn.disabled = true;
+    sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+});
+</script>
+{% endblock %}

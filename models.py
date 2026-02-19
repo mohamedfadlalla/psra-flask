@@ -144,19 +144,36 @@ class Research(db.Model):
         ]
 
 
+class Announcement(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    subject = db.Column(db.String(200), nullable=False)
+    body = db.Column(db.Text, nullable=False)
+    target_filter = db.Column(db.Text, nullable=True)
+    recipient_count = db.Column(db.Integer, default=0)
+    success_count = db.Column(db.Integer, default=0)
+    failure_count = db.Column(db.Integer, default=0)
+    created_by = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    sent_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    author = db.relationship('User', backref='announcements')
+
+    def __repr__(self):
+        return f'<Announcement {self.subject}>'
+
+
 class NotificationLog(db.Model):
     """Model to track sent notifications."""
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)  # Null for bulk notifications
-    notification_type = db.Column(db.String(50), nullable=False)  # 'event_reminder', 'new_research', 'research_approved', 'research_rejected'
-    reference_id = db.Column(db.Integer, nullable=True)  # event_id or research_id
-    recipient_email = db.Column(db.String(120), nullable=False)  # Email sent to
-    subject = db.Column(db.String(200), nullable=False)  # Email subject
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    notification_type = db.Column(db.String(50), nullable=False)
+    reference_id = db.Column(db.Integer, nullable=True)
+    recipient_email = db.Column(db.String(120), nullable=False)
+    subject = db.Column(db.String(200), nullable=False)
     sent_at = db.Column(db.DateTime, default=datetime.utcnow)
-    status = db.Column(db.String(20), default='sent')  # 'sent', 'failed'
-    error_message = db.Column(db.Text, nullable=True)  # Error details if failed
+    status = db.Column(db.String(20), default='sent')
+    error_message = db.Column(db.Text, nullable=True)
     
-    # Relationship to user
     user = db.relationship('User', backref='notification_logs')
     
     def __repr__(self):

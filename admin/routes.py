@@ -10,14 +10,15 @@ from datetime import datetime
 import os
 
 from . import admin_bp
-from models import db, User, Post, Comment, Event, Research, Researcher
+from models import db, User, Post, Comment, Event, Research, Researcher, Announcement
 from utils.decorators import admin_required
 from utils.constants import FLASH_SUCCESS, FLASH_ERROR, FLASH_WARNING, DEFAULT_PER_PAGE
 from utils.image_utils import save_event_image, delete_file, get_event_image_path
 from utils.query_helpers import paginate_query
 from services import EventService, ResearchService
-from utils.email_utils import send_event_notification, send_research_status_email
+from utils.email_utils import send_event_notification, send_research_status_email, send_announcement_email, is_mail_configured
 from utils.notification_utils import send_research_approved_notification, send_research_rejected_notification
+import json
 
 
 # ==================== Dashboard ====================
@@ -509,3 +510,91 @@ def delete_research(research_id):
         flash('Failed to delete research.', FLASH_ERROR)
     
     return redirect(url_for('admin.manage_researches'))
+
+
+# ==================== Announcement Management ====================
+
+@admin_bp.route('/announcements')
+@login_required
+@admin_required
+def manage_announcements():
+    """Display all sent announcements with pagination."""
+    page = request.args.get('page', 1, type=int)
+    pagination = Announcement.query.order_by(Announcement.created_at.desc()).paginate(
+        page=page, per_page=DEFAULT_PER_PAGE, error_out=False
+    )
+    return render_template('admin/announcements.html', pagination=pagination)
+
+
+@admin_bp.route('/announcements/send', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def send_announcement():
+    """Compose and send a new announcement to users."""
+    if request.method == 'POST':
+        subject = request.form.get('subject', '').strip()
+        body = request.form.get('body', '').strip()
+        target_status = request.form.getlist('target_status')
+        members_only = request.form.get('members_only') == 'on'
+        
+        if not subject or not body:
+            flash('Subject and body are required.', FLASH_ERROR)
+            return redirect(url_for('admin.send_announcement'))
+        
+        query = User.query.filter(User.email.isnot(None))
+        
+        if target_status:
+            query = query.filter(User.status.in_(target_status))
+        
+        if members_only:
+            query = query.filter(User.is_member == True)
+        
+        recipients = query.filter(
+            (User.email_notifications_enabled == True) | (User.email_notifications_enabled.is_(None))
+        ).all()
+        
+        if not recipients:
+            flash('No users match the selected criteria with email notifications enabled.', FLASH_WARNING)
+            return redirect(url_for('admin.send_announcement'))
+        
+        target_filter = json.dumps({
+            'status': target_status,
+            'members_only': members_only
+        })
+        
+        announcement = Announcement(
+            subject=subject,
+            body=body,
+            target_filter=target_filter,
+            recipient_count=len(recipients),
+            created_by=current_user.id
+        )
+        
+        try:
+            db.session.add(announcement)
+            db.session.commit()
+            
+            success_count, failure_count, error_msg = send_announcement_email(announcement, recipients)
+            
+            announcement.success_count = success_count
+            announcement.failure_count = failure_count
+            db.session.commit()
+            
+            if success_count > 0:
+                flash(f'Announcement sent successfully to {success_count} users.', FLASH_SUCCESS)
+            if failure_count > 0:
+                if error_msg:
+                    flash(f'Failed to send to {failure_count} users. Error: {error_msg}', FLASH_ERROR)
+                else:
+                    flash(f'Failed to send to {failure_count} users.', FLASH_WARNING)
+            if success_count == 0 and failure_count == 0 and error_msg:
+                flash(f'Announcement saved but email not sent: {error_msg}', FLASH_ERROR)
+            
+            return redirect(url_for('admin.manage_announcements'))
+        except Exception as e:
+            db.session.rollback()
+            current_app.logger.error(f"Failed to send announcement: {str(e)}")
+            flash(f'Failed to send announcement: {str(e)}', FLASH_ERROR)
+    
+    mail_configured, mail_error = is_mail_configured()
+    return render_template('admin/send_announcement.html', mail_configured=mail_configured, mail_error=mail_error)

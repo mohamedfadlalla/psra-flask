@@ -3,6 +3,32 @@ from flask_mail import Message
 from models import User
 import logging
 
+
+def is_mail_configured():
+    """
+    Check if mail is properly configured.
+    
+    Returns:
+        tuple: (is_configured: bool, error_message: str or None)
+    """
+    mail_username = current_app.config.get('MAIL_USERNAME')
+    mail_password = current_app.config.get('MAIL_PASSWORD')
+    mail_server = current_app.config.get('MAIL_SERVER')
+    
+    missing = []
+    if not mail_server:
+        missing.append('MAIL_SERVER')
+    if not mail_username:
+        missing.append('MAIL_USERNAME')
+    if not mail_password:
+        missing.append('MAIL_PASSWORD')
+    
+    if missing:
+        return False, f"Missing mail configuration: {', '.join(missing)}"
+    
+    return True, None
+
+
 def send_email(subject, recipients, html_body, text_body=None):
     """
     Send an email using Flask-Mail with error handling.
@@ -14,10 +40,19 @@ def send_email(subject, recipients, html_body, text_body=None):
         text_body (str, optional): Plain text version of the email
 
     Returns:
-        bool: True if email sent successfully, False otherwise
+        tuple: (success: bool, error_message: str or None)
     """
+    is_configured, config_error = is_mail_configured()
+    if not is_configured:
+        current_app.logger.error(f"Email not sent - {config_error}")
+        return False, config_error
+    
+    if not recipients:
+        error_msg = "No recipients provided"
+        current_app.logger.warning(f"Email not sent - {error_msg}")
+        return False, error_msg
+    
     try:
-        # Get sender from environment or app config
         sender = current_app.config.get('MAIL_DEFAULT_SENDER') or current_app.config.get('MAIL_USERNAME')
 
         msg = Message(
@@ -31,13 +66,13 @@ def send_email(subject, recipients, html_body, text_body=None):
             msg.body = text_body
 
         current_app.extensions['mail'].send(msg)
-        logging.info(f"Email sent successfully to {len(recipients)} recipients: {subject}")
-        return True
+        current_app.logger.info(f"Email sent successfully to {len(recipients)} recipients: {subject}")
+        return True, None
 
     except Exception as e:
-        logging.error(f"Failed to send email: {str(e)}")
-        # Don't raise exception to avoid breaking the main application flow
-        return False
+        error_msg = str(e)
+        current_app.logger.error(f"Failed to send email: {error_msg}")
+        return False, error_msg
 
 def send_event_notification(event):
     """
@@ -172,12 +207,13 @@ def send_event_notification(event):
         batch_emails = [user.email for user in batch_users if user.email]
 
         if batch_emails:
-            if send_email(subject, batch_emails, html_body, text_body):
+            success, error = send_email(subject, batch_emails, html_body, text_body)
+            if success:
                 success_count += len(batch_emails)
             else:
                 failure_count += len(batch_emails)
 
-    logging.info(f"Event notification sent: {success_count} successful, {failure_count} failed")
+    current_app.logger.info(f"Event notification sent: {success_count} successful, {failure_count} failed")
     return success_count, failure_count
 
 
@@ -315,6 +351,96 @@ def send_new_research_email(user, research):
     return send_email(subject, [user.email], html_body)
 
 
+def send_announcement_email(announcement, recipients):
+    """
+    Send an announcement email to a list of recipients.
+    
+    Args:
+        announcement: Announcement model instance
+        recipients: List of User model instances
+        
+    Returns:
+        tuple: (success_count, failure_count, first_error_message)
+    """
+    if not recipients:
+        current_app.logger.warning("No recipients for announcement")
+        return 0, 0, "No recipients found"
+    
+    is_configured, config_error = is_mail_configured()
+    if not is_configured:
+        current_app.logger.error(f"Announcement not sent - {config_error}")
+        return 0, len(recipients), config_error
+    
+    subject = f"[PSRA Announcement] {announcement.subject}"
+    
+    html_template = """
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8">
+        <style>
+            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .header { background-color: #2D577B; color: white; padding: 20px; text-align: center; }
+            .content { padding: 20px; background-color: #f9f9f9; }
+            .announcement-body { background-color: white; padding: 15px; border-radius: 5px; margin: 15px 0; white-space: pre-wrap; }
+            .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>PSRA Announcement</h1>
+            </div>
+            <div class="content">
+                <p>Dear PSRA Community Member,</p>
+                
+                <div class="announcement-body">{{ body }}</div>
+                
+                <p>Best regards,<br>PSRA Team</p>
+            </div>
+            <div class="footer">
+                <p>This is an announcement from the Pharmaceutical Studies and Research Association.</p>
+                <p>If you no longer wish to receive these notifications, please update your preferences in your profile.</p>
+            </div>
+        </div>
+    </body>
+    </html>
+    """
+    
+    html_body = render_template_string(html_template, body=announcement.body)
+    
+    text_body = f"""
+PSRA Announcement
+
+{announcement.body}
+
+Best regards,
+PSRA Team
+"""
+    
+    success_count = 0
+    failure_count = 0
+    first_error = None
+    batch_size = 50
+    
+    for i in range(0, len(recipients), batch_size):
+        batch_recipients = recipients[i:i + batch_size]
+        batch_emails = [user.email for user in batch_recipients if user.email]
+        
+        if batch_emails:
+            success, error = send_email(subject, batch_emails, html_body, text_body)
+            if success:
+                success_count += len(batch_emails)
+            else:
+                failure_count += len(batch_emails)
+                if first_error is None:
+                    first_error = error
+    
+    current_app.logger.info(f"Announcement sent: {success_count} successful, {failure_count} failed")
+    return success_count, failure_count, first_error
+
+
 def send_research_status_email(user, research, status, reason=None):
     """
     Send a research submission status update email.
@@ -337,7 +463,6 @@ def send_research_status_email(user, research, status, reason=None):
         status_color = "#dc3545"
         status_message = "We're sorry, but your research submission has been rejected."
     
-    # Handle both Research object and dict
     if hasattr(research, 'title'):
         title = research.title
         author_name = research.author.name if research.author else 'Unknown'
