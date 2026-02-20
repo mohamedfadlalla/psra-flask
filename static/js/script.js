@@ -18,24 +18,84 @@
 /**
  * Toggle like on a post
  * @param {number} postId - The ID of the post to like/unlike
+ * @param {HTMLElement} [btnElement] - The button element that triggered the action
  */
-function toggleLike(postId) {
+function toggleLike(postId, btnElement) {
+    // Determine the button to update
+    let likeBtn = btnElement;
+
+    if (!likeBtn) {
+        // Try to find by specific ID pattern
+        likeBtn = document.getElementById(`like-btn-${postId}`);
+    }
+
+    if (!likeBtn) {
+        // Fallback to legacy ID
+        likeBtn = document.getElementById('like-btn');
+    }
+
+    // Optimistic UI update
+    let isLiked = false;
+    let count = 0;
+    let originalHtml = '';
+
+    if (likeBtn) {
+        originalHtml = likeBtn.innerHTML;
+        isLiked = likeBtn.classList.contains('liked');
+        
+        // Extract count from text
+        const text = likeBtn.innerText.trim();
+        count = parseInt(text);
+        if (isNaN(count)) count = 0;
+        
+        // Apply optimistic update
+        const newCount = isLiked ? Math.max(0, count - 1) : count + 1;
+        likeBtn.innerHTML = `<i class="fas fa-thumbs-up"></i> ${newCount}`;
+        likeBtn.classList.toggle('liked', !isLiked);
+    }
+
+    // Prepare headers
+    const headers = {
+        'Content-Type': 'application/json',
+    };
+
+    // Add CSRF token if available globally
+    if (window.csrfToken) {
+        headers['X-CSRFToken'] = window.csrfToken;
+    }
+
     fetch(`/forum/post/${postId}/like`, {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
+        headers: headers,
     })
-    .then(response => response.json())
+    .then(response => {
+        if (response.status === 401) {
+            // Unauthenticated user
+            window.location.href = '/forum/login';
+            throw new Error('Unauthorized');
+        }
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
     .then(data => {
-        const likeBtn = document.getElementById('like-btn');
         if (likeBtn) {
             likeBtn.innerHTML = `<i class="fas fa-thumbs-up"></i> ${data.likes}`;
             likeBtn.classList.toggle('liked', data.liked);
         }
     })
     .catch(error => {
+        if (error.message === 'Unauthorized') return;
+
         console.error('Error toggling like:', error);
+        
+        // Revert optimistic update
+        if (likeBtn) {
+            likeBtn.innerHTML = originalHtml;
+            likeBtn.classList.toggle('liked', isLiked);
+        }
+        
         showToast('Error updating like. Please try again.', 'error');
     });
 }
