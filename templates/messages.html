@@ -3,183 +3,56 @@
 {% block title %}Messages - PSRA{% endblock %}
 
 {% block content %}
-<div class="container">
-    <div class="messages-header">
-        <h1>Your Messages</h1>
-        <a href="{{ url_for('forum.send_message_by_username') }}" class="btn btn-primary">Send New Message</a>
-    </div>
+<section class="section bg-gray-50 min-h-screen py-8">
+    <div class="container mx-auto px-4 max-w-3xl">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+            <h1 class="text-3xl font-bold text-gray-900 m-0">Your Messages</h1>
+            <a href="{{ url_for('forum.send_message_by_username') }}" class="btn btn-primary whitespace-nowrap"><i class="fas fa-edit mr-2"></i>New Message</a>
+        </div>
 
-    {% if conversations %}
-        <div class="conversations-list">
-            {% for conv in conversations %}
-            <div class="conversation-item {% if conv.unread_count > 0 %}unread{% endif %}">
-                <div class="conversation-user">
-                    <h3><a href="{{ url_for('forum.conversation', user_id=conv.user.id) }}">{{ conv.user.name }}</a></h3>
-                    {% if conv.unread_count > 0 %}
-                        <span class="unread-badge">{{ conv.unread_count }}</span>
-                    {% endif %}
-                </div>
-                <div class="conversation-preview">
-                    {% if conv.latest_message %}
-                        <p class="latest-message">
-                            {% if conv.latest_message.sender_id == current_user.id %}
-                                You: {{ conv.latest_message.content[:50] }}{% if conv.latest_message.content|length > 50 %}...{% endif %}
-                            {% else %}
-                                {{ conv.user.name }}: {{ conv.latest_message.content[:50] }}{% if conv.latest_message.content|length > 50 %}...{% endif %}
-                            {% endif %}
-                        </p>
-                        <small class="message-time">{{ conv.latest_message.created_at.strftime('%b %d, %Y %I:%M %p') }}</small>
-                    {% else %}
-                        <p class="no-messages">No messages yet</p>
-                    {% endif %}
-                </div>
-                <div class="conversation-actions">
-                    <a href="{{ url_for('forum.conversation', user_id=conv.user.id) }}" class="btn btn-primary">View Conversation</a>
-                </div>
+        {% if conversations %}
+            <div class="space-y-3">
+                {% for conv in conversations %}
+                <a href="{{ url_for('forum.conversation', user_id=conv.user.id) }}" class="block bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md hover:border-blue-100 transition-all duration-200 overflow-hidden {% if conv.unread_count > 0 %}border-l-4 border-l-primary-blue bg-blue-50/30{% endif %}">
+                    <div class="flex items-center p-4 sm:p-5">
+                        <div class="flex-shrink-0 mr-4">
+                            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-primary-blue to-blue-light flex items-center justify-center text-white font-bold text-xl ring-2 ring-white shadow-sm">
+                                {{ conv.user.name[0].upper() }}
+                            </div>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex justify-between items-baseline mb-1">
+                                <h3 class="text-base font-bold text-gray-900 truncate pr-2">
+                                    {{ conv.user.name }}
+                                    {% if conv.unread_count > 0 %}
+                                        <span class="inline-flex items-center justify-center bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full ml-2">{{ conv.unread_count }}</span>
+                                    {% endif %}
+                                </h3>
+                                {% if conv.latest_message %}
+                                    <span class="text-xs text-gray-500 whitespace-nowrap">{{ conv.latest_message.created_at.strftime('%b %d') }}</span>
+                                {% endif %}
+                            </div>
+                            <p class="text-sm text-gray-600 truncate">
+                                {% if conv.latest_message %}
+                                    {% if conv.latest_message.sender_id == current_user.id %}You: {% endif %}{{ conv.latest_message.content }}
+                                {% else %}
+                                    <span class="italic">No messages yet</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                </a>
+                {% endfor %}
             </div>
-            {% endfor %}
-        </div>
-    {% else %}
-        <div class="no-conversations">
-            <p>You haven't started any conversations yet.</p>
-            <p><a href="{{ url_for('forum.send_message_by_username') }}">Send your first message</a> or <a href="{{ url_for('forum.forum_main') }}">browse the forum</a> to find users to message.</p>
-        </div>
-    {% endif %}
-</div>
-
-<style>
-.messages-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 30px;
-}
-
-.messages-header h1 {
-    margin: 0;
-}
-
-.conversations-list {
-    max-width: 800px;
-    margin: 0 auto;
-}
-
-.conversation-item {
-    display: flex;
-    align-items: center;
-    padding: 15px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    margin-bottom: 10px;
-    background-color: #fff;
-    transition: background-color 0.2s;
-}
-
-.conversation-item:hover {
-    background-color: #f8f9fa;
-}
-
-.conversation-item.unread {
-    border-left: 4px solid #007bff;
-    background-color: #f0f8ff;
-}
-
-.conversation-user {
-    flex: 1;
-    display: flex;
-    align-items: center;
-}
-
-.conversation-user h3 {
-    margin: 0;
-    font-size: 1.1em;
-}
-
-.conversation-user h3 a {
-    color: #333;
-    text-decoration: none;
-}
-
-.conversation-user h3 a:hover {
-    color: #007bff;
-}
-
-.unread-badge {
-    background-color: #dc3545;
-    color: white;
-    border-radius: 50%;
-    padding: 2px 6px;
-    font-size: 0.8em;
-    margin-left: 10px;
-}
-
-.conversation-preview {
-    flex: 2;
-    margin: 0 20px;
-}
-
-.latest-message {
-    margin: 0 0 5px 0;
-    color: #666;
-}
-
-.message-time {
-    color: #999;
-    font-size: 0.9em;
-}
-
-.no-messages {
-    color: #999;
-    font-style: italic;
-    margin: 0;
-}
-
-.conversation-actions {
-    flex: 1;
-    text-align: right;
-}
-
-.btn {
-    display: inline-block;
-    padding: 8px 16px;
-    text-decoration: none;
-    border-radius: 4px;
-    font-size: 0.9em;
-    transition: background-color 0.2s;
-}
-
-.btn-primary {
-    background-color: #007bff;
-    color: white;
-    border: 1px solid #007bff;
-}
-
-.btn-primary:hover {
-    background-color: #0056b3;
-    border-color: #0056b3;
-}
-
-.no-conversations {
-    text-align: center;
-    padding: 50px 20px;
-    background-color: #f8f9fa;
-    border-radius: 8px;
-    max-width: 600px;
-    margin: 0 auto;
-}
-
-.no-conversations p {
-    margin: 10px 0;
-    color: #666;
-}
-
-.no-conversations a {
-    color: #007bff;
-    text-decoration: none;
-}
-
-.no-conversations a:hover {
-    text-decoration: underline;
-}
-</style>
+        {% else %}
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-10 text-center">
+                <i class="fas fa-inbox text-4xl text-gray-400 mb-4"></i>
+                <h2 class="text-xl font-bold text-gray-900 mb-2">No messages yet</h2>
+                <p class="text-gray-600 mb-6">You haven't started any conversations yet.</p>
+                <a href="{{ url_for('forum.send_message_by_username') }}" class="btn btn-primary">Send your first message</a>
+                <p class="mt-4 text-sm text-gray-500">or <a href="{{ url_for('forum.forum_main') }}" class="text-blue-500 hover:underline">browse the forum</a> to find users to message.</p>
+            </div>
+        {% endif %}
+    </div>
+</section>
 {% endblock %}
