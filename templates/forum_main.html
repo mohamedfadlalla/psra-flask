@@ -3,11 +3,11 @@
 {% block title %}Forum - PSRA{% endblock %}
 
 {% block content %}
-<section class="section">
-    <div class="container forum-container">
+<section class="section bg-gray-50 min-h-screen py-8">
+    <div class="container forum-container mx-auto px-4">
         <!-- Mobile Filter Toggle Button -->
-        <button class="forum-filter-toggle md:hidden" id="forum-filter-toggle" aria-label="Toggle filters">
-            <i class="fas fa-filter"></i> Filters
+        <button class="w-full bg-white border border-gray-200 text-gray-700 font-medium py-3 px-4 rounded-xl shadow-sm mb-6 flex items-center justify-center gap-2 md:hidden hover:bg-gray-50 transition-colors" id="forum-filter-toggle" aria-label="Toggle filters">
+            <i class="fas fa-filter text-primary-blue"></i> Show Filters
         </button>
         
         <!-- Mobile Overlay -->
@@ -47,45 +47,81 @@
 
         <!-- Main Content -->
         <div>
-            <div class="flex justify-between items-center mb-6">
-                <h2>Forum <span class="text-secondary">› {{ selected_category or 'All Discussions' }}</span></h2>
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                <h2 class="text-2xl font-bold text-gray-900 m-0">Forum <span class="text-gray-500 font-normal text-xl">› {{ selected_category or 'All Discussions' }}</span></h2>
                 {% if current_user.is_authenticated %}
-                <a href="{{ url_for('forum.create_post') }}" class="btn btn-primary">
-                    <i class="fas fa-plus"></i> Start New Discussion
-                </a>
+                <div class="flex flex-wrap gap-2 w-full sm:w-auto">
+                    <a href="{{ url_for('forum.create_post') }}" class="flex-1 sm:flex-none justify-center btn btn-sm btn-primary whitespace-nowrap">
+                        <i class="fas fa-pen"></i> New Discussion
+                    </a>
+                    <a href="{{ url_for('forum.create_post') }}" class="flex-1 sm:flex-none justify-center btn btn-sm btn-outline whitespace-nowrap">
+                        <i class="fas fa-bullhorn"></i> Update
+                    </a>
+                    <a href="{{ url_for('forum.create_post') }}" class="flex-1 sm:flex-none justify-center btn btn-sm btn-outline whitespace-nowrap">
+                        <i class="fas fa-question-circle"></i> Question
+                    </a>
+                </div>
                 {% endif %}
             </div>
 
+            <div class="space-y-4">
             {% for post in posts %}
-            <div class="card post-card">
-                <div class="card-body">
-                    <div class="post-header">
-                        <div class="avatar avatar-md">
-                            {% if post.author.profile_picture_url %}
-                            <img src="{{ post.author.profile_picture_url }}" alt="{{ post.author.name }}'s avatar">
-                            {% else %}
-                            <span class="avatar-placeholder">{{ post.author.name[0].upper() }}</span>
-                            {% endif %}
+            <article class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow duration-200">
+                <div class="p-5 sm:p-6">
+                    <div class="flex items-center gap-3 mb-4">
+                        {% if post.author.profile_picture_url %}
+                        <img src="{{ post.author.profile_picture_url }}" alt="{{ post.author.name }}" class="w-10 h-10 rounded-full object-cover ring-2 ring-gray-50 flex-shrink-0">
+                        {% else %}
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-primary-blue to-blue-light flex items-center justify-center text-white font-bold text-sm ring-2 ring-gray-50 flex-shrink-0">
+                            {{ post.author.name[0].upper() }}
                         </div>
-                        <div class="post-author-info">
-                            <span class="post-author-name">{{ post.author.name }}</span>
-                            <br><span class="post-date">{{ post.created_at.strftime('%B %d, %Y at %I:%M %p') }}</span>
+                        {% endif %}
+                        <div class="min-w-0">
+                            <h4 class="font-semibold text-gray-900 text-sm truncate">
+                                <a href="{{ url_for('forum.user_profile', user_id=post.author.id) }}" class="hover:text-primary-blue transition-colors">{{ post.author.name }}</a>
+                            </h4>
+                            <div class="text-xs text-gray-500 truncate">
+                                <time datetime="{{ post.created_at.isoformat() }}">{{ post.created_at.strftime('%B %d, %Y %I:%M %p') }}</time>
+                            </div>
                         </div>
                     </div>
-                    <h3 class="post-title">
-                        <a href="{{ url_for('forum.post_detail', post_id=post.id) }}">{{ post.title }}</a>
+                    
+                    <h3 class="text-xl font-bold text-gray-900 mb-2 leading-tight">
+                        <a href="{{ url_for('forum.post_detail', post_id=post.id) }}" class="hover:text-primary-blue transition-colors">{{ post.title }}</a>
                     </h3>
-                    <p class="post-content">{{ post.content[:200] }}{% if post.content|length > 200 %}...{% endif %}</p>
-                    <div class="post-footer">
-                        <span><i class="fas fa-thumbs-up"></i> {{ post.likes|length }}</span>
-                        <span><i class="fas fa-comments"></i> {{ post.comments|length }}</span>
-                        <a href="{{ url_for('forum.post_detail', post_id=post.id) }}" class="btn btn-sm btn-outline">
-                            Read More <i class="fas fa-arrow-right"></i>
+                    <p class="text-gray-600 text-sm line-clamp-3 mb-4">{{ post.content[:300] }}{% if post.content|length > 300 %}...{% endif %}</p>
+                    
+                    <div class="flex items-center gap-2 pt-4 border-t border-gray-50 flex-wrap sm:flex-nowrap">
+                        {% set user_liked = false %}
+                        {% if current_user.is_authenticated %}
+                            {% for like in post.likes %}
+                                {% if like.user_id == current_user.id %}
+                                    {% set user_liked = true %}
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
+                        
+                        <button id="like-btn-{{ post.id }}" 
+                                onclick="toggleLike({{ post.id }}, this)" 
+                                class="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors {% if user_liked %}bg-blue-50 text-primary-blue border border-blue-100{% else %}bg-gray-50 text-gray-600 hover:bg-gray-100 border border-transparent{% endif %}">
+                            <i class="fas fa-thumbs-up {% if user_liked %}scale-110{% endif %} transition-transform"></i> 
+                            <span>{{ post.likes|length }}</span>
+                        </button>
+                        
+                        <a href="{{ url_for('forum.post_detail', post_id=post.id) }}#comments" 
+                           class="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-gray-50 text-gray-600 hover:bg-gray-100 transition-colors">
+                            <i class="fas fa-comment"></i> 
+                            <span>{{ post.comments|length }}</span>
+                        </a>
+                        
+                        <a href="{{ url_for('forum.post_detail', post_id=post.id) }}" class="ml-auto text-sm font-medium text-primary-blue hover:text-blue-dark hover:underline flex items-center gap-1 whitespace-nowrap">
+                            Read More <i class="fas fa-arrow-right text-xs"></i>
                         </a>
                     </div>
                 </div>
-            </div>
+            </article>
             {% endfor %}
+            </div>
 
             {% if not posts %}
             <div class="card">
@@ -118,6 +154,9 @@
 </section>
 
 <script>
+// Expose CSRF token for external scripts
+window.csrfToken = "{{ csrf_token() if csrf_token is defined else '' }}";
+
 // Search and filter functionality
 const searchInput = document.getElementById('search-input');
 const categorySelect = document.getElementById('category-select');
@@ -177,5 +216,7 @@ if (filterToggle && sidebar && overlay) {
         }
     });
 }
+
+
 </script>
 {% endblock %}
