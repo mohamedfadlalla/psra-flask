@@ -6,9 +6,9 @@ Business logic for user management functionality.
 
 from typing import Dict, List, Optional
 
-from models import db, User, Profile
+from models import db, User, UserRole, Profile, StudentProfile, AlumniProfile, ResearcherProfile
 from utils.json_utils import safe_json_parse, combine_timeline, get_user_timeline
-from utils.image_utils import process_profile_picture, process_cover_photo
+from utils.image_utils import process_profile_picture
 
 
 class UserService:
@@ -63,17 +63,6 @@ class UserService:
         
         # Handle file uploads
         if files:
-            # Handle cover photo upload
-            if files.get('cover_photo'):
-                cover_url = process_cover_picture(
-                    files['cover_photo'],
-                    user.id,
-                    upload_folder,
-                    app_root
-                )
-                if cover_url:
-                    user.cover_photo_url = cover_url
-            
             # Handle profile picture upload
             if files.get('profile_picture'):
                 profile_url = process_profile_picture(
@@ -102,14 +91,23 @@ class UserService:
         Returns:
             The created User instance
         """
-        user = User(
-            email=email.strip(),
-            name=name,
-            **kwargs
-        )
+        role = kwargs.pop('role', UserRole.STUDENT)
+        user = User(email=email.strip(), role=role, **kwargs)
         user.set_password(password)
         
         db.session.add(user)
+        db.session.flush()
+
+        profile = Profile(user_id=user.id, full_name=name)
+        db.session.add(profile)
+
+        if role == UserRole.STUDENT:
+            db.session.add(StudentProfile(user_id=user.id))
+        elif role == UserRole.ALUMNI:
+            db.session.add(AlumniProfile(user_id=user.id))
+        elif role == UserRole.RESEARCHER:
+            db.session.add(ResearcherProfile(user_id=user.id))
+
         db.session.commit()
         return user
     
@@ -207,6 +205,7 @@ class UserService:
         """
         return {
             'name': user.name,
+            'account_type': UserService.get_account_type(user),
             'headline': user.headline,
             'location': user.location,
             'about': user.about,
@@ -223,5 +222,24 @@ class UserService:
             'certifications': user.certifications,
             'projects': user.projects,
             'publications': user.publications,
-            'professional_summary': user.professional_summary
+            'professional_summary': user.professional_summary,
+            'open_to_mentor': UserService.get_open_to_mentor(user)
         }
+
+    @staticmethod
+    def get_account_type(user: User) -> str:
+        if user.role == UserRole.RESEARCHER:
+            return 'researcher'
+        if user.role == UserRole.ALUMNI:
+            return 'alumni'
+        if user.student_profile and user.student_profile.academic_level == 'graduate':
+            return 'graduate'
+        return 'undergraduate'
+
+    @staticmethod
+    def get_open_to_mentor(user: User) -> bool:
+        if user.role == UserRole.ALUMNI and user.alumni_profile:
+            return bool(user.alumni_profile.open_to_mentor)
+        if user.role == UserRole.RESEARCHER and user.researcher_profile:
+            return bool(getattr(user.researcher_profile, 'open_to_mentor', False))
+        return False

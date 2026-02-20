@@ -5,11 +5,7 @@
 {% block content %}
 <div class="container">
     <div class="profile-header">
-        {% if current_user.cover_photo_url %}
-        <div class="cover-photo" style="background-image: url('{{ current_user.cover_photo_url }}');">
-        {% else %}
         <div class="cover-photo" style="background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-light) 100%);">
-        {% endif %}
             <div class="profile-content-wrapper">
                 <div class="profile-avatar">
                     {% if current_user.profile_picture_url %}
@@ -29,9 +25,8 @@
                     <p class="profile-location"><i class="fas fa-map-marker-alt"></i> {{ current_user.location }}</p>
                     {% endif %}
                     <a href="{{ url_for('forum.edit_profile') }}" class="btn btn-primary edit-profile-btn">Edit Profile</a>
-                </div>
-            </div>
         </div>
+    </div>
     </div>
 
     <div class="profile-content">

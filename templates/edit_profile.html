@@ -38,6 +38,16 @@
                     </div>
 
                     <div>
+                        {{ profile_form.account_type.label(style="display: block; font-weight: bold; color: var(--text); margin-bottom: 5px;") }}
+                        {{ profile_form.account_type(style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 5px; font-size: 16px;") }}
+                        {% if profile_form.account_type.errors %}
+                            <div style="color: red; font-size: 14px; margin-top: 5px;">
+                                {% for error in profile_form.account_type.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div>
                         {{ profile_form.headline.label(style="display: block; font-weight: bold; color: var(--text); margin-bottom: 5px;") }}
                         {{ profile_form.headline(style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 5px; font-size: 16px;") }}
                         {% if profile_form.headline.errors %}
@@ -78,6 +88,11 @@
                                 {% for error in profile_form.batch_number.errors %}{{ error }}{% endfor %}
                             </div>
                         {% endif %}
+                    </div>
+
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        {{ profile_form.open_to_mentor(style="width: 18px; height: 18px;") }}
+                        <label for="open_to_mentor" style="font-weight: bold; color: var(--text);">Open to Mentorship Requests (for alumni/researchers)</label>
                     </div>
 
                     <div>
@@ -215,17 +230,6 @@
                     </div>
 
 
-
-                    <div>
-                        {{ profile_form.cover_photo.label(style="display: block; font-weight: bold; color: var(--text); margin-bottom: 5px;") }}
-                        {{ profile_form.cover_photo(style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 5px; font-size: 16px;") }}
-                        <small style="color: var(--text-secondary); font-size: 14px;">Optional. Upload a cover photo (JPG, PNG, GIF). Will be resized to fit.</small>
-                        {% if profile_form.cover_photo.errors %}
-                            <div style="color: red; font-size: 14px; margin-top: 5px;">
-                                {% for error in profile_form.cover_photo.errors %}{{ error }}{% endfor %}
-                            </div>
-                        {% endif %}
-                    </div>
 
                     <div>
                         {{ profile_form.profile_picture.label(style="display: block; font-weight: bold; color: var(--text); margin-bottom: 5px;") }}

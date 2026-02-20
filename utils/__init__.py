@@ -8,7 +8,6 @@ from .json_utils import safe_json_parse, combine_timeline, get_user_timeline
 from .image_utils import (
     process_image,
     process_profile_picture,
-    process_cover_photo,
     save_event_image,
     delete_file,
     get_event_image_path
@@ -46,7 +45,6 @@ __all__ = [
     # Image utilities
     'process_image',
     'process_profile_picture',
-    'process_cover_photo',
     'save_event_image',
     'delete_file',
     'get_event_image_path',

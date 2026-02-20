@@ -2,7 +2,7 @@
 Image Processing Utilities Module
 
 Provides image upload and processing utilities to reduce duplicate code
-for handling profile pictures, cover photos, and event images.
+for handling profile pictures and event images.
 """
 
 import os
@@ -99,36 +99,6 @@ def process_profile_picture(
     output_path = os.path.join(full_upload_path, filename)
     
     if process_image(file, output_path, size=size, crop_square=True):
-        return url_for('static', filename=f'profile_images/{filename}')
-    
-    return None
-
-
-def process_cover_photo(
-    file,
-    user_id: int,
-    upload_folder: str,
-    app_root: str,
-    size: Tuple[int, int] = (1200, 400)
-) -> Optional[str]:
-    """
-    Process and save a cover photo.
-    
-    Args:
-        file: The uploaded file object
-        user_id: The user's ID for filename generation
-        upload_folder: The upload folder path (relative to app root)
-        app_root: The application root path
-        size: Target size for the cover photo (default 1200x400)
-    
-    Returns:
-        URL path to the saved image, or None if processing failed
-    """
-    filename = secure_filename(f"{user_id}_cover_{file.filename}")
-    full_upload_path = os.path.join(app_root, upload_folder)
-    output_path = os.path.join(full_upload_path, filename)
-    
-    if process_image(file, output_path, size=size, crop_square=False):
         return url_for('static', filename=f'profile_images/{filename}')
     
     return None

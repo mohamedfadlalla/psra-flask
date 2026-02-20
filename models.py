@@ -76,10 +76,44 @@ class User(UserMixin, db.Model):
     def name(self, value):
         if self.profile:
             self.profile.full_name = value
+        else:
+            self.profile = Profile(full_name=value)
 
     @property
     def status(self):
         return self.role.value if self.role else 'student'
+
+    @status.setter
+    def status(self, value):
+        mapping = {
+            'student': UserRole.STUDENT,
+            'undergraduate': UserRole.STUDENT,
+            'graduate': UserRole.ALUMNI,
+            'alumni': UserRole.ALUMNI,
+            'researcher': UserRole.RESEARCHER,
+            'admin': UserRole.ADMIN,
+        }
+        self.role = mapping.get(value, UserRole.STUDENT)
+
+    @property
+    def is_undergraduate(self):
+        return self.role == UserRole.STUDENT and self.student_profile and self.student_profile.academic_level == 'undergraduate'
+
+    @property
+    def can_create_jobs(self):
+        return self.role in (UserRole.ALUMNI, UserRole.RESEARCHER, UserRole.ADMIN)
+
+    @property
+    def can_create_projects(self):
+        return self.role in (UserRole.ALUMNI, UserRole.RESEARCHER, UserRole.ADMIN)
+
+    @property
+    def can_offer_mentorship(self):
+        if self.role == UserRole.ALUMNI and self.alumni_profile:
+            return bool(self.alumni_profile.open_to_mentor)
+        if self.role == UserRole.RESEARCHER and self.researcher_profile:
+            return bool(getattr(self.researcher_profile, 'open_to_mentor', False))
+        return False
 
     @property
     def headline(self):
@@ -107,15 +141,6 @@ class User(UserMixin, db.Model):
     def about(self, value):
         if self.profile:
             self.profile.bio = value
-
-    @property
-    def cover_photo_url(self):
-        return self.profile.cover_photo_url if self.profile else None
-
-    @cover_photo_url.setter
-    def cover_photo_url(self, value):
-        if self.profile:
-            self.profile.cover_photo_url = value
 
     @property
     def profile_picture_url(self):
@@ -258,7 +283,6 @@ class Profile(db.Model):
     # Extended profile fields moved from User
     headline = db.Column(db.String(200), nullable=True)
     location = db.Column(db.String(100), nullable=True)
-    cover_photo_url = db.Column(db.String(200), nullable=True)
     linkedin_url = db.Column(db.String(200), nullable=True)
     website_url = db.Column(db.String(200), nullable=True)
     languages = db.Column(db.Text, nullable=True)
@@ -301,6 +325,7 @@ class ResearcherProfile(db.Model):
     academic_rank = db.Column(db.String(150), nullable=True)
     lab_name = db.Column(db.String(150), nullable=True)
     office_location = db.Column(db.String(150), nullable=True)
+    open_to_mentor = db.Column(db.Boolean, default=False)
     
     user = db.relationship('User', back_populates='researcher_profile')
 
@@ -507,6 +532,7 @@ class Job(db.Model):
     
     poster = db.relationship('User', backref='posted_jobs')
     required_skills = db.relationship('JobRequiredSkill', back_populates='job', cascade='all, delete-orphan')
+    applications = db.relationship('JobApplication', back_populates='job', cascade='all, delete-orphan')
 
 class JobRequiredSkill(db.Model):
     __tablename__ = 'job_required_skills'
@@ -515,6 +541,19 @@ class JobRequiredSkill(db.Model):
     
     job = db.relationship('Job', back_populates='required_skills')
     skill = db.relationship('Skill')
+
+
+class JobApplication(db.Model):
+    __tablename__ = 'job_applications'
+    id = db.Column(db.Integer, primary_key=True)
+    job_id = db.Column(db.Integer, db.ForeignKey('jobs.id', ondelete='CASCADE'), nullable=False)
+    applicant_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False)
+    cover_letter = db.Column(db.Text, nullable=True)
+    status = db.Column(db.Enum(ApplicationStatus), default=ApplicationStatus.PENDING)
+    applied_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    job = db.relationship('Job', back_populates='applications')
+    applicant = db.relationship('User', backref='job_applications')
 
 class Conversation(db.Model):
     __tablename__ = 'conversations'

@@ -11,10 +11,31 @@ import json
 
 from . import forum_bp
 from .forms import LoginForm, RegisterForm, PostForm, CommentForm, ProfileForm, PasswordChangeForm, MessageForm
-from models import db, User, Post, Comment, Like, Message
+from models import db, User, UserRole, Profile, StudentProfile, AlumniProfile, ResearcherProfile, Post, Comment, Like, Message
 from utils import get_user_timeline, safe_json_parse, FLASH_SUCCESS, FLASH_ERROR
-from utils.image_utils import process_profile_picture, process_cover_photo
+from utils.image_utils import process_profile_picture
 from services import MessageService, UserService
+
+
+def resolve_role_and_track(account_type, batch_number):
+    """Resolve canonical role/track with graduation rule.
+
+    Business rule:
+    - Any graduate is alumni
+    - Any student with batch <= 54 is alumni
+    """
+    batch = int(batch_number) if batch_number else None
+
+    if account_type == 'researcher':
+        return UserRole.RESEARCHER, None
+
+    if account_type in ('graduate', 'alumni'):
+        return UserRole.ALUMNI, 'graduate'
+
+    if batch is not None and batch <= 54:
+        return UserRole.ALUMNI, 'graduate'
+
+    return UserRole.STUDENT, 'undergraduate'
 
 
 # ==================== Authentication Routes ====================
@@ -45,18 +66,34 @@ def register():
     
     form = RegisterForm()
     if form.validate_on_submit():
+        role, academic_level = resolve_role_and_track(form.account_type.data, form.batch_number.data)
         user = User(
             email=form.email.data.strip(),
-            name=form.name.data,
             phone_number=form.phone_number.data,
             whatsapp_number=form.whatsapp_number.data
         )
         user.is_member = form.is_member.data
-        user.batch_number = None
-        user.status = 'undergraduate' if form.is_member.data else 'student'
+        user.batch_number = int(form.batch_number.data) if form.batch_number.data else None
+        user.role = role
         user.set_password(form.password.data)
 
         db.session.add(user)
+        db.session.flush()
+
+        profile = Profile(
+            user_id=user.id,
+            full_name=form.name.data
+        )
+
+        db.session.add(profile)
+
+        if role == UserRole.STUDENT:
+            db.session.add(StudentProfile(user_id=user.id, academic_level=academic_level))
+        elif role == UserRole.ALUMNI:
+            db.session.add(AlumniProfile(user_id=user.id, open_to_mentor=True, graduation_year=None))
+        elif role == UserRole.RESEARCHER:
+            db.session.add(ResearcherProfile(user_id=user.id, academic_rank=None, lab_name=None, office_location=None))
+
         db.session.commit()
 
         # Handle profile picture upload if provided
@@ -203,6 +240,7 @@ def edit_profile():
     if request.method == 'GET':
         form_data = UserService.get_profile_form_data(current_user)
         profile_form.name.data = form_data['name']
+        profile_form.account_type.data = form_data['account_type']
         profile_form.headline.data = form_data['headline']
         profile_form.location.data = form_data['location']
         profile_form.about.data = form_data['about']
@@ -220,15 +258,19 @@ def edit_profile():
         profile_form.projects.data = form_data['projects']
         profile_form.publications.data = form_data['publications']
         profile_form.professional_summary.data = form_data['professional_summary']
+        profile_form.open_to_mentor.data = form_data['open_to_mentor']
 
     # Handle profile form submission
     if profile_form.submit.data and profile_form.validate_on_submit():
+        role, academic_level = resolve_role_and_track(profile_form.account_type.data, profile_form.batch_number.data)
+
         # Update basic fields
         current_user.name = profile_form.name.data
+        current_user.role = role
         current_user.headline = profile_form.headline.data
         current_user.location = profile_form.location.data
         current_user.about = profile_form.about.data
-        current_user.batch_number = int(profile_form.batch_number.data)
+        current_user.batch_number = int(profile_form.batch_number.data) if profile_form.batch_number.data else None
         current_user.phone_number = profile_form.phone_number.data
         current_user.whatsapp_number = profile_form.whatsapp_number.data
         current_user.skills = profile_form.skills.data
@@ -242,16 +284,25 @@ def edit_profile():
         current_user.publications = profile_form.publications.data
         current_user.professional_summary = profile_form.professional_summary.data
 
-        # Handle cover photo upload
-        if profile_form.cover_photo.data:
-            cover_url = process_cover_photo(
-                profile_form.cover_photo.data,
-                current_user.id,
-                current_app.config['UPLOAD_FOLDER'],
-                current_app.root_path
-            )
-            if cover_url:
-                current_user.cover_photo_url = cover_url
+        # Ensure role-specific profile records and mentorship preference are consistent
+        if role == UserRole.STUDENT:
+            student_profile = current_user.student_profile
+            if not student_profile:
+                student_profile = StudentProfile(user_id=current_user.id)
+                db.session.add(student_profile)
+            student_profile.academic_level = academic_level
+        elif role == UserRole.ALUMNI:
+            alumni_profile = current_user.alumni_profile
+            if not alumni_profile:
+                alumni_profile = AlumniProfile(user_id=current_user.id, open_to_mentor=True)
+                db.session.add(alumni_profile)
+            alumni_profile.open_to_mentor = bool(profile_form.open_to_mentor.data)
+        elif role == UserRole.RESEARCHER:
+            researcher_profile = current_user.researcher_profile
+            if not researcher_profile:
+                researcher_profile = ResearcherProfile(user_id=current_user.id)
+                db.session.add(researcher_profile)
+            researcher_profile.open_to_mentor = bool(profile_form.open_to_mentor.data)
 
         # Handle profile picture upload
         if profile_form.profile_picture.data:

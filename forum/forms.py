@@ -12,6 +12,13 @@ class LoginForm(FlaskForm):
 class RegisterForm(FlaskForm):
     email = StringField('Email', validators=[DataRequired(), Email()])
     name = StringField('Name', validators=[DataRequired(), Length(min=2, max=100)])
+    account_type = SelectField('Account Type', choices=[
+        ('undergraduate', 'Undergraduate Student'),
+        ('graduate', 'Graduate (Alumni)'),
+        ('alumni', 'Alumni'),
+        ('researcher', 'Researcher')
+    ], validators=[DataRequired()])
+    batch_number = SelectField('Batch Number (Optional)', choices=[('', 'Select batch')] + [(str(i), str(i)) for i in range(1, 59)], validators=[Optional()])
     is_member = BooleanField('Are you a member of the University of Khartoum Pharmacy?', validators=[DataRequired()])
     phone_number = StringField('Phone Number', validators=[Length(max=20)])
     whatsapp_number = StringField('WhatsApp Number (Optional)', validators=[Length(max=20)])
@@ -42,10 +49,16 @@ class CommentForm(FlaskForm):
 
 class ProfileForm(FlaskForm):
     name = StringField('Name', validators=[DataRequired(), Length(min=2, max=100)])
+    account_type = SelectField('Account Type', choices=[
+        ('undergraduate', 'Undergraduate Student'),
+        ('graduate', 'Graduate (Alumni)'),
+        ('alumni', 'Alumni'),
+        ('researcher', 'Researcher')
+    ], validators=[DataRequired()])
     headline = StringField('Headline', validators=[Length(max=200)])
     location = StringField('Location', validators=[Length(max=100)])
     about = TextAreaField('About', validators=[Length(max=1000)])
-    batch_number = SelectField('Batch Number', choices=[(str(i), str(i)) for i in range(1, 59)], validators=[DataRequired()])
+    batch_number = SelectField('Batch Number', choices=[('', 'Select batch')] + [(str(i), str(i)) for i in range(1, 59)], validators=[Optional()])
     email = StringField('Email', render_kw={'readonly': True})
     phone_number = StringField('Phone Number', validators=[Length(max=20)])
     whatsapp_number = StringField('WhatsApp Number (Optional)', validators=[Length(max=20)])
@@ -61,7 +74,7 @@ class ProfileForm(FlaskForm):
     projects = TextAreaField('Projects/Portfolio', validators=[Length(max=1000)])
     publications = TextAreaField('Publications/Research', validators=[Length(max=1000)])
     professional_summary = TextAreaField('Professional Summary', validators=[Length(max=1000)])
-    cover_photo = FileField('Cover Photo', validators=[FileAllowed(['jpg', 'jpeg', 'png', 'gif'], 'Images only!')])
+    open_to_mentor = BooleanField('Open to Mentorship Requests')
     profile_picture = FileField('Profile Picture', validators=[FileAllowed(['jpg', 'jpeg', 'png', 'gif'], 'Images only!')])
     submit = SubmitField('Update Profile')
 
