@@ -64,7 +64,8 @@ def manage_posts():
     if category:
         query = query.filter_by(category=category)
     if author:
-        query = query.join(User).filter(User.name.contains(author))
+        from models import Profile
+        query = query.join(User).join(Profile).filter(Profile.full_name.contains(author))
 
     posts = paginate_query(query.order_by(Post.created_at.desc()), page)
 
@@ -136,7 +137,8 @@ def manage_comments():
     if search:
         query = query.filter(Comment.content.contains(search))
     if author:
-        query = query.filter(User.name.contains(author))
+        from models import Profile
+        query = query.join(Profile, User.id == Profile.user_id).filter(Profile.full_name.contains(author))
 
     comments = paginate_query(query.order_by(Comment.created_at.desc()), page)
 
@@ -544,7 +546,16 @@ def send_announcement():
         query = User.query.filter(User.email.isnot(None))
         
         if target_status:
-            query = query.filter(User.status.in_(target_status))
+            from models import UserRole
+            target_roles = []
+            if 'student' in target_status or 'undergraduate' in target_status:
+                target_roles.append(UserRole.STUDENT)
+            if 'alumni' in target_status:
+                target_roles.append(UserRole.ALUMNI)
+            if 'researcher' in target_status:
+                target_roles.append(UserRole.RESEARCHER)
+            if target_roles:
+                query = query.filter(User.role.in_(target_roles))
         
         if members_only:
             query = query.filter(User.is_member == True)

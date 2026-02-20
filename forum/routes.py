@@ -320,7 +320,8 @@ def send_message_by_username():
     username = request.args.get('username')
     recipient = None
     if username:
-        recipient = User.query.filter_by(name=username).first() or User.query.filter_by(email=username).first()
+        from models import Profile
+        recipient = User.query.join(Profile).filter(Profile.full_name == username).first() or User.query.filter_by(email=username).first()
 
     form = MessageForm()
     if form.validate_on_submit():
@@ -406,11 +407,12 @@ def users():
     page = request.args.get('page', 1, type=int)
     per_page = 20
 
-    query = User.query.filter(User.id != current_user.id)
+    from models import Profile
+    query = User.query.join(User.profile).filter(User.id != current_user.id)
     if search:
-        query = query.filter(User.name.ilike(f'%{search}%'))
+        query = query.filter(Profile.full_name.ilike(f'%{search}%'))
 
-    users_pagination = query.order_by(User.name).paginate(page=page, per_page=per_page, error_out=False)
+    users_pagination = query.order_by(Profile.full_name).paginate(page=page, per_page=per_page, error_out=False)
 
     return render_template('users.html', users=users_pagination.items, search=search, pagination=users_pagination)
 

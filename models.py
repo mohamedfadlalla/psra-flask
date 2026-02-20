@@ -39,7 +39,6 @@ class UserSkill(db.Model):
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(255), nullable=True)
     google_id = db.Column(db.String(100), unique=True, nullable=True)
@@ -47,22 +46,6 @@ class User(UserMixin, db.Model):
     phone_number = db.Column(db.String(20), nullable=True)
     whatsapp_number = db.Column(db.String(20), nullable=True)
     is_member = db.Column(db.Boolean, default=False)
-    status = db.Column(db.String(20), default='student')  # 'student', 'alumni', 'undergraduate'
-    headline = db.Column(db.String(200), nullable=True)
-    location = db.Column(db.String(100), nullable=True)
-    about = db.Column(db.Text, nullable=True)
-    skills = db.Column(db.Text, nullable=True)  # Comma-separated skills
-    education = db.Column(db.Text, nullable=True)  # JSON array of education entries
-    experience = db.Column(db.Text, nullable=True)  # JSON array of work experience entries
-    linkedin_url = db.Column(db.String(200), nullable=True)
-    website_url = db.Column(db.String(200), nullable=True)
-    cover_photo_url = db.Column(db.String(200), default=None)
-    profile_picture_url = db.Column(db.String(200), default=None)
-    languages = db.Column(db.Text, nullable=True)  # Comma-separated languages
-    certifications = db.Column(db.Text, nullable=True)  # JSON or text for certifications
-    projects = db.Column(db.Text, nullable=True)  # JSON or text for projects
-    publications = db.Column(db.Text, nullable=True)  # Research publications
-    professional_summary = db.Column(db.Text, nullable=True)  # Separate from about
     is_admin = db.Column(db.Boolean, default=False)
     # Notification preferences
     email_notifications_enabled = db.Column(db.Boolean, default=True)
@@ -84,6 +67,177 @@ class User(UserMixin, db.Model):
     likes = db.relationship('Like', backref='user', lazy=True)
     events = db.relationship('Event', backref='creator', lazy=True)
 
+    # Properties to maintain backward compatibility with templates
+    @property
+    def name(self):
+        return self.profile.full_name if self.profile else "Unknown User"
+
+    @name.setter
+    def name(self, value):
+        if self.profile:
+            self.profile.full_name = value
+
+    @property
+    def status(self):
+        return self.role.value if self.role else 'student'
+
+    @property
+    def headline(self):
+        return self.profile.headline if self.profile else None
+
+    @headline.setter
+    def headline(self, value):
+        if self.profile:
+            self.profile.headline = value
+
+    @property
+    def location(self):
+        return self.profile.location if self.profile else None
+
+    @location.setter
+    def location(self, value):
+        if self.profile:
+            self.profile.location = value
+
+    @property
+    def about(self):
+        return self.profile.bio if self.profile else None
+
+    @about.setter
+    def about(self, value):
+        if self.profile:
+            self.profile.bio = value
+
+    @property
+    def cover_photo_url(self):
+        return self.profile.cover_photo_url if self.profile else None
+
+    @cover_photo_url.setter
+    def cover_photo_url(self, value):
+        if self.profile:
+            self.profile.cover_photo_url = value
+
+    @property
+    def profile_picture_url(self):
+        return self.profile.profile_picture_url if self.profile else None
+
+    @profile_picture_url.setter
+    def profile_picture_url(self, value):
+        if self.profile:
+            self.profile.profile_picture_url = value
+
+    @property
+    def linkedin_url(self):
+        return self.profile.linkedin_url if self.profile else None
+
+    @linkedin_url.setter
+    def linkedin_url(self, value):
+        if self.profile:
+            self.profile.linkedin_url = value
+
+    @property
+    def website_url(self):
+        return self.profile.website_url if self.profile else None
+
+    @website_url.setter
+    def website_url(self, value):
+        if self.profile:
+            self.profile.website_url = value
+
+    @property
+    def languages(self):
+        return self.profile.languages if self.profile else None
+
+    @languages.setter
+    def languages(self, value):
+        if self.profile:
+            self.profile.languages = value
+
+    @property
+    def certifications(self):
+        return self.profile.certifications if self.profile else None
+
+    @certifications.setter
+    def certifications(self, value):
+        if self.profile:
+            self.profile.certifications = value
+
+    @property
+    def projects(self):
+        return self.profile.projects if self.profile else None
+
+    @projects.setter
+    def projects(self, value):
+        if self.profile:
+            self.profile.projects = value
+
+    @property
+    def publications(self):
+        return self.profile.publications if self.profile else None
+
+    @publications.setter
+    def publications(self, value):
+        if self.profile:
+            self.profile.publications = value
+
+    @property
+    def professional_summary(self):
+        return self.profile.professional_summary if self.profile else None
+
+    @professional_summary.setter
+    def professional_summary(self, value):
+        if self.profile:
+            self.profile.professional_summary = value
+
+    @property
+    def education(self):
+        return self.profile.education if self.profile else '[]'
+
+    @education.setter
+    def education(self, value):
+        if self.profile:
+            self.profile.education = value
+
+    @property
+    def experience(self):
+        return self.profile.experience if self.profile else '[]'
+
+    @experience.setter
+    def experience(self, value):
+        if self.profile:
+            self.profile.experience = value
+
+    @property
+    def skills(self):
+        if not self.user_skills:
+            return ""
+        return ",".join([us.skill.name for us in self.user_skills if us.skill])
+
+    @skills.setter
+    def skills(self, value):
+        if not value:
+            self.user_skills = []
+            return
+            
+        skill_names = [s.strip() for s in value.split(',') if s.strip()]
+        new_user_skills = []
+        for s_name in skill_names:
+            skill = Skill.query.filter_by(name=s_name).first()
+            if not skill:
+                skill = Skill(name=s_name)
+                db.session.add(skill)
+                db.session.flush() # get id
+            
+            # Check if this user_skill already exists
+            existing = next((us for us in self.user_skills if us.skill and us.skill.name == s_name), None)
+            if existing:
+                new_user_skills.append(existing)
+            else:
+                us = UserSkill(skill=skill)
+                new_user_skills.append(us)
+        
+        self.user_skills = new_user_skills
+
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
 
@@ -100,6 +254,21 @@ class Profile(db.Model):
     bio = db.Column(db.Text, nullable=True)
     profile_picture_url = db.Column(db.Text, nullable=True)
     department_id = db.Column(db.Integer, db.ForeignKey('departments.id'), nullable=True)
+    
+    # Extended profile fields moved from User
+    headline = db.Column(db.String(200), nullable=True)
+    location = db.Column(db.String(100), nullable=True)
+    cover_photo_url = db.Column(db.String(200), nullable=True)
+    linkedin_url = db.Column(db.String(200), nullable=True)
+    website_url = db.Column(db.String(200), nullable=True)
+    languages = db.Column(db.Text, nullable=True)
+    certifications = db.Column(db.Text, nullable=True)
+    projects = db.Column(db.Text, nullable=True)
+    publications = db.Column(db.Text, nullable=True)
+    professional_summary = db.Column(db.Text, nullable=True)
+    education = db.Column(db.Text, nullable=True)
+    experience = db.Column(db.Text, nullable=True)
+    
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     user = db.relationship('User', back_populates='profile')

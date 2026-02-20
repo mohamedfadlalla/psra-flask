@@ -6,7 +6,7 @@ Business logic for user management functionality.
 
 from typing import Dict, List, Optional
 
-from models import db, User
+from models import db, User, Profile
 from utils.json_utils import safe_json_parse, combine_timeline, get_user_timeline
 from utils.image_utils import process_profile_picture, process_cover_photo
 
@@ -150,7 +150,7 @@ class UserService:
         Returns:
             User instance or None
         """
-        user = User.query.filter_by(name=identifier).first()
+        user = User.query.join(User.profile).filter(Profile.full_name == identifier).first()
         if not user:
             user = User.query.filter_by(email=identifier.strip()).first()
         return user
@@ -167,12 +167,12 @@ class UserService:
         Returns:
             List of matching users
         """
-        search = User.query
+        search = User.query.join(User.profile)
         if exclude_user_id:
             search = search.filter(User.id != exclude_user_id)
         if query:
-            search = search.filter(User.name.ilike(f'%{query}%'))
-        return search.order_by(User.name).all()
+            search = search.filter(Profile.full_name.ilike(f'%{query}%'))
+        return search.order_by(Profile.full_name).all()
     
     @staticmethod
     def change_password(user: User, current_password: str, new_password: str) -> tuple:
