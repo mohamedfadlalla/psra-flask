@@ -549,12 +549,10 @@ def send_announcement():
         if members_only:
             query = query.filter(User.is_member == True)
         
-        recipients = query.filter(
-            (User.email_notifications_enabled == True) | (User.email_notifications_enabled.is_(None))
-        ).all()
+        recipients = query.all()
         
         if not recipients:
-            flash('No users match the selected criteria with email notifications enabled.', FLASH_WARNING)
+            flash('No users match the selected criteria.', FLASH_WARNING)
             return redirect(url_for('admin.send_announcement'))
         
         target_filter = json.dumps({
