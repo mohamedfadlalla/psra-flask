@@ -143,6 +143,17 @@
    2. BASE STYLES
    =========================================== */
 
+/* Hide scrollbar for Chrome, Safari and Opera */
+.hide-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.hide-scrollbar {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+
 *,
 *::before,
 *::after {
@@ -154,6 +165,7 @@
 html {
     scroll-behavior: smooth;
     -webkit-text-size-adjust: 100%;
+    overflow-x: hidden;
 }
 
 body {
@@ -167,6 +179,7 @@ body {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    overflow-x: hidden;
 }
 
 main {
@@ -1191,7 +1204,9 @@ img {
     position: relative;
     min-height: 100vh;
     display: flex;
+    flex-direction: column;
     align-items: center;
+    justify-content: center;
     background-size: cover;
     background-position: center;
 }
@@ -1209,7 +1224,7 @@ img {
     color: var(--text-inverse);
     max-width: 800px;
     margin: 0 auto;
-    padding: var(--space-8);
+    /* padding handled by tailwind classes */
 }
 
 .hero-title {
@@ -2048,6 +2063,11 @@ img {
     /* Prevent body scroll when mobile menu is open */
     body.menu-open {
         overflow: hidden;
+    }
+    
+    /* Ensure content is not hidden behind the mobile bottom app bar */
+    body {
+        padding-bottom: 64px; /* Height of the bottom app bar approx */
     }
     
     /* Touch-friendly dropdown items on mobile */

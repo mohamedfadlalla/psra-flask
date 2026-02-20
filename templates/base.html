@@ -74,9 +74,9 @@
             <!-- Main Navigation -->
             <nav class="nav-main" id="main-nav" role="navigation" aria-label="Main navigation">
                 <ul class="nav-list">
-                    <li><a href="{{ url_for('home') }}" class="nav-link {% if request.endpoint == 'home' %}active{% endif %}">Home</a></li>
+                    <li class="hidden md:block"><a href="{{ url_for('home') }}" class="nav-link {% if request.endpoint == 'home' %}active{% endif %}">Home</a></li>
                     <li><a href="{{ url_for('research') }}" class="nav-link {% if request.endpoint == 'research' %}active{% endif %}">Research</a></li>
-                    <li><a href="{{ url_for('forum.forum_main') }}" class="nav-link {% if 'forum' in request.endpoint and 'login' not in request.endpoint and 'register' not in request.endpoint %}active{% endif %}">Forum</a></li>
+                    <li class="hidden md:block"><a href="{{ url_for('forum.forum_main') }}" class="nav-link {% if 'forum' in request.endpoint and 'login' not in request.endpoint and 'register' not in request.endpoint %}active{% endif %}">Forum</a></li>
                     {% if current_user.is_authenticated %}
                     <li><a href="{{ url_for('forum.users') }}" class="nav-link {% if request.endpoint == 'forum.users' %}active{% endif %}">Find Users</a></li>
                     {% endif %}
@@ -84,16 +84,16 @@
                     <li><a href="{{ url_for('support') }}" class="nav-link {% if request.endpoint == 'support' %}active{% endif %}">Support</a></li>
                     
                     {% if not current_user.is_authenticated %}
-                    <li class="nav-auth-links">
+                    <li class="nav-auth-links hidden md:flex">
                         <a href="{{ url_for('forum.login') }}" class="btn btn-outline btn-sm">Sign In</a>
                     </li>
-                    <li class="nav-auth-links">
+                    <li class="nav-auth-links hidden md:flex">
                         <a href="{{ url_for('forum.register') }}" class="btn btn-primary btn-sm">Sign Up</a>
                     </li>
                     {% endif %}
                     
                     {% if current_user.is_authenticated %}
-                    <li class="nav-item-relative">
+                    <li class="nav-item-relative hidden md:block">
                         <a href="{{ url_for('forum.messages') }}" class="nav-link {% if 'messages' in request.endpoint %}active{% endif %}" aria-label="Messages{% if unread_message_count > 0 %}, {{ unread_message_count }} unread{% endif %}">
                             <i class="fas fa-envelope"></i>
                             <span class="nav-text-hidden">Messages</span>
@@ -202,6 +202,42 @@
             </div>
         </div>
     </footer>
+
+    <!-- Mobile Bottom App Bar -->
+    <nav class="fixed bottom-0 left-0 right-0 w-full bg-white shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-50 md:hidden flex justify-around items-center py-2 pb-[env(safe-area-inset-bottom)] border-t border-gray-200">
+        <a href="{{ url_for('home') }}" class="flex flex-col items-center justify-center w-full h-12 p-1 text-gray-500 hover:text-primary-blue {% if request.endpoint == 'home' %}text-primary-blue font-semibold{% endif %}">
+            <i class="fas fa-home text-xl mb-1"></i>
+            <span class="text-[10px] font-medium">Home</span>
+        </a>
+        <a href="{{ url_for('forum.forum_main') }}" class="flex flex-col items-center justify-center w-full h-12 p-1 text-gray-500 hover:text-primary-blue {% if 'forum' in request.endpoint and 'login' not in request.endpoint and 'register' not in request.endpoint %}text-primary-blue font-semibold{% endif %}">
+            <i class="fas fa-comments text-xl mb-1"></i>
+            <span class="text-[10px] font-medium">Forum</span>
+        </a>
+        {% if current_user.is_authenticated %}
+        <a href="{{ url_for('forum.messages') }}" class="flex flex-col items-center justify-center w-full h-12 p-1 text-gray-500 hover:text-primary-blue relative {% if 'messages' in request.endpoint %}text-primary-blue font-semibold{% endif %}">
+            <div class="relative">
+                <i class="fas fa-envelope text-xl mb-1"></i>
+                {% if unread_message_count > 0 %}
+                <span class="absolute -top-1 -right-2 bg-red-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-full">{{ unread_message_count }}</span>
+                {% endif %}
+            </div>
+            <span class="text-[10px] font-medium">Messages</span>
+        </a>
+        <a href="{{ url_for('forum.profile') }}" class="flex flex-col items-center justify-center w-full h-12 p-1 text-gray-500 hover:text-primary-blue {% if request.endpoint == 'forum.profile' %}text-primary-blue font-semibold{% endif %}">
+            {% if current_user.profile_picture_url %}
+            <img src="{{ current_user.profile_picture_url }}" alt="Profile" class="w-6 h-6 rounded-full object-cover mb-1 border border-gray-300">
+            {% else %}
+            <i class="fas fa-user-circle text-xl mb-1"></i>
+            {% endif %}
+            <span class="text-[10px] font-medium">Profile</span>
+        </a>
+        {% else %}
+        <a href="{{ url_for('forum.login') }}" class="flex flex-col items-center justify-center w-full h-12 p-1 text-gray-500 hover:text-primary-blue {% if request.endpoint == 'forum.login' %}text-primary-blue font-semibold{% endif %}">
+            <i class="fas fa-sign-in-alt text-xl mb-1"></i>
+            <span class="text-[10px] font-medium">Sign In</span>
+        </a>
+        {% endif %}
+    </nav>
 
     <!-- JavaScript -->
     <script src="{{ url_for('static', filename='js/script.js') }}" defer></script>

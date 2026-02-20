@@ -4,17 +4,17 @@
 
 {% block content %}
 <!-- Hero Section -->
-<div class="hero-section relative min-h-screen md:h-screen bg-cover bg-center flex items-center overflow-hidden" style="background-image: url('{{ url_for('static', filename='images/image1.jpg') }}');">
+<div class="hero-section w-full relative min-h-screen md:h-screen bg-cover bg-center flex items-center justify-center overflow-hidden" style="background-image: url('{{ url_for('static', filename='images/image1.jpg') }}');">
     <div class="hero-overlay absolute inset-0 bg-gradient-to-br from-primary-blue/85 to-primary-blue-light/70"></div>
-    <div class="hero-content relative z-10 text-center text-white max-w-4xl mx-auto px-4 animate-on-scroll">
-        <h1 class="hero-title text-5xl md:text-6xl font-bold mb-6 text-shadow-lg">Pioneering Pharmaceutical Research</h1>
-        <p class="hero-subtitle text-xl md:text-2xl mb-8 text-shadow-md max-w-3xl mx-auto leading-relaxed">Join a community of innovators dedicated to advancing healthcare. Discover opportunities, collaborate on cutting-edge projects, and make an impact.</p>
-        <div class="hero-actions flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <button class="bg-accent-orange hover:bg-orange-600 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-2" onclick="window.location.href='{{ url_for('forum.register') }}'">
+    <div class="hero-content relative z-10 text-center text-white w-full max-w-4xl mx-auto px-4 sm:px-6 md:px-8 animate-on-scroll">
+        <h1 class="hero-title text-4xl sm:text-5xl md:text-6xl font-bold mb-6 text-shadow-lg break-words hyphens-auto">Pioneering Pharmaceutical Research</h1>
+        <p class="hero-subtitle text-lg sm:text-xl md:text-2xl mb-8 text-shadow-md max-w-3xl mx-auto leading-relaxed">Join a community of innovators dedicated to advancing healthcare. Discover opportunities, collaborate on cutting-edge projects, and make an impact.</p>
+        <div class="hero-actions flex flex-col sm:flex-row gap-4 justify-center items-center mt-8">
+            <button class="w-full sm:w-auto bg-accent-orange hover:bg-orange-600 text-white px-8 py-4 rounded-full font-semibold text-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center gap-2" onclick="window.location.href='{{ url_for('forum.register') }}'">
                 <i class="fas fa-user-plus"></i>
                 Join Now
             </button>
-            <button class="border-2 border-white text-white hover:bg-white hover:text-primary-blue px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 flex items-center gap-2" onclick="document.getElementById('vision').scrollIntoView({behavior: 'smooth'})">
+            <button class="w-full sm:w-auto border-2 border-white text-white hover:bg-white hover:text-primary-blue px-8 py-4 rounded-full font-semibold text-lg transition-all duration-300 flex items-center justify-center gap-2" onclick="document.getElementById('vision').scrollIntoView({behavior: 'smooth'})">
                 <i class="fas fa-chevron-down"></i>
                 Learn More
             </button>
@@ -27,11 +27,11 @@
 </div>
 
 <!-- Vision Section -->
-<section id="vision" class="vision-section py-20 animate-on-scroll">
-    <div class="max-w-4xl mx-auto px-4">
-        <div class="vision-content text-center">
+<section id="vision" class="vision-section pb-20 pt-12 animate-on-scroll bg-gray-50">
+    <div class="max-w-5xl mx-auto px-4 -mt-32 relative z-20">
+        <div class="vision-content text-center bg-white rounded-[2rem] shadow-xl p-8 md:p-16 border border-gray-100">
             <h2 class="vision-title text-4xl md:text-5xl font-bold text-primary-blue mb-8 font-heading">Our Vision</h2>
-            <p class="vision-description text-lg text-gray-600 leading-relaxed max-w-3xl mx-auto font-body">The Pharmaceutical Studies and Research Association (PSRA) is a student-led organization dedicated to fostering a culture of scientific inquiry and innovation in pharmaceutical sciences. We aim to bridge the gap between academic learning and real-world application by providing students with opportunities to engage in cutting-edge research, collaborate with industry professionals, and contribute to advancements in healthcare.</p>
+            <p class="vision-description text-lg md:text-xl text-gray-600 leading-relaxed max-w-3xl mx-auto font-body">The Pharmaceutical Studies and Research Association (PSRA) is a student-led organization dedicated to fostering a culture of scientific inquiry and innovation in pharmaceutical sciences. We aim to bridge the gap between academic learning and real-world application by providing students with opportunities to engage in cutting-edge research, collaborate with industry professionals, and contribute to advancements in healthcare.</p>
         </div>
     </div>
 </section>
@@ -84,32 +84,32 @@
         <div class="section-header text-center mb-16">
             <h2 class="section-title text-4xl md:text-5xl font-bold text-primary-blue font-heading">Our Goals</h2>
         </div>
-        <div class="goals-grid grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div class="goal-card bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 animate-on-scroll goal-card-1">
-                <div class="goal-icon goal-icon-research h-20 flex items-center justify-center bg-gradient-to-br from-accent-orange to-orange-600 text-white">
-                    <i class="fas fa-microscope text-3xl"></i>
+        <div class="goals-grid flex overflow-x-auto snap-x snap-mandatory gap-6 pb-8 px-4 md:grid md:grid-cols-3 md:gap-8 md:px-0 hide-scrollbar">
+            <div class="goal-card shrink-0 w-[85vw] snap-center md:w-auto bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 transform md:hover:-translate-y-2 animate-on-scroll goal-card-1">
+                <div class="goal-icon goal-icon-research h-24 flex items-center justify-center bg-gradient-to-br from-accent-orange to-orange-600 text-white">
+                    <i class="fas fa-microscope text-4xl"></i>
                 </div>
-                <div class="p-6">
+                <div class="p-8">
                     <h3 class="goal-title text-xl font-bold text-primary-blue mb-4 font-heading">Advance Research</h3>
                     <p class="goal-description text-gray-600 leading-relaxed font-body">To promote and facilitate high-quality research in pharmaceutical sciences, encouraging students to explore innovative solutions to real-world health challenges.</p>
                 </div>
             </div>
 
-            <div class="goal-card bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 animate-on-scroll goal-card-2">
-                <div class="goal-icon goal-icon-collaboration h-20 flex items-center justify-center bg-gradient-to-br from-accent-green to-green-600 text-white">
-                    <i class="fas fa-users text-3xl"></i>
+            <div class="goal-card shrink-0 w-[85vw] snap-center md:w-auto bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 transform md:hover:-translate-y-2 animate-on-scroll goal-card-2">
+                <div class="goal-icon goal-icon-collaboration h-24 flex items-center justify-center bg-gradient-to-br from-accent-green to-green-600 text-white">
+                    <i class="fas fa-users text-4xl"></i>
                 </div>
-                <div class="p-6">
+                <div class="p-8">
                     <h3 class="goal-title text-xl font-bold text-primary-blue mb-4 font-heading">Foster Collaboration</h3>
                     <p class="goal-description text-gray-600 leading-relaxed font-body">To build partnerships between students, faculty, and industry experts, creating a collaborative environment that enhances learning and professional development.</p>
                 </div>
             </div>
 
-            <div class="goal-card bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 animate-on-scroll goal-card-3">
-                <div class="goal-icon goal-icon-education h-20 flex items-center justify-center bg-gradient-to-br from-primary-blue-light to-primary-blue text-white">
-                    <i class="fas fa-graduation-cap text-3xl"></i>
+            <div class="goal-card shrink-0 w-[85vw] snap-center md:w-auto bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 transform md:hover:-translate-y-2 animate-on-scroll goal-card-3">
+                <div class="goal-icon goal-icon-education h-24 flex items-center justify-center bg-gradient-to-br from-primary-blue-light to-primary-blue text-white">
+                    <i class="fas fa-graduation-cap text-4xl"></i>
                 </div>
-                <div class="p-6">
+                <div class="p-8">
                     <h3 class="goal-title text-xl font-bold text-primary-blue mb-4 font-heading">Educate and Inspire</h3>
                     <p class="goal-description text-gray-600 leading-relaxed font-body">To educate the community about pharmaceutical sciences and inspire the next generation of researchers and healthcare professionals.</p>
                 </div>
@@ -125,40 +125,39 @@
             <h2 class="section-title text-4xl md:text-5xl font-bold text-primary-blue font-heading">Recent Forum Discussions</h2>
         </div>
         {% if recent_comments %}
-        <div class="discussions-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+        <div class="discussions-grid flex overflow-x-auto snap-x snap-mandatory gap-6 pb-8 px-4 md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-6 md:px-0 mb-12 hide-scrollbar">
             {% for comment in recent_comments %}
-            <div class="discussion-card bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 animate-on-scroll discussion-card-{{ loop.index }}">
-                <div class="p-6">
+            <div class="discussion-card shrink-0 w-[85vw] snap-center md:w-auto bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 animate-on-scroll discussion-card-{{ loop.index }} cursor-pointer" onclick="window.location.href='{{ url_for('forum.post_detail', post_id=comment.post_id) }}'">
+                <div class="p-6 h-full flex flex-col">
                     <div class="discussion-header flex items-center gap-3 mb-4">
-                        <div class="discussion-avatar w-12 h-12 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
+                        <div class="discussion-avatar w-14 h-14 rounded-full overflow-hidden bg-gray-200 flex-shrink-0 border-2 border-primary-blue/10">
                             {% if comment.author.profile_picture_url %}
                             <img src="{{ comment.author.profile_picture_url }}" alt="{{ comment.author.name }}'s avatar" class="w-full h-full object-cover">
                             {% else %}
-                            <span class="avatar-placeholder flex items-center justify-center w-full h-full bg-primary-blue text-white font-semibold text-lg">{{ comment.author.name[0].upper() }}</span>
+                            <span class="avatar-placeholder flex items-center justify-center w-full h-full bg-primary-blue text-white font-semibold text-xl">{{ comment.author.name[0].upper() }}</span>
                             {% endif %}
                         </div>
                         <div class="discussion-meta flex-1">
                             <h4 class="author-name text-lg font-semibold text-primary-blue font-heading">{{ comment.author.name }}</h4>
-                            <p class="discussion-date text-sm text-gray-500 font-body">{{ comment.created_at.strftime('%B %d, %Y at %I:%M %p') }}</p>
+                            <p class="discussion-date text-sm text-gray-500 font-body">{{ comment.created_at.strftime('%B %d, %Y') }}</p>
                         </div>
                     </div>
-                    <p class="discussion-content text-gray-700 leading-relaxed mb-4 font-body">{{ comment.content[:200] }}{% if comment.content|length > 200 %}...{% endif %}</p>
-                    <div class="discussion-footer flex items-center justify-between">
-                        <span class="discussion-topic inline-flex items-center px-3 py-1 rounded-full text-sm bg-primary-blue/10 text-primary-blue border border-primary-blue/20">
-                            <i class="fas fa-comments mr-2"></i>
-                            {{ comment.post.title }}
+                    <p class="discussion-content text-gray-700 leading-relaxed mb-6 font-body flex-grow">{{ comment.content[:150] }}{% if comment.content|length > 150 %}...{% endif %}</p>
+                    <div class="discussion-footer flex items-center justify-between mt-auto">
+                        <span class="discussion-topic inline-flex items-center px-3 py-1 rounded-full text-sm bg-primary-blue/10 text-primary-blue border border-primary-blue/20 max-w-[60%]">
+                            <i class="fas fa-comments mr-2 shrink-0"></i>
+                            <span class="truncate">{{ comment.post.title }}</span>
                         </span>
-                        <button class="text-primary-blue hover:text-primary-blue-light transition-colors duration-200 flex items-center gap-1 text-sm font-medium" onclick="window.location.href='{{ url_for('forum.post_detail', post_id=comment.post_id) }}'">
-                            View Discussion
-                            <i class="fas fa-arrow-right"></i>
-                        </button>
+                        <span class="text-primary-blue font-semibold transition-colors duration-200 flex items-center gap-1 text-sm">
+                            View <i class="fas fa-arrow-right"></i>
+                        </span>
                     </div>
                 </div>
             </div>
             {% endfor %}
         </div>
         <div class="section-footer text-center">
-            <button class="bg-accent-orange hover:bg-orange-600 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-2 mx-auto" onclick="window.location.href='{{ url_for('forum.forum_main') }}'">
+            <button class="bg-accent-orange hover:bg-orange-600 text-white px-8 py-4 rounded-full font-semibold text-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-2 mx-auto" onclick="window.location.href='{{ url_for('forum.forum_main') }}'">
                 <i class="fas fa-comments"></i>
                 View All Discussions
             </button>
@@ -185,8 +184,8 @@
         <div class="section-header text-center mb-16">
             <h2 class="section-title text-4xl md:text-5xl font-bold text-primary-blue font-heading">In Association With</h2>
         </div>
-        <div class="partners-grid grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div class="partner-card bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 animate-on-scroll partner-card-1">
+        <div class="partners-grid flex overflow-x-auto snap-x snap-mandatory gap-6 pb-8 px-4 md:grid md:grid-cols-3 md:gap-8 md:px-0 hide-scrollbar">
+            <div class="partner-card shrink-0 w-[70vw] snap-center md:w-auto bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 animate-on-scroll partner-card-1">
                 <a href="https://web.facebook.com/pharm.uofk" target="_blank" rel="noopener noreferrer" class="block p-8 text-center hover:bg-gray-50 transition-colors duration-300">
                     <div class="partner-logo-container h-24 flex items-center justify-center bg-gray-50 rounded-lg mb-6">
                         <img src="{{ url_for('static', filename='images/uofk.jpg') }}" alt="Faculty of Pharmacy, UofK Logo" class="partner-logo max-w-full max-h-full object-contain grayscale hover:grayscale-0 transition-all duration-300">
@@ -195,7 +194,7 @@
                 </a>
             </div>
 
-            <div class="partner-card bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 animate-on-scroll partner-card-2">
+            <div class="partner-card shrink-0 w-[70vw] snap-center md:w-auto bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 animate-on-scroll partner-card-2">
                 <a href="https://web.facebook.com/FPSA.IPSF" target="_blank" rel="noopener noreferrer" class="block p-8 text-center hover:bg-gray-50 transition-colors duration-300">
                     <div class="partner-logo-container h-24 flex items-center justify-center bg-gray-50 rounded-lg mb-6">
                         <img src="{{ url_for('static', filename='images/fpsa.jpg') }}" alt="FPSA Logo" class="partner-logo max-w-full max-h-full object-contain grayscale hover:grayscale-0 transition-all duration-300">
@@ -204,7 +203,7 @@
                 </a>
             </div>
 
-            <div class="partner-card bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 animate-on-scroll partner-card-3">
+            <div class="partner-card shrink-0 w-[70vw] snap-center md:w-auto bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 animate-on-scroll partner-card-3">
                 <a href="https://t.me/psrafpsa" target="_blank" rel="noopener noreferrer" class="block p-8 text-center hover:bg-gray-50 transition-colors duration-300">
                     <div class="partner-logo-container h-24 flex items-center justify-center bg-gray-50 rounded-lg mb-6">
                         <img src="{{ url_for('static', filename='images/PharmaRx.png') }}" alt="PharmaRx Logo" class="partner-logo max-w-full max-h-full object-contain grayscale hover:grayscale-0 transition-all duration-300">
