@@ -105,6 +105,9 @@ app.register_blueprint(forum_bp, url_prefix='/forum')
 from admin import admin_bp
 app.register_blueprint(admin_bp, url_prefix='/admin')
 
+from hub import hub_bp
+app.register_blueprint(hub_bp, url_prefix='/hub')
+
 
 # ==================== Static Page Routes ====================
 

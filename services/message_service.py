@@ -104,6 +104,36 @@ class MessageService:
         return grouped_messages
     
     @staticmethod
+    def get_or_create_conversation(user_id1: int, user_id2: int) -> int:
+        """Get existing or create a new conversation for two users."""
+        from models import Conversation, ConversationParticipant
+        cp1_alias = db.aliased(ConversationParticipant)
+        cp2_alias = db.aliased(ConversationParticipant)
+        
+        existing = db.session.query(Conversation.id).join(
+            cp1_alias, Conversation.id == cp1_alias.conversation_id
+        ).join(
+            cp2_alias, Conversation.id == cp2_alias.conversation_id
+        ).filter(
+            cp1_alias.user_id == user_id1,
+            cp2_alias.user_id == user_id2
+        ).first()
+        
+        if existing:
+            return existing[0]
+            
+        conv = Conversation()
+        db.session.add(conv)
+        db.session.flush()
+        
+        cp1 = ConversationParticipant(conversation_id=conv.id, user_id=user_id1)
+        cp2 = ConversationParticipant(conversation_id=conv.id, user_id=user_id2)
+        db.session.add_all([cp1, cp2])
+        db.session.flush()
+        
+        return conv.id
+
+    @staticmethod
     def send_message(sender_id: int, receiver_id: int, content: str) -> Message:
         """
         Send a message from one user to another.
@@ -116,9 +146,12 @@ class MessageService:
         Returns:
             The created Message instance
         """
+        conv_id = MessageService.get_or_create_conversation(sender_id, receiver_id)
+        
         message = Message(
             sender_id=sender_id,
             receiver_id=receiver_id,
+            conversation_id=conv_id,
             content=content
         )
         db.session.add(message)

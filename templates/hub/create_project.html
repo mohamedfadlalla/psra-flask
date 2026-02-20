@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}Create Research Project - PSRA{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8 max-w-3xl">
+    <div class="bg-white rounded-xl shadow-lg p-8">
+        <div class="flex items-center gap-3 mb-8 pb-4 border-b border-gray-100">
+            <a href="{{ url_for('hub.browse_projects') }}" class="text-gray-400 hover:text-primary-blue transition-colors">
+                <i class="fas fa-arrow-left text-xl"></i>
+            </a>
+            <div>
+                <h1 class="text-3xl font-bold text-primary-blue">Create Research Project</h1>
+                <p class="text-gray-500 text-sm mt-1">Start recruiting students for your research team.</p>
+            </div>
+        </div>
+
+        <form method="POST" action="">
+            {{ form.hidden_tag() }}
+            
+            <div class="mb-6">
+                {{ form.title.label(class="block text-gray-700 font-bold mb-2") }}
+                {{ form.title(class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-primary-blue focus:ring-1 focus:ring-primary-blue transition-colors", placeholder="e.g. Impact of Novel Excipients on Drug Release") }}
+                {% if form.title.errors %}<p class="text-red-500 text-sm mt-1">{% for error in form.title.errors %}{{ error }}{% endfor %}</p>{% endif %}
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div>
+                    {{ form.required_positions.label(class="block text-gray-700 font-bold mb-2") }}
+                    {{ form.required_positions(class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-primary-blue focus:ring-1 focus:ring-primary-blue transition-colors", type="number", min="1", max="20") }}
+                    <p class="text-xs text-gray-500 mt-1">Number of students needed.</p>
+                    {% if form.required_positions.errors %}<p class="text-red-500 text-sm mt-1">{% for error in form.required_positions.errors %}{{ error }}{% endfor %}</p>{% endif %}
+                </div>
+                
+                <div>
+                    {{ form.skills.label(class="block text-gray-700 font-bold mb-2") }}
+                    {{ form.skills(class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-primary-blue focus:ring-1 focus:ring-primary-blue transition-colors", placeholder="e.g. HPLC, Data Analysis, Literature Review") }}
+                    <p class="text-xs text-gray-500 mt-1">Comma-separated list of required skills.</p>
+                    {% if form.skills.errors %}<p class="text-red-500 text-sm mt-1">{% for error in form.skills.errors %}{{ error }}{% endfor %}</p>{% endif %}
+                </div>
+            </div>
+
+            <div class="mb-8">
+                {{ form.description.label(class="block text-gray-700 font-bold mb-2") }}
+                {{ form.description(class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-primary-blue focus:ring-1 focus:ring-primary-blue transition-colors", rows=8, placeholder="Provide a detailed description of the project, goals, and what the student's role will entail...") }}
+                {% if form.description.errors %}<p class="text-red-500 text-sm mt-1">{% for error in form.description.errors %}{{ error }}{% endfor %}</p>{% endif %}
+            </div>
+
+            <div class="flex justify-end gap-4">
+                <a href="{{ url_for('hub.browse_projects') }}" class="px-6 py-3 bg-gray-100 text-gray-700 font-bold rounded-lg hover:bg-gray-200 transition-colors">Cancel</a>
+                {{ form.submit(class="px-8 py-3 bg-accent-green text-white font-bold rounded-lg hover:bg-green-600 cursor-pointer transition-colors shadow-md hover:shadow-lg transform hover:-translate-y-0.5") }}
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

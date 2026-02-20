@@ -77,6 +77,9 @@
                     <li class="hidden md:block"><a href="{{ url_for('home') }}" class="nav-link {% if request.endpoint == 'home' %}active{% endif %}">Home</a></li>
                     <li><a href="{{ url_for('research') }}" class="nav-link {% if request.endpoint == 'research' %}active{% endif %}">Research</a></li>
                     <li class="hidden md:block"><a href="{{ url_for('forum.forum_main') }}" class="nav-link {% if 'forum' in request.endpoint and 'login' not in request.endpoint and 'register' not in request.endpoint %}active{% endif %}">Forum</a></li>
+                    <li><a href="{{ url_for('hub.browse_projects') }}" class="nav-link {% if 'projects' in request.endpoint %}active{% endif %}">Projects</a></li>
+                    <li><a href="{{ url_for('hub.browse_mentors') }}" class="nav-link {% if 'mentors' in request.endpoint %}active{% endif %}">Mentors</a></li>
+                    <li><a href="{{ url_for('hub.browse_jobs') }}" class="nav-link {% if 'jobs' in request.endpoint %}active{% endif %}">Jobs</a></li>
                     {% if current_user.is_authenticated %}
                     <li><a href="{{ url_for('forum.users') }}" class="nav-link {% if request.endpoint == 'forum.users' %}active{% endif %}">Find Users</a></li>
                     {% endif %}
@@ -122,6 +125,13 @@
                             </a>
                             <a href="{{ url_for('forum.edit_profile') }}" class="nav-dropdown-item">
                                 <i class="fas fa-cog"></i> Edit Profile
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <a href="{{ url_for('hub.manage_projects') }}" class="nav-dropdown-item">
+                                <i class="fas fa-microscope"></i> My Projects
+                            </a>
+                            <a href="{{ url_for('hub.manage_mentorships') }}" class="nav-dropdown-item">
+                                <i class="fas fa-user-friends"></i> Mentorships
                             </a>
                             {% if current_user.is_admin %}
                             <div class="dropdown-divider"></div>

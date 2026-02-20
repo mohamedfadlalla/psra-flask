@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Mentorships - PSRA{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold text-primary-blue mb-8">Manage Mentorships</h1>
+
+    <!-- Incoming Requests (For Alumni) -->
+    {% if current_user.role.value == 'alumni' %}
+    <div class="mb-12">
+        <h2 class="text-2xl font-semibold border-b pb-2 mb-6">Incoming Requests</h2>
+        {% if incoming_requests %}
+            <div class="space-y-4">
+            {% for req in incoming_requests %}
+                <div class="bg-white p-6 rounded-xl shadow border border-gray-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div class="flex-1">
+                        <h3 class="font-bold text-lg">{{ req.student.name }} <span class="text-sm font-normal text-gray-500">(Requested on {{ req.created_at.strftime('%b %d, %Y') }})</span></h3>
+                        <p class="text-gray-700 mt-2 bg-gray-50 p-3 rounded italic">"{{ req.message }}"</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <form method="POST" action="{{ url_for('hub.respond_mentorship', request_id=req.id, action='accept') }}">
+                            <button type="submit" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-medium transition-colors">Accept</button>
+                        </form>
+                        <form method="POST" action="{{ url_for('hub.respond_mentorship', request_id=req.id, action='reject') }}">
+                            <button type="submit" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-medium transition-colors">Decline</button>
+                        </form>
+                    </div>
+                </div>
+            {% endfor %}
+            </div>
+        {% else %}
+            <p class="text-gray-500 italic">No pending incoming requests.</p>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Sent Requests (For Students) -->
+    <div class="mb-12">
+        <h2 class="text-2xl font-semibold border-b pb-2 mb-6">Sent Requests</h2>
+        {% if sent_requests %}
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {% for req in sent_requests %}
+                <div class="bg-white p-4 rounded-xl shadow border border-gray-100 flex items-center justify-between">
+                    <div>
+                        <span class="block font-semibold">To: {{ req.alumni.name }}</span>
+                        <span class="text-sm text-gray-500">Sent on {{ req.created_at.strftime('%b %d, %Y') }}</span>
+                    </div>
+                    <span class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-medium">Pending</span>
+                </div>
+            {% endfor %}
+            </div>
+        {% else %}
+            <p class="text-gray-500 italic">You have no pending sent requests.</p>
+        {% endif %}
+    </div>
+
+    <!-- Active Mentorships -->
+    <div>
+        <h2 class="text-2xl font-semibold border-b pb-2 mb-6">Active Mentorships</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for active in active_as_mentor %}
+                <div class="bg-white p-6 rounded-xl shadow border border-primary-blue/20">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-12 h-12 bg-primary-blue text-white rounded-full flex items-center justify-center font-bold text-xl">
+                            {{ active.request.student.name[0].upper() }}
+                        </div>
+                        <div>
+                            <span class="block text-xs text-primary-blue font-semibold uppercase tracking-wider">Mentee</span>
+                            <span class="block font-bold text-lg">{{ active.request.student.name }}</span>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-500 mb-4">Started {{ active.started_at.strftime('%b %d, %Y') }}</p>
+                    <a href="{{ url_for('forum.conversation', user_id=active.request.student.id) }}" class="block w-full text-center bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium py-2 rounded transition-colors">Message Mentee</a>
+                </div>
+            {% endfor %}
+
+            {% for active in active_as_mentee %}
+                <div class="bg-white p-6 rounded-xl shadow border border-accent-orange/20">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-12 h-12 bg-accent-orange text-white rounded-full flex items-center justify-center font-bold text-xl">
+                            {{ active.request.alumni.name[0].upper() }}
+                        </div>
+                        <div>
+                            <span class="block text-xs text-accent-orange font-semibold uppercase tracking-wider">Mentor</span>
+                            <span class="block font-bold text-lg">{{ active.request.alumni.name }}</span>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-500 mb-4">Started {{ active.started_at.strftime('%b %d, %Y') }}</p>
+                    <a href="{{ url_for('forum.conversation', user_id=active.request.alumni.id) }}" class="block w-full text-center bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium py-2 rounded transition-colors">Message Mentor</a>
+                </div>
+            {% endfor %}
+
+            {% if not active_as_mentor and not active_as_mentee %}
+                <div class="col-span-full py-8 text-center bg-gray-50 rounded-lg border border-dashed border-gray-300">
+                    <p class="text-gray-500">You don't have any active mentorships yet.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
