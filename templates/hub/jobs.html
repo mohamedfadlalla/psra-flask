@@ -21,9 +21,9 @@
             <div class="md:w-1/4">
                 <select name="job_type" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary-blue bg-white">
                     <option value="">All Types</option>
-                    <option value="internship" {% if current_type == 'internship' %}selected{% endif %}>Internship</option>
-                    <option value="full_time" {% if current_type == 'full_time' %}selected{% endif %}>Full Time</option>
-                    <option value="part_time" {% if current_type == 'part_time' %}selected{% endif %}>Part Time</option>
+                    {% for jt in JobType %}
+                    <option value="{{ jt.value }}" {% if current_type == jt.value %}selected{% endif %}>{{ jt.value.replace('_', ' ')|title }}</option>
+                    {% endfor %}
                 </select>
             </div>
             <button type="submit" class="bg-primary-blue hover:bg-blue-dark text-white px-6 py-2 rounded-lg font-semibold transition-colors">

@@ -143,13 +143,16 @@ def browse_jobs():
             job_type_enum = JobType(type_filter)
             query = query.filter(Job.job_type == job_type_enum)
         except ValueError:
-            pass
+            flash("Invalid job type provided.", FLASH_ERROR)
             
     if skill_filter:
-        query = query.join(JobRequiredSkill).join(Skill).filter(Skill.name.ilike(f'%{skill_filter}%'))
+        escaped_skill = skill_filter.replace('\\', '\\\\').replace('%', '\\%').replace('_', '\\_')
+        query = query.join(JobRequiredSkill).join(Skill).filter(
+            Skill.name.ilike(f'%{escaped_skill}%', escape='\\')
+        ).distinct()
         
     jobs = query.order_by(Job.created_at.desc()).all()
-    return render_template('hub/jobs.html', jobs=jobs, current_skill=skill_filter, current_type=type_filter)
+    return render_template('hub/jobs.html', jobs=jobs, current_skill=skill_filter, current_type=type_filter, JobType=JobType)
 
 @hub_bp.route('/jobs/create', methods=['GET', 'POST'])
 @login_required
