@@ -13,6 +13,30 @@
         {% endif %}
     </div>
 
+    <div class="bg-white p-4 rounded-xl shadow-sm mb-6 border border-gray-100">
+        <form method="GET" action="{{ url_for('hub.browse_jobs') }}" class="flex flex-col md:flex-row gap-4">
+            <div class="flex-grow">
+                <input type="text" name="skill" placeholder="Filter by skill (e.g., Python)" value="{{ current_skill }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary-blue">
+            </div>
+            <div class="md:w-1/4">
+                <select name="job_type" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary-blue bg-white">
+                    <option value="">All Types</option>
+                    <option value="internship" {% if current_type == 'internship' %}selected{% endif %}>Internship</option>
+                    <option value="full_time" {% if current_type == 'full_time' %}selected{% endif %}>Full Time</option>
+                    <option value="part_time" {% if current_type == 'part_time' %}selected{% endif %}>Part Time</option>
+                </select>
+            </div>
+            <button type="submit" class="bg-primary-blue hover:bg-blue-dark text-white px-6 py-2 rounded-lg font-semibold transition-colors">
+                Filter
+            </button>
+            {% if current_skill or current_type %}
+            <a href="{{ url_for('hub.browse_jobs') }}" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-2 rounded-lg font-semibold transition-colors text-center">
+                Clear
+            </a>
+            {% endif %}
+        </form>
+    </div>
+
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {% for job in jobs %}
         <div class="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow border border-gray-100 flex flex-col h-full">

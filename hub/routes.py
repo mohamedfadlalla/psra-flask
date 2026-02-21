@@ -132,9 +132,24 @@ def respond_mentorship(request_id, action):
 
 @hub_bp.route('/jobs')
 def browse_jobs():
-    """Browse jobs."""
-    jobs = Job.query.order_by(Job.created_at.desc()).all()
-    return render_template('hub/jobs.html', jobs=jobs)
+    """Browse jobs with filtering."""
+    skill_filter = request.args.get('skill', '').strip()
+    type_filter = request.args.get('job_type', '').strip()
+    
+    query = Job.query
+    
+    if type_filter:
+        try:
+            job_type_enum = JobType(type_filter)
+            query = query.filter(Job.job_type == job_type_enum)
+        except ValueError:
+            pass
+            
+    if skill_filter:
+        query = query.join(JobRequiredSkill).join(Skill).filter(Skill.name.ilike(f'%{skill_filter}%'))
+        
+    jobs = query.order_by(Job.created_at.desc()).all()
+    return render_template('hub/jobs.html', jobs=jobs, current_skill=skill_filter, current_type=type_filter)
 
 @hub_bp.route('/jobs/create', methods=['GET', 'POST'])
 @login_required
