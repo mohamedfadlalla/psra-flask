@@ -18,6 +18,7 @@ from utils.query_helpers import paginate_query
 from services import EventService, ResearchService
 from utils.email_utils import send_event_notification, send_research_status_email, send_announcement_email, is_mail_configured
 from utils.notification_utils import send_research_approved_notification, send_research_rejected_notification
+from sqlalchemy.exc import IntegrityError
 import json
 
 
@@ -61,7 +62,7 @@ def manage_users():
     if search:
         from models import Profile
         query = query.outerjoin(Profile).filter(
-            User.email.contains(search) | Profile.full_name.contains(search)
+            User.email.ilike(f'%{search}%') | Profile.full_name.ilike(f'%{search}%')
         )
     if role:
         for r in UserRole:
@@ -88,17 +89,28 @@ def edit_user(user_id):
     user = User.query.get_or_404(user_id)
 
     if request.method == 'POST':
-        user.name = request.form.get('name')
-        user.email = request.form.get('email')
+        name = request.form.get('name')
+        email = request.form.get('email')
+        
+        if not name or not email:
+            flash('Name and email are required.', FLASH_ERROR)
+            return redirect(url_for('admin.edit_user', user_id=user.id))
+            
+        user.name = name
+        user.email = email
         
         role_val = request.form.get('role')
         if role_val:
             user.status = role_val
+            user.is_admin = (role_val == 'admin')
 
         try:
             db.session.commit()
             flash('User updated successfully.', FLASH_SUCCESS)
             return redirect(url_for('admin.manage_users'))
+        except IntegrityError:
+            db.session.rollback()
+            flash('Email is already taken.', FLASH_ERROR)
         except Exception:
             db.session.rollback()
             flash('Error updating user.', FLASH_ERROR)

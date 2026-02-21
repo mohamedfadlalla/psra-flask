@@ -62,10 +62,10 @@ class User(UserMixin, db.Model):
     alumni_profile = db.relationship('AlumniProfile', back_populates='user', uselist=False, cascade='all, delete-orphan')
     researcher_profile = db.relationship('ResearcherProfile', back_populates='user', uselist=False, cascade='all, delete-orphan')
 
-    posts = db.relationship('Post', backref='author', lazy=True)
-    comments = db.relationship('Comment', backref='author', lazy=True)
-    likes = db.relationship('Like', backref='user', lazy=True)
-    events = db.relationship('Event', backref='creator', lazy=True)
+    posts = db.relationship('Post', backref='author', lazy=True, cascade='all, delete-orphan')
+    comments = db.relationship('Comment', backref='author', lazy=True, cascade='all, delete-orphan')
+    likes = db.relationship('Like', backref='user', lazy=True, cascade='all, delete-orphan')
+    events = db.relationship('Event', backref='creator', lazy=True, cascade='all, delete-orphan')
 
     # Properties to maintain backward compatibility with templates
     @property
