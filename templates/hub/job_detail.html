@@ -71,6 +71,9 @@
             <div class="mt-8 pt-8 border-t border-gray-100 text-center">
                 {% if current_user.is_authenticated and current_user.id == job.posted_by %}
                 <p class="text-gray-600 mb-4">You are the author of this job posting.</p>
+                <a href="{{ url_for('hub.manage_jobs') }}" class="inline-block bg-white border-2 border-primary-blue text-primary-blue hover:bg-primary-blue hover:text-white font-bold py-3 px-8 rounded-full shadow-md transition-colors">
+                    <i class="fas fa-users mr-2"></i> Manage Applications
+                </a>
                 {% elif has_applied %}
                 <p class="text-gray-600 mb-4">You have already applied for this position.</p>
                 <button disabled class="inline-block bg-gray-400 text-white font-bold py-3 px-8 rounded-full cursor-not-allowed opacity-75">

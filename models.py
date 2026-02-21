@@ -502,6 +502,18 @@ class ApplicationStatus(enum.Enum):
     ACCEPTED = 'accepted'
     REJECTED = 'rejected'
 
+class ProfileClaim(db.Model):
+    __tablename__ = 'profile_claims'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False)
+    researcher_id = db.Column(db.Integer, db.ForeignKey('researcher.id', ondelete='CASCADE'), nullable=False)
+    message = db.Column(db.Text, nullable=True)
+    status = db.Column(db.Enum(ApplicationStatus), default=ApplicationStatus.PENDING)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    user = db.relationship('User', backref='profile_claims')
+    researcher = db.relationship('Researcher', backref='claims')
+
 class ProjectApplication(db.Model):
     __tablename__ = 'project_applications'
     id = db.Column(db.Integer, primary_key=True)

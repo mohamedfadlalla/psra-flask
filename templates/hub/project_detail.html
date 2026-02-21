@@ -90,10 +90,21 @@
 
                 <div class="mt-auto">
                     {% if current_user.is_authenticated %}
+                        {% set has_applied = namespace(value=false) %}
+                        {% for app in project.applications %}
+                            {% if app.student_id == current_user.id %}
+                                {% set has_applied.value = true %}
+                            {% endif %}
+                        {% endfor %}
+                        
                         {% if current_user.id == project.researcher_id %}
                             <a href="{{ url_for('hub.manage_projects') }}" class="block w-full text-center bg-white border-2 border-primary-blue text-primary-blue hover:bg-primary-blue hover:text-white font-bold py-3 px-6 rounded-xl transition-all duration-300">
                                 Manage Applications
                             </a>
+                        {% elif has_applied.value %}
+                            <button disabled class="block w-full text-center bg-green-500 text-white font-bold py-4 px-6 rounded-xl cursor-not-allowed">
+                                <i class="fas fa-check-circle mr-2"></i>Already Applied
+                            </button>
                         {% elif project.status.value == 'open' %}
                             <a href="{{ url_for('hub.apply_project', project_id=project.id) }}" class="block w-full text-center bg-accent-orange hover:bg-orange-600 text-white font-bold py-4 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
                                 Apply Now

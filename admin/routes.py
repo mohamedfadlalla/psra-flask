@@ -10,7 +10,7 @@ from datetime import datetime
 import os
 
 from . import admin_bp
-from models import db, User, Post, Comment, Event, Research, Researcher, Announcement, UserRole
+from models import db, User, Post, Comment, Event, Research, Researcher, Announcement, UserRole, ProfileClaim, ApplicationStatus
 from utils.decorators import admin_required
 from utils.constants import FLASH_SUCCESS, FLASH_ERROR, FLASH_WARNING, DEFAULT_PER_PAGE
 from utils.image_utils import save_event_image, delete_file, get_event_image_path
@@ -436,6 +436,16 @@ def approve_submission(research_id):
     # Approve the research
     approved_research = ResearchService.approve_research(research_id)
     
+    # Add publication to submitter's profile
+    if submitter:
+        publication_entry = f"{approved_research.title} ({approved_research.year})"
+        if submitter.publications:
+            if publication_entry not in submitter.publications:
+                submitter.publications = submitter.publications + f"\n- {publication_entry}"
+        else:
+            submitter.publications = f"- {publication_entry}"
+        db.session.commit()
+    
     # Send notification to the submitter if they exist
     if submitter:
         try:
@@ -598,7 +608,7 @@ def edit_research(research_id):
 @login_required
 @admin_required
 def delete_research(research_id):
-    """Delete a research."""
+    """Delete a research publication."""
     success = ResearchService.delete_research(research_id)
     
     if success:
@@ -607,6 +617,58 @@ def delete_research(research_id):
         flash('Failed to delete research.', FLASH_ERROR)
     
     return redirect(url_for('admin.manage_researches'))
+
+
+# ==================== Profile Claims Management ====================
+
+@admin_bp.route('/claims')
+@login_required
+@admin_required
+def manage_claims():
+    """Manage profile claims."""
+    claims = ProfileClaim.query.filter_by(status=ApplicationStatus.PENDING).order_by(ProfileClaim.created_at.desc()).all()
+    return render_template('admin/claims.html', claims=claims)
+
+@admin_bp.route('/claims/<int:claim_id>/approve', methods=['POST'])
+@login_required
+@admin_required
+def approve_claim(claim_id):
+    """Approve a profile claim."""
+    claim = ProfileClaim.query.get_or_404(claim_id)
+    if claim.status != ApplicationStatus.PENDING:
+        flash('Claim is not pending.', FLASH_ERROR)
+        return redirect(url_for('admin.manage_claims'))
+        
+    claim.status = ApplicationStatus.ACCEPTED
+    
+    # Update researcher
+    researcher = claim.researcher
+    researcher.is_registered_user = True
+    researcher.user_id = claim.user_id
+    
+    # Update user role to RESEARCHER if not already
+    user = claim.user
+    if user.role != UserRole.ADMIN:
+        user.role = UserRole.RESEARCHER
+    
+    db.session.commit()
+    flash('Profile claim approved successfully.', FLASH_SUCCESS)
+    return redirect(url_for('admin.manage_claims'))
+
+@admin_bp.route('/claims/<int:claim_id>/reject', methods=['POST'])
+@login_required
+@admin_required
+def reject_claim(claim_id):
+    """Reject a profile claim."""
+    claim = ProfileClaim.query.get_or_404(claim_id)
+    if claim.status != ApplicationStatus.PENDING:
+        flash('Claim is not pending.', FLASH_ERROR)
+        return redirect(url_for('admin.manage_claims'))
+        
+    claim.status = ApplicationStatus.REJECTED
+    db.session.commit()
+    flash('Profile claim rejected.', FLASH_SUCCESS)
+    return redirect(url_for('admin.manage_claims'))
 
 
 # ==================== Announcement Management ====================

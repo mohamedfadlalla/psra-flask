@@ -236,6 +236,39 @@ def apply_job(job_id):
 
     return render_template('hub/apply_job.html', form=form, job=job)
 
+@hub_bp.route('/jobs/manage')
+@login_required
+def manage_jobs():
+    """Manage jobs (alumni/researcher/admin) and applications."""
+    if current_user.role in [UserRole.ALUMNI, UserRole.RESEARCHER, UserRole.ADMIN]:
+        my_posted_jobs = Job.query.filter_by(posted_by=current_user.id).order_by(Job.created_at.desc()).all()
+    else:
+        my_posted_jobs = []
+        
+    my_job_applications = JobApplication.query.filter_by(applicant_id=current_user.id).order_by(JobApplication.applied_at.desc()).all()
+    return render_template('hub/manage_jobs.html', my_posted_jobs=my_posted_jobs, my_job_applications=my_job_applications)
+
+@hub_bp.route('/job-applications/<int:application_id>/<action>', methods=['POST'])
+@login_required
+def respond_job_application(application_id, action):
+    """Accept or reject a job application."""
+    application = JobApplication.query.get_or_404(application_id)
+    job = application.job
+    
+    if job.posted_by != current_user.id:
+        flash('Unauthorized action.', FLASH_ERROR)
+        return redirect(url_for('hub.manage_jobs'))
+
+    if action == 'accept':
+        application.status = ApplicationStatus.ACCEPTED
+        flash('Application accepted.', FLASH_SUCCESS)
+    elif action == 'reject':
+        application.status = ApplicationStatus.REJECTED
+        flash('Application rejected.', FLASH_SUCCESS)
+        
+    db.session.commit()
+    return redirect(url_for('hub.manage_jobs'))
+
 # ==================== Research Recruitment ====================
 
 @hub_bp.route('/projects')

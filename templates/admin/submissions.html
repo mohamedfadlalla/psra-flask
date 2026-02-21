@@ -68,7 +68,7 @@
                     {% if research.submitted_by %}
                     <div class="detail-item">
                         <i class="fas fa-paper-plane"></i>
-                        <span>Submitted by: {% if research.submitter %}{{ research.submitter.name }}{% else %}Unknown{% endif %}</span>
+                        <span>Submitted by: {% if research.submitted_by_user %}{{ research.submitted_by_user.name }}{% else %}Unknown{% endif %}</span>
                     </div>
                     {% endif %}
                 </div>
