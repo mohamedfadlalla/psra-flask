@@ -29,3 +29,7 @@ class ResearchProjectForm(FlaskForm):
 class ApplicationForm(FlaskForm):
     motivation_letter = TextAreaField('Motivation Letter', validators=[DataRequired(), Length(max=2000)])
     submit = SubmitField('Submit Application')
+
+class JobApplicationForm(FlaskForm):
+    cover_letter = TextAreaField('Cover Letter', validators=[DataRequired(), Length(max=2000)])
+    submit = SubmitField('Submit Application')

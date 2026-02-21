@@ -4,9 +4,9 @@ from datetime import datetime
 import json
 
 from . import hub_bp
-from .forms import MentorshipRequestForm, JobForm, ResearchProjectForm, ApplicationForm
+from .forms import MentorshipRequestForm, JobForm, ResearchProjectForm, ApplicationForm, JobApplicationForm
 from models import db, User, UserRole, Profile, AlumniProfile, MentorshipStatus, MentorRequest, ActiveMentorship
-from models import Job, JobType, JobRequiredSkill, Skill, ResearchProject, ProjectStatus, ProjectRequiredSkill, ProjectApplication, ApplicationStatus
+from models import Job, JobType, JobRequiredSkill, Skill, ResearchProject, ProjectStatus, ProjectRequiredSkill, ProjectApplication, ApplicationStatus, JobApplication
 from utils.constants import FLASH_SUCCESS, FLASH_ERROR
 
 def get_or_create_skills(skill_string):
@@ -174,6 +174,34 @@ def job_detail(job_id):
     """View job details."""
     job = Job.query.get_or_404(job_id)
     return render_template('hub/job_detail.html', job=job)
+
+@hub_bp.route('/jobs/<int:job_id>/apply', methods=['GET', 'POST'])
+@login_required
+def apply_job(job_id):
+    """Apply to a job."""
+    job = Job.query.get_or_404(job_id)
+    
+    existing_app = JobApplication.query.filter_by(
+        job_id=job.id,
+        applicant_id=current_user.id
+    ).first()
+    if existing_app:
+        flash('You have already applied for this job.', FLASH_ERROR)
+        return redirect(url_for('hub.job_detail', job_id=job.id))
+
+    form = JobApplicationForm()
+    if form.validate_on_submit():
+        application = JobApplication(
+            job_id=job.id,
+            applicant_id=current_user.id,
+            cover_letter=form.cover_letter.data
+        )
+        db.session.add(application)
+        db.session.commit()
+        flash('Application submitted successfully.', FLASH_SUCCESS)
+        return redirect(url_for('hub.job_detail', job_id=job.id))
+
+    return render_template('hub/apply_job.html', form=form, job=job)
 
 # ==================== Research Recruitment ====================
 
