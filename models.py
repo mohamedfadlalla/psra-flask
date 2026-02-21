@@ -31,7 +31,7 @@ class Skill(db.Model):
 class UserSkill(db.Model):
     __tablename__ = 'user_skills'
     user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), primary_key=True)
-    skill_id = db.Column(db.Integer, db.ForeignKey('skills.id', ondelete='CASCADE'), primary_key=True)
+    skill_id = db.Column(db.Integer, db.ForeignKey('skills.id', ondelete='CASCADE'), primary_key=True, index=True)
     level = db.Column(db.String(50), nullable=True)
     
     user = db.relationship('User', back_populates='user_skills')
