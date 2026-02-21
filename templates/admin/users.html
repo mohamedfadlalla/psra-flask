@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Users - Admin - PSRA{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+        <!-- Admin Navigation -->
+        <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
+            <a href="{{ url_for('admin.admin_dashboard') }}" class="btn btn-outline">Dashboard</a>
+            <a href="{{ url_for('admin.manage_users') }}" class="btn" style="background: #3b82f6; color: white;">Users</a>
+            <a href="{{ url_for('admin.manage_posts') }}" class="btn btn-outline">Posts</a>
+            <a href="{{ url_for('admin.manage_comments') }}" class="btn btn-outline">Comments</a>
+            <a href="{{ url_for('admin.manage_events') }}" class="btn btn-outline">Events</a>
+            <a href="{{ url_for('admin.manage_submissions') }}" class="btn btn-outline" style="border-color: #ffc107; color: #856404;">Submissions</a>
+            <a href="{{ url_for('admin.manage_researchers') }}" class="btn btn-outline" style="border-color: #667eea; color: #667eea;">Researchers</a>
+            <a href="{{ url_for('admin.manage_researches') }}" class="btn btn-outline" style="border-color: #28a745; color: #28a745;">Researches</a>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+            <h2>Manage Users</h2>
+        </div>
+
+        <!-- Filters -->
+        <div class="card" style="margin-bottom: 30px;">
+            <h3>Filters</h3>
+            <form method="GET" style="display: flex; gap: 20px; flex-wrap: wrap; margin-top: 20px;">
+                <div>
+                    <label for="search">Search:</label>
+                    <input type="text" id="search" name="search" value="{{ search }}" placeholder="Search name or email" style="padding: 8px; border: 1px solid var(--border); border-radius: 4px;">
+                </div>
+                <div>
+                    <label for="role">Role:</label>
+                    <select id="role" name="role" style="padding: 8px; border: 1px solid var(--border); border-radius: 4px;">
+                        <option value="">All Roles</option>
+                        {% for r in roles %}
+                        <option value="{{ r }}" {% if role == r %}selected{% endif %}>{{ r|title }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div style="display: flex; align-items: end;">
+                    <button type="submit" class="btn">Filter</button>
+                    <a href="{{ url_for('admin.manage_users') }}" class="btn btn-outline" style="margin-left: 10px;">Clear</a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Users Table -->
+        <div class="card">
+            <h3>Users ({{ users.total }} total)</h3>
+            {% if users.items %}
+                <div style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+                        <thead>
+                            <tr style="background-color: var(--bg-secondary);">
+                                <th style="padding: 12px; text-align: left; border-bottom: 1px solid var(--border);">Name</th>
+                                <th style="padding: 12px; text-align: left; border-bottom: 1px solid var(--border);">Email</th>
+                                <th style="padding: 12px; text-align: left; border-bottom: 1px solid var(--border);">Role</th>
+                                <th style="padding: 12px; text-align: left; border-bottom: 1px solid var(--border);">Joined</th>
+                                <th style="padding: 12px; text-align: left; border-bottom: 1px solid var(--border);">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in users.items %}
+                            <tr style="border-bottom: 1px solid var(--border);">
+                                <td style="padding: 12px; font-weight: bold;">
+                                    {{ user.name }}
+                                </td>
+                                <td style="padding: 12px;">{{ user.email }}</td>
+                                <td style="padding: 12px;">
+                                    <span style="padding: 4px 8px; border-radius: 4px; font-size: 0.85em; background-color: var(--bg-secondary);">
+                                        {{ user.role.value|title }}
+                                    </span>
+                                </td>
+                                <td style="padding: 12px;">{{ user.created_at.strftime('%B %d, %Y') }}</td>
+                                <td style="padding: 12px;">
+                                    <a href="{{ url_for('admin.edit_user', user_id=user.id) }}" class="btn" style="padding: 6px 12px; font-size: 14px;">Edit</a>
+                                    <form method="POST" action="{{ url_for('admin.delete_user', user_id=user.id) }}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this user? This will remove all their posts, comments, and data.')">
+                                        <button type="submit" class="btn" style="padding: 6px 12px; font-size: 14px; background-color: #dc3545; margin-left: 5px;">Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                {% if users.pages > 1 %}
+                <div style="display: flex; justify-content: center; margin-top: 30px;">
+                    {% if users.has_prev %}
+                    <a href="{{ url_for('admin.manage_users', page=users.prev_num, search=search, role=role) }}" class="btn btn-outline">Previous</a>
+                    {% endif %}
+
+                    {% for page_num in users.iter_pages() %}
+                        {% if page_num %}
+                            {% if page_num == users.page %}
+                            <span style="padding: 8px 12px; background-color: var(--text-secondary); color: var(--bg-primary); margin: 0 5px; border-radius: 4px;">{{ page_num }}</span>
+                            {% else %}
+                            <a href="{{ url_for('admin.manage_users', page=page_num, search=search, role=role) }}" style="padding: 8px 12px; margin: 0 5px; text-decoration: none; color: var(--text-primary); border: 1px solid var(--border); border-radius: 4px;">{{ page_num }}</a>
+                            {% endif %}
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if users.has_next %}
+                    <a href="{{ url_for('admin.manage_users', page=users.next_num, search=search, role=role) }}" class="btn btn-outline">Next</a>
+                    {% endif %}
+                </div>
+                {% endif %}
+            {% else %}
+                <p style="margin-top: 20px;">No users found matching your criteria.</p>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}

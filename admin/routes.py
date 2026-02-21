@@ -10,7 +10,7 @@ from datetime import datetime
 import os
 
 from . import admin_bp
-from models import db, User, Post, Comment, Event, Research, Researcher, Announcement
+from models import db, User, Post, Comment, Event, Research, Researcher, Announcement, UserRole
 from utils.decorators import admin_required
 from utils.constants import FLASH_SUCCESS, FLASH_ERROR, FLASH_WARNING, DEFAULT_PER_PAGE
 from utils.image_utils import save_event_image, delete_file, get_event_image_path
@@ -43,6 +43,89 @@ def admin_dashboard():
                          total_events=total_events,
                          recent_posts=recent_posts,
                          recent_comments=recent_comments)
+
+
+# ==================== User Management ====================
+
+@admin_bp.route('/users')
+@login_required
+@admin_required
+def manage_users():
+    """Display users for management with filtering and pagination."""
+    page = request.args.get('page', 1, type=int)
+    search = request.args.get('search', '')
+    role = request.args.get('role', '')
+
+    query = User.query
+
+    if search:
+        from models import Profile
+        query = query.outerjoin(Profile).filter(
+            User.email.contains(search) | Profile.full_name.contains(search)
+        )
+    if role:
+        for r in UserRole:
+            if r.value == role:
+                query = query.filter(User.role == r)
+                break
+
+    users = paginate_query(query.order_by(User.created_at.desc()), page)
+
+    roles = [r.value for r in UserRole]
+
+    return render_template('admin/users.html',
+                         users=users,
+                         search=search,
+                         role=role,
+                         roles=roles)
+
+
+@admin_bp.route('/users/<int:user_id>/edit', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def edit_user(user_id):
+    """Edit a user."""
+    user = User.query.get_or_404(user_id)
+
+    if request.method == 'POST':
+        user.name = request.form.get('name')
+        user.email = request.form.get('email')
+        
+        role_val = request.form.get('role')
+        if role_val:
+            user.status = role_val
+
+        try:
+            db.session.commit()
+            flash('User updated successfully.', FLASH_SUCCESS)
+            return redirect(url_for('admin.manage_users'))
+        except Exception:
+            db.session.rollback()
+            flash('Error updating user.', FLASH_ERROR)
+
+    return render_template('admin/edit_user.html', user=user, roles=[r.value for r in UserRole])
+
+
+@admin_bp.route('/users/<int:user_id>/delete', methods=['POST'])
+@login_required
+@admin_required
+def delete_user(user_id):
+    """Delete a user."""
+    if user_id == current_user.id:
+        flash('You cannot delete your own account.', FLASH_ERROR)
+        return redirect(url_for('admin.manage_users'))
+
+    user = User.query.get_or_404(user_id)
+
+    try:
+        db.session.delete(user)
+        db.session.commit()
+        flash('User deleted successfully.', FLASH_SUCCESS)
+    except Exception:
+        db.session.rollback()
+        flash('Error deleting user.', FLASH_ERROR)
+
+    return redirect(url_for('admin.manage_users'))
 
 
 # ==================== Post Management ====================

@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}Edit User - Admin - PSRA{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+        <!-- Admin Navigation -->
+        <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
+            <a href="{{ url_for('admin.admin_dashboard') }}" class="btn btn-outline">Dashboard</a>
+            <a href="{{ url_for('admin.manage_users') }}" class="btn" style="background: #3b82f6; color: white;">Users</a>
+            <a href="{{ url_for('admin.manage_posts') }}" class="btn btn-outline">Posts</a>
+            <a href="{{ url_for('admin.manage_comments') }}" class="btn btn-outline">Comments</a>
+            <a href="{{ url_for('admin.manage_events') }}" class="btn btn-outline">Events</a>
+            <a href="{{ url_for('admin.manage_submissions') }}" class="btn btn-outline" style="border-color: #ffc107; color: #856404;">Submissions</a>
+            <a href="{{ url_for('admin.manage_researchers') }}" class="btn btn-outline" style="border-color: #667eea; color: #667eea;">Researchers</a>
+            <a href="{{ url_for('admin.manage_researches') }}" class="btn btn-outline" style="border-color: #28a745; color: #28a745;">Researches</a>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+            <h2>Edit User</h2>
+        </div>
+
+        <div class="card">
+            <form method="POST" style="max-width: 800px;">
+                <div style="margin-bottom: 20px;">
+                    <label for="name" style="display: block; margin-bottom: 8px; font-weight: bold;">Full Name:</label>
+                    <input type="text" id="name" name="name" value="{{ user.name }}" required style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 4px; font-size: 16px;">
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <label for="email" style="display: block; margin-bottom: 8px; font-weight: bold;">Email Address:</label>
+                    <input type="email" id="email" name="email" value="{{ user.email }}" required style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 4px; font-size: 16px;">
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <label for="role" style="display: block; margin-bottom: 8px; font-weight: bold;">Role:</label>
+                    <select id="role" name="role" required style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 4px; font-size: 16px;">
+                        {% for r in roles %}
+                        <option value="{{ r }}" {% if user.role.value == r %}selected{% endif %}>{{ r|title }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div style="margin-bottom: 20px; padding: 15px; background-color: var(--bg-secondary); border-radius: 4px;">
+                    <h4 style="margin-bottom: 10px;">User Information</h4>
+                    <p><strong>ID:</strong> {{ user.id }}</p>
+                    <p><strong>Joined:</strong> {{ user.created_at.strftime('%B %d, %Y at %I:%M %p') }}</p>
+                    <p><strong>Total Posts:</strong> {{ user.posts|length }}</p>
+                    <p><strong>Total Comments:</strong> {{ user.comments|length }}</p>
+                    {% if user.profile %}
+                        <p><strong>Has Profile:</strong> Yes</p>
+                    {% else %}
+                        <p><strong>Has Profile:</strong> No</p>
+                    {% endif %}
+                </div>
+
+                <div style="display: flex; gap: 15px;">
+                    <button type="submit" class="btn">Update User</button>
+                    <a href="{{ url_for('admin.manage_users') }}" class="btn btn-outline">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}
