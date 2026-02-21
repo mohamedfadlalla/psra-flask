@@ -16,7 +16,7 @@ import csv
 import json
 
 from config import Config
-from models import db, User, Message, Post, Comment, Event, Research, Researcher
+from models import db, User, Message, Post, Comment, Event, Research, Researcher, ProfileClaim, ApplicationStatus
 from services import EventService, MessageService, ResearchService
 from utils.constants import FLASH_SUCCESS, FLASH_ERROR
 from extensions import oauth
@@ -118,6 +118,60 @@ def home():
     return render_template('home.html', recent_comments=recent_comments)
 
 
+@app.route('/dashboard')
+@login_required
+def dashboard():
+    """User dashboard aggregating activity across the platform."""
+    from models import Job, JobApplication, ResearchProject, ProjectApplication, MentorRequest, Announcement
+    from datetime import date, timedelta
+    
+    # Jobs
+    posted_jobs = Job.query.filter_by(posted_by=current_user.id).all()
+    applied_jobs = JobApplication.query.filter_by(applicant_id=current_user.id).all()
+    
+    # Projects
+    posted_projects = ResearchProject.query.filter_by(researcher_id=current_user.id).all()
+    applied_projects = ProjectApplication.query.filter_by(student_id=current_user.id).all()
+    
+    # Mentorships
+    mentorship_requests_sent = MentorRequest.query.filter_by(student_id=current_user.id).all()
+    mentorship_requests_received = MentorRequest.query.filter_by(alumni_id=current_user.id).all()
+    
+    # Research
+    researches = Research.query.filter_by(submitted_by=current_user.id).all()
+    
+    # Announcements (recent 5)
+    recent_announcements = Announcement.query.order_by(Announcement.created_at.desc()).limit(5).all()
+    
+    # Events (next 7 days)
+    today = date.today()
+    next_week = today + timedelta(days=7)
+    upcoming_events = Event.query.filter(Event.event_date >= today, Event.event_date <= next_week).all()
+    
+    # Calculate badge counts
+    badge_counts = {
+        'jobs': len(applied_jobs) + len(posted_jobs),
+        'projects': len(applied_projects) + len(posted_projects),
+        'mentorships': len(mentorship_requests_sent) + len(mentorship_requests_received),
+        'research': len(researches),
+        'announcements': len(recent_announcements),
+        'events': len(upcoming_events)
+    }
+    
+    return render_template('dashboard.html', 
+                           badge_counts=badge_counts,
+                           posted_jobs=posted_jobs,
+                           applied_jobs=applied_jobs,
+                           posted_projects=posted_projects,
+                           applied_projects=applied_projects,
+                           mentorship_requests_sent=mentorship_requests_sent,
+                           mentorship_requests_received=mentorship_requests_received,
+                           researches=researches,
+                           recent_announcements=recent_announcements,
+                           upcoming_events=upcoming_events)
+
+
+
 @app.route('/research')
 def research():
     """Display research publications page with filtering."""
@@ -191,6 +245,44 @@ def researcher_profile(researcher_id):
         departments=profile_data['departments'],
         total_researches=profile_data['total_researches']
     )
+
+
+@app.route('/researcher/<int:researcher_id>/claim', methods=['GET', 'POST'])
+@login_required
+def claim_researcher_profile(researcher_id):
+    """Claim a researcher profile."""
+    researcher = Researcher.query.get_or_404(researcher_id)
+    
+    if researcher.is_registered_user:
+        flash('This profile has already been claimed.', FLASH_ERROR)
+        return redirect(url_for('researcher_profile', researcher_id=researcher.id))
+        
+    # Check if a pending claim already exists
+    existing_claim = ProfileClaim.query.filter_by(
+        user_id=current_user.id, 
+        researcher_id=researcher.id,
+        status=ApplicationStatus.PENDING
+    ).first()
+    
+    if existing_claim:
+        flash('You have already submitted a claim for this profile. Please wait for admin approval.', FLASH_INFO)
+        return redirect(url_for('researcher_profile', researcher_id=researcher.id))
+        
+    if request.method == 'POST':
+        message = request.form.get('message', '').strip()
+        
+        claim = ProfileClaim(
+            user_id=current_user.id,
+            researcher_id=researcher.id,
+            message=message
+        )
+        db.session.add(claim)
+        db.session.commit()
+        
+        flash('Your claim has been submitted successfully. An admin will review it shortly.', FLASH_SUCCESS)
+        return redirect(url_for('researcher_profile', researcher_id=researcher.id))
+        
+    return render_template('claim_profile.html', researcher=researcher)
 
 
 @app.route('/submit-research', methods=['GET', 'POST'])
@@ -356,7 +448,7 @@ def google_callback():
         
         # Redirect to the next page or home
         next_page = request.args.get('next')
-        return redirect(next_page) if next_page else redirect(url_for('home'))
+        return redirect(next_page) if next_page else redirect(url_for('dashboard'))
         
     except Exception as e:
         flash(f'Google login failed: {str(e)}', FLASH_ERROR)

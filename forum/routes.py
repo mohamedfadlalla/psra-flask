@@ -44,7 +44,7 @@ def resolve_role_and_track(account_type, batch_number):
 def login():
     """Handle user login."""
     if current_user.is_authenticated:
-        return redirect(url_for('forum.forum_main'))
+        return redirect(url_for('dashboard'))
     
     form = LoginForm()
     if form.validate_on_submit():
@@ -52,7 +52,7 @@ def login():
         if user and user.check_password(form.password.data):
             login_user(user)
             next_page = request.args.get('next')
-            return redirect(next_page) if next_page else redirect(url_for('forum.forum_main'))
+            return redirect(next_page) if next_page else redirect(url_for('dashboard'))
         flash('Invalid email or password.', FLASH_ERROR)
     
     return render_template('login.html', form=form)
@@ -62,7 +62,7 @@ def login():
 def register():
     """Handle user registration."""
     if current_user.is_authenticated:
-        return redirect(url_for('forum.forum_main'))
+        return redirect(url_for('dashboard'))
     
     form = RegisterForm()
     if form.validate_on_submit():
