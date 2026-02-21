@@ -173,7 +173,14 @@ def create_job():
 def job_detail(job_id):
     """View job details."""
     job = Job.query.get_or_404(job_id)
-    return render_template('hub/job_detail.html', job=job)
+    has_applied = False
+    if current_user.is_authenticated:
+        existing_app = JobApplication.query.filter_by(
+            job_id=job.id,
+            applicant_id=current_user.id
+        ).first()
+        has_applied = existing_app is not None
+    return render_template('hub/job_detail.html', job=job, has_applied=has_applied)
 
 @hub_bp.route('/jobs/<int:job_id>/apply', methods=['GET', 'POST'])
 @login_required
@@ -181,6 +188,10 @@ def apply_job(job_id):
     """Apply to a job."""
     job = Job.query.get_or_404(job_id)
     
+    if job.posted_by == current_user.id:
+        flash('You cannot apply to your own job posting.', FLASH_ERROR)
+        return redirect(url_for('hub.job_detail', job_id=job.id))
+        
     existing_app = JobApplication.query.filter_by(
         job_id=job.id,
         applicant_id=current_user.id
@@ -197,8 +208,12 @@ def apply_job(job_id):
             cover_letter=form.cover_letter.data
         )
         db.session.add(application)
-        db.session.commit()
-        flash('Application submitted successfully.', FLASH_SUCCESS)
+        try:
+            db.session.commit()
+            flash('Application submitted successfully.', FLASH_SUCCESS)
+        except Exception:
+            db.session.rollback()
+            flash('An error occurred while submitting your application. Please try again.', FLASH_ERROR)
         return redirect(url_for('hub.job_detail', job_id=job.id))
 
     return render_template('hub/apply_job.html', form=form, job=job)
