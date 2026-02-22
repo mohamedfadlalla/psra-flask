@@ -3,36 +3,84 @@
 {% block title %}Contact Us - PSRA{% endblock %}
 
 {% block content %}
-<section class="section">
-    <div class="container" style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px;">
-        <div>
-            <h1>Contact Us</h1>
-            <p><strong>Address:</strong><br>
-            Faculty of Pharmacy, University of Khartoum<br>
-            Khartoum, Sudan</p>
+<section class="section py-12 md:py-20">
+    <div class="container mx-auto px-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
+            <!-- Left Column -->
+            <div class="space-y-8">
+                <div>
+                    <h1 class="text-3xl md:text-4xl font-bold text-primary-blue font-heading mb-4">Contact Us</h1>
+                    <p class="text-gray-600 leading-relaxed">
+                        <strong>Address:</strong><br>
+                        Faculty of Pharmacy, University of Khartoum<br>
+                        Khartoum, Sudan
+                    </p>
+                </div>
 
-            <h2>Find Us</h2>
-            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3649.123456789012!2d32.55123456789012!3d15.567890123456789!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMTXCsDM0JzA0LjQiTiAzMsKwMzMnMDQuNCJF!5e0!3m2!1sen!2sus!4v1234567890123!5m2!1sen!2sus" width="100%" height="300" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+                <div>
+                    <h2 class="text-2xl font-bold text-primary-blue font-heading mb-4">Find Us</h2>
+                    <div class="rounded-xl overflow-hidden shadow-lg">
+                        <iframe 
+                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3649.123456789012!2d32.55123456789012!3d15.567890123456789!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMTXCsDM0JzA0LjQiTiAzMsKwMzMnMDQuNCJF!5e0!3m2!1sen!2sus!4v1234567890123!5m2!1sen!2sus" 
+                            width="100%" 
+                            height="300" 
+                            style="border:0; min-height: 250px;" 
+                            allowfullscreen="" 
+                            loading="lazy"
+                            class="w-full">
+                        </iframe>
+                    </div>
+                </div>
 
-            <h2>Follow Us</h2>
-            <div class="social-icons">
-                <a href="#" target="_blank" aria-label="Telegram"><img src="{{ url_for('static', filename='images/telegram-icon.png') }}" alt="Telegram"></a>
-                <a href="#" target="_blank" aria-label="Instagram"><img src="{{ url_for('static', filename='images/instagram-icon.png') }}" alt="Instagram"></a>
-                <a href="#" target="_blank" aria-label="LinkedIn"><img src="{{ url_for('static', filename='images/linkedin-icon.png') }}" alt="LinkedIn"></a>
-                <a href="#" target="_blank" aria-label="Facebook"><img src="{{ url_for('static', filename='images/facebook-icon.png') }}" alt="Facebook"></a>
+                <div>
+                    <h2 class="text-2xl font-bold text-primary-blue font-heading mb-4">Follow Us</h2>
+                    <div class="flex flex-wrap gap-4">
+                        <a href="https://t.me/psrafpsa" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center w-12 h-12 rounded-full bg-[#0088cc] text-white hover:opacity-80 transition-opacity" aria-label="Telegram">
+                            <i class="fab fa-telegram-plane text-xl"></i>
+                        </a>
+                        <a href="https://www.instagram.com/fpsauofk" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 text-white hover:opacity-80 transition-opacity" aria-label="Instagram">
+                            <i class="fab fa-instagram text-xl"></i>
+                        </a>
+                        <a href="https://linkedin.com/in/faculty-of-pharmacy-students-association-uofk-96337621a" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center w-12 h-12 rounded-full bg-[#0077b5] text-white hover:opacity-80 transition-opacity" aria-label="LinkedIn">
+                            <i class="fab fa-linkedin-in text-xl"></i>
+                        </a>
+                        <a href="https://www.facebook.com/fpsauofk" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center w-12 h-12 rounded-full bg-[#1877f2] text-white hover:opacity-80 transition-opacity" aria-label="Facebook">
+                            <i class="fab fa-facebook-f text-xl"></i>
+                        </a>
+                    </div>
+                </div>
             </div>
-        </div>
 
-        <div>
-            <h2>Contact Information</h2>
-            <p><strong>Email:</strong><br>
-            <a href="mailto:academic.secretariat@fpsauofk.org">academic.secretariat@fpsauofk.org</a></p>
+            <!-- Right Column -->
+            <div class="space-y-8">
+                <div>
+                    <h2 class="text-2xl font-bold text-primary-blue font-heading mb-4">Contact Information</h2>
+                    <p class="text-gray-600 leading-relaxed">
+                        <strong>Email:</strong><br>
+                        <a href="mailto:academic.secretariat@fpsauofk.org" class="text-primary-blue hover:text-primary-blue-dark transition-colors">academic.secretariat@fpsauofk.org</a>
+                    </p>
+                </div>
 
-            <h3>WhatsApp</h3>
-            <p><strong>President:</strong><br>
-            <a href="https://wa.me/249907956552" target="_blank">+249 907 956 552</a></p>
-            <p><strong>Vice President:</strong><br>
-            <a href="https://wa.me/249994001901" target="_blank">+249 994 001 901</a></p>
+                <div>
+                    <h3 class="text-xl font-bold text-primary-blue font-heading mb-4">WhatsApp</h3>
+                    <div class="space-y-4">
+                        <p class="text-gray-600">
+                            <strong>President:</strong><br>
+                            <a href="https://wa.me/249907956552" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 text-primary-blue hover:text-primary-blue-dark transition-colors">
+                                <i class="fab fa-whatsapp text-green-500 text-lg"></i>
+                                +249 907 956 552
+                            </a>
+                        </p>
+                        <p class="text-gray-600">
+                            <strong>Vice President:</strong><br>
+                            <a href="https://wa.me/249994001901" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 text-primary-blue hover:text-primary-blue-dark transition-colors">
+                                <i class="fab fa-whatsapp text-green-500 text-lg"></i>
+                                +249 994 001 901
+                            </a>
+                        </p>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </section>
