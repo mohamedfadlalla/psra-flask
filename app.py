@@ -192,7 +192,7 @@ def dashboard():
         add_feed_item('research', 'fa-book-open', research.title, f"Year: {research.year}", research.abstract, research.created_at, url_for('research'))
         
     for ann in recent_announcements:
-        add_feed_item('announcement', 'fa-bullhorn', ann.subject, f"Sent: {ann.sent_at.strftime('%b %d, %Y')}", ann.content, ann.sent_at)
+        add_feed_item('announcement', 'fa-bullhorn', ann.subject, f"Sent: {ann.sent_at.strftime('%b %d, %Y')}", ann.body, ann.sent_at)
         
     for event in upcoming_events:
         # Assuming Event has a created_at or we just sort it by event_date converted to datetime
