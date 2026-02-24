@@ -123,7 +123,7 @@ def home():
 def dashboard():
     """User dashboard aggregating activity across the platform."""
     from models import Job, JobApplication, ResearchProject, ProjectApplication, MentorRequest, Announcement
-    from datetime import date, timedelta
+    from datetime import date, datetime, timedelta
     
     # Jobs
     posted_jobs = Job.query.filter_by(posted_by=current_user.id).all()
@@ -158,6 +158,50 @@ def dashboard():
         'events': len(upcoming_events)
     }
     
+    # Build Unified Activity Feed
+    feed_items = []
+    
+    def add_feed_item(item_type, icon, title, subtitle, details, timestamp, url=None):
+        if timestamp:
+            feed_items.append({
+                'type': item_type,
+                'icon': icon,
+                'title': title,
+                'subtitle': subtitle,
+                'details': details,
+                'timestamp': timestamp,
+                'url': url
+            })
+
+    for app in applied_jobs:
+        add_feed_item('job', 'fa-briefcase', f"Applied: {app.job.title}", f"Status: {app.status.value.title()}", app.job.description, app.applied_at, url_for('hub.job_detail', job_id=app.job.id))
+    for job in posted_jobs:
+        add_feed_item('job', 'fa-briefcase', f"Posted Job: {job.title}", f"Company: {job.company}", job.description, job.created_at, url_for('hub.job_detail', job_id=job.id))
+        
+    for app in applied_projects:
+        add_feed_item('project', 'fa-microscope', f"Applied: {app.project.title}", f"Status: {app.status.value.title()}", app.project.description, app.applied_at, url_for('hub.project_detail', project_id=app.project.id))
+    for project in posted_projects:
+        add_feed_item('project', 'fa-microscope', f"Posted Project: {project.title}", f"Status: {project.status.value.title()}", project.description, project.created_at, url_for('hub.project_detail', project_id=project.id))
+
+    for req in mentorship_requests_sent:
+        add_feed_item('mentorship', 'fa-user-friends', f"Mentorship to {req.alumni.name}", f"Status: {req.status.value.title()}", req.message, req.created_at)
+    for req in mentorship_requests_received:
+        add_feed_item('mentorship', 'fa-user-friends', f"Mentorship from {req.student.name}", f"Status: {req.status.value.title()}", req.message, req.created_at)
+        
+    for research in researches:
+        add_feed_item('research', 'fa-book-open', research.title, f"Year: {research.year}", research.abstract, research.created_at, url_for('research'))
+        
+    for ann in recent_announcements:
+        add_feed_item('announcement', 'fa-bullhorn', ann.subject, f"Sent: {ann.sent_at.strftime('%b %d, %Y')}", ann.content, ann.sent_at)
+        
+    for event in upcoming_events:
+        # Assuming Event has a created_at or we just sort it by event_date converted to datetime
+        event_dt = datetime.combine(event.event_date, datetime.min.time())
+        add_feed_item('event', 'fa-calendar-alt', event.title, f"Date: {event.event_date.strftime('%b %d, %Y')}", event.description, event_dt, event.event_url or url_for('events'))
+        
+    # Sort feed items by timestamp descending
+    feed_items.sort(key=lambda x: x['timestamp'], reverse=True)
+    
     return render_template('dashboard.html', 
                            badge_counts=badge_counts,
                            posted_jobs=posted_jobs,
@@ -168,7 +212,8 @@ def dashboard():
                            mentorship_requests_received=mentorship_requests_received,
                            researches=researches,
                            recent_announcements=recent_announcements,
-                           upcoming_events=upcoming_events)
+                           upcoming_events=upcoming_events,
+                           feed_items=feed_items)
 
 
 

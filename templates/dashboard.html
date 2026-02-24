@@ -3,228 +3,237 @@
 {% block title %}Dashboard - PSRA{% endblock %}
 
 {% block content %}
-<div class="container mx-auto px-4 py-8 max-w-2xl">
+<div class="container mx-auto px-4 py-8 max-w-3xl">
     <h1 class="text-2xl font-bold text-gray-900 mb-6 text-center">Your Dashboard</h1>
 
-    <!-- Mobile-First 2-Column Grid -->
-    <div class="grid grid-cols-2 gap-4 md:gap-6">
+    <!-- Horizontally Scrolling Quick-Glance Widgets -->
+    <div class="flex overflow-x-auto gap-4 mb-8 pb-4 snap-x hide-scrollbar">
 
-        <!-- Events Card -->
-        <div class="dashboard-card bg-white rounded-2xl shadow-sm border border-gray-200 p-6 flex flex-col items-center justify-center relative cursor-pointer hover:shadow-md hover:bg-gray-50 transition-all">
+        <!-- Events Tile -->
+        <a href="{{ url_for('events') }}" class="dashboard-tile flex-none w-36 snap-start bg-green-50 rounded-2xl shadow-sm border border-green-100 p-4 flex flex-col items-center justify-center relative hover:shadow-md hover:bg-green-100 transition-all text-center h-full">
             {% if badge_counts and badge_counts.events > 0 %}
             <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold w-6 h-6 flex items-center justify-center rounded-full shadow-sm">
                 {{ badge_counts.events }}
             </span>
             {% endif %}
-            <i class="fas fa-calendar-alt text-3xl text-gray-800 mb-3"></i>
-            <h2 class="text-sm md:text-base font-semibold text-gray-900">Events</h2>
-            <div class="expandable-content w-full border-t text-left">
-                {% if upcoming_events %}
-                <ul class="space-y-2">
-                    {% for event in upcoming_events %}
-                    <li class="text-sm">
-                        <a href="{{ event.event_url if event.event_url else url_for('events') }}" class="font-medium text-blue-600 hover:underline">{{ event.title }}</a>
-                        <span class="text-xs text-gray-500 block">{{ event.event_date.strftime('%b %d, %Y') if event.event_date else '' }}</span>
-                    </li>
-                    {% endfor %}
-                </ul>
-                {% else %}
-                <p class="text-xs text-gray-500 text-center">No upcoming events.</p>
-                {% endif %}
+            <div class="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-sm mb-3 relative z-10">
+                <i class="fas fa-calendar-alt text-xl text-green-600"></i>
             </div>
-        </div>
+            <h2 class="text-sm font-bold text-gray-900 mb-1">Events</h2>
+            {% if upcoming_events %}
+            <p class="text-xs text-green-700 font-medium">{{ upcoming_events|length }} Upcoming</p>
+            {% else %}
+            <p class="text-xs text-gray-500">Find Events</p>
+            {% endif %}
+        </a>
 
-        <!-- Jobs Card -->
-        <div class="dashboard-card bg-white rounded-2xl shadow-sm border border-gray-200 p-6 flex flex-col items-center justify-center relative cursor-pointer hover:shadow-md hover:bg-gray-50 transition-all">
+        <!-- Jobs Tile -->
+        <a href="{{ url_for('hub.browse_jobs') }}" class="dashboard-tile flex-none w-36 snap-start bg-blue-50 rounded-2xl shadow-sm border border-blue-100 p-4 flex flex-col items-center justify-center relative hover:shadow-md hover:bg-blue-100 transition-all text-center h-full">
             {% if badge_counts and badge_counts.jobs > 0 %}
             <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold w-6 h-6 flex items-center justify-center rounded-full shadow-sm">
                 {{ badge_counts.jobs }}
             </span>
             {% endif %}
-            <i class="fas fa-briefcase text-3xl text-gray-800 mb-3"></i>
-            <h2 class="text-sm md:text-base font-semibold text-gray-900">Jobs</h2>
-            <div class="expandable-content w-full border-t text-left">
-                {% if applied_jobs or posted_jobs %}
-                <ul class="space-y-2">
-                    {% for app in applied_jobs %}
-                    <li class="text-sm">
-                        <span class="font-medium text-gray-900">Applied: {{ app.job.title }}</span>
-                        <span class="text-xs text-gray-500 block">Status: {{ app.status.value }}</span>
-                    </li>
-                    {% endfor %}
-                    {% for job in posted_jobs %}
-                    <li class="text-sm">
-                        <span class="font-medium text-gray-900">Posted: {{ job.title }}</span>
-                        <span class="text-xs text-gray-500 block">Company: {{ job.company }}</span>
-                    </li>
-                    {% endfor %}
-                </ul>
-                {% else %}
-                <p class="text-xs text-gray-500 text-center">No jobs activity.</p>
-                {% endif %}
+            <div class="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-sm mb-3 relative z-10">
+                <i class="fas fa-briefcase text-xl text-blue-600"></i>
             </div>
-        </div>
+            <h2 class="text-sm font-bold text-gray-900 mb-1">Jobs</h2>
+            {% if applied_jobs or posted_jobs %}
+            <p class="text-xs text-blue-700 font-medium">{{ applied_jobs|length }} Applied, {{ posted_jobs|length }} Posted</p>
+            {% else %}
+            <p class="text-xs text-gray-500">Find Jobs</p>
+            {% endif %}
+        </a>
 
-        <!-- Projects Card -->
-        <div class="dashboard-card bg-white rounded-2xl shadow-sm border border-gray-200 p-6 flex flex-col items-center justify-center relative cursor-pointer hover:shadow-md hover:bg-gray-50 transition-all">
+        <!-- Projects Tile -->
+        <a href="{{ url_for('hub.browse_projects') }}" class="dashboard-tile flex-none w-36 snap-start bg-purple-50 rounded-2xl shadow-sm border border-purple-100 p-4 flex flex-col items-center justify-center relative hover:shadow-md hover:bg-purple-100 transition-all text-center h-full">
             {% if badge_counts and badge_counts.projects > 0 %}
             <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold w-6 h-6 flex items-center justify-center rounded-full shadow-sm">
                 {{ badge_counts.projects }}
             </span>
             {% endif %}
-            <i class="fas fa-microscope text-3xl text-gray-800 mb-3"></i>
-            <h2 class="text-sm md:text-base font-semibold text-gray-900">Projects</h2>
-            <div class="expandable-content w-full border-t text-left">
-                {% if applied_projects or posted_projects %}
-                <ul class="space-y-2">
-                    {% for app in applied_projects %}
-                    <li class="text-sm">
-                        <span class="font-medium text-gray-900">Applied: {{ app.project.title }}</span>
-                        <span class="text-xs text-gray-500 block">Status: {{ app.status.value }}</span>
-                    </li>
-                    {% endfor %}
-                    {% for project in posted_projects %}
-                    <li class="text-sm">
-                        <span class="font-medium text-gray-900">Posted: {{ project.title }}</span>
-                        <span class="text-xs text-gray-500 block">Status: {{ project.status.value }}</span>
-                    </li>
-                    {% endfor %}
-                </ul>
-                {% else %}
-                <p class="text-xs text-gray-500 text-center">No projects activity.</p>
-                {% endif %}
+            <div class="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-sm mb-3 relative z-10">
+                <i class="fas fa-microscope text-xl text-purple-600"></i>
             </div>
-        </div>
+            <h2 class="text-sm font-bold text-gray-900 mb-1">Projects</h2>
+            {% if applied_projects or posted_projects %}
+            <p class="text-xs text-purple-700 font-medium">{{ applied_projects|length }} Applied, {{ posted_projects|length }} Posted</p>
+            {% else %}
+            <p class="text-xs text-gray-500">Find Projects</p>
+            {% endif %}
+        </a>
 
-        <!-- Mentorships Card -->
-        <div class="dashboard-card bg-white rounded-2xl shadow-sm border border-gray-200 p-6 flex flex-col items-center justify-center relative cursor-pointer hover:shadow-md hover:bg-gray-50 transition-all">
+        <!-- Mentorships Tile -->
+        <a href="{{ url_for('hub.manage_mentorships') }}" class="dashboard-tile flex-none w-36 snap-start bg-orange-50 rounded-2xl shadow-sm border border-orange-100 p-4 flex flex-col items-center justify-center relative hover:shadow-md hover:bg-orange-100 transition-all text-center h-full">
             {% if badge_counts and badge_counts.mentorships > 0 %}
             <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold w-6 h-6 flex items-center justify-center rounded-full shadow-sm">
                 {{ badge_counts.mentorships }}
             </span>
             {% endif %}
-            <i class="fas fa-user-friends text-3xl text-gray-800 mb-3"></i>
-            <h2 class="text-sm md:text-base font-semibold text-gray-900">Mentorships</h2>
-            <div class="expandable-content w-full border-t text-left">
-                {% if mentorship_requests_sent or mentorship_requests_received %}
-                <ul class="space-y-2">
-                    {% for req in mentorship_requests_sent %}
-                    <li class="text-sm">
-                        <span class="font-medium text-gray-900">To: {{ req.alumni.name }}</span>
-                        <span class="text-xs text-gray-500 block">Status: {{ req.status.value }}</span>
-                    </li>
-                    {% endfor %}
-                    {% for req in mentorship_requests_received %}
-                    <li class="text-sm">
-                        <span class="font-medium text-gray-900">From: {{ req.student.name }}</span>
-                        <span class="text-xs text-gray-500 block">Status: {{ req.status.value }}</span>
-                    </li>
-                    {% endfor %}
-                </ul>
-                {% else %}
-                <p class="text-xs text-gray-500 text-center">No mentorship activity.</p>
-                {% endif %}
+            <div class="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-sm mb-3 relative z-10">
+                <i class="fas fa-user-friends text-xl text-orange-600"></i>
             </div>
-        </div>
+            <h2 class="text-sm font-bold text-gray-900 mb-1">Mentorships</h2>
+            {% if mentorship_requests_sent or mentorship_requests_received %}
+            <p class="text-xs text-orange-700 font-medium">{{ mentorship_requests_sent|length }} Sent, {{ mentorship_requests_received|length }} Received</p>
+            {% else %}
+            <p class="text-xs text-gray-500">Find a Mentor</p>
+            {% endif %}
+        </a>
 
-        <!-- Research Card -->
-        <div class="dashboard-card bg-white rounded-2xl shadow-sm border border-gray-200 p-6 flex flex-col items-center justify-center relative cursor-pointer hover:shadow-md hover:bg-gray-50 transition-all">
+        <!-- Research Tile -->
+        <a href="{{ url_for('research') }}" class="dashboard-tile flex-none w-36 snap-start bg-teal-50 rounded-2xl shadow-sm border border-teal-100 p-4 flex flex-col items-center justify-center relative hover:shadow-md hover:bg-teal-100 transition-all text-center h-full">
             {% if badge_counts and badge_counts.research > 0 %}
             <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold w-6 h-6 flex items-center justify-center rounded-full shadow-sm">
                 {{ badge_counts.research }}
             </span>
             {% endif %}
-            <i class="fas fa-book-open text-3xl text-gray-800 mb-3"></i>
-            <h2 class="text-sm md:text-base font-semibold text-gray-900">Research</h2>
-            <div class="expandable-content w-full border-t text-left">
-                {% if researches %}
-                <ul class="space-y-2">
-                    {% for research in researches %}
-                    <li class="text-sm">
-                        <span class="font-medium text-gray-900">{{ research.title }}</span>
-                        <span class="text-xs text-gray-500 block">Year: {{ research.year }}</span>
-                    </li>
-                    {% endfor %}
-                </ul>
-                {% else %}
-                <p class="text-xs text-gray-500 text-center">No research papers.</p>
-                {% endif %}
+            <div class="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-sm mb-3 relative z-10">
+                <i class="fas fa-book-open text-xl text-teal-600"></i>
             </div>
-        </div>
+            <h2 class="text-sm font-bold text-gray-900 mb-1">Research</h2>
+            {% if researches %}
+            <p class="text-xs text-teal-700 font-medium">{{ researches|length }} Publications</p>
+            {% else %}
+            <p class="text-xs text-gray-500">Publish Research</p>
+            {% endif %}
+        </a>
 
-        <!-- Announcements Card -->
-        <div class="dashboard-card bg-white rounded-2xl shadow-sm border border-gray-200 p-6 flex flex-col items-center justify-center relative cursor-pointer hover:shadow-md hover:bg-gray-50 transition-all">
+        <!-- Announcements Tile -->
+        <a href="#" class="dashboard-tile flex-none w-36 snap-start bg-red-50 rounded-2xl shadow-sm border border-red-100 p-4 flex flex-col items-center justify-center relative hover:shadow-md hover:bg-red-100 transition-all text-center h-full">
             {% if badge_counts and badge_counts.announcements > 0 %}
             <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold w-6 h-6 flex items-center justify-center rounded-full shadow-sm">
                 {{ badge_counts.announcements }}
             </span>
             {% endif %}
-            <i class="fas fa-bullhorn text-3xl text-gray-800 mb-3"></i>
-            <h2 class="text-sm md:text-base font-semibold text-gray-900">Announcements</h2>
-            <div class="expandable-content w-full border-t text-left">
-                {% if recent_announcements %}
-                <ul class="space-y-2">
-                    {% for ann in recent_announcements %}
-                    <li class="text-sm">
-                        <span class="font-medium text-gray-900">{{ ann.subject }}</span>
-                        <span class="text-xs text-gray-500 block">{{ ann.sent_at.strftime('%b %d, %Y') if ann.sent_at else '' }}</span>
-                    </li>
-                    {% endfor %}
-                </ul>
-                {% else %}
-                <p class="text-xs text-gray-500 text-center">No recent announcements.</p>
-                {% endif %}
+            <div class="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-sm mb-3 relative z-10">
+                <i class="fas fa-bullhorn text-xl text-red-600"></i>
             </div>
-        </div>
+            <h2 class="text-sm font-bold text-gray-900 mb-1">Announcements</h2>
+            {% if recent_announcements %}
+            <p class="text-xs text-red-700 font-medium">{{ recent_announcements|length }} Recent</p>
+            {% else %}
+            <p class="text-xs text-gray-500">No Announcements</p>
+            {% endif %}
+        </a>
 
     </div>
+
+    <!-- Consolidated Activity Feed -->
+    <h2 class="text-xl font-bold text-gray-900 mb-4 px-2 border-b pb-2">Recent Updates</h2>
+    <div class="feed-container bg-white rounded-2xl shadow-sm border border-gray-200 divide-y divide-gray-100">
+        {% if feed_items %}
+            {% for item in feed_items %}
+            <div class="feed-item p-4 hover:bg-gray-50 cursor-pointer transition-colors relative">
+                <div class="flex items-start">
+                    <div class="flex-shrink-0 mt-1 mr-4">
+                        {% if item.type == 'event' %}
+                        <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-600"><i class="fas {{ item.icon }}"></i></div>
+                        {% elif item.type == 'job' %}
+                        <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600"><i class="fas {{ item.icon }}"></i></div>
+                        {% elif item.type == 'project' %}
+                        <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-600"><i class="fas {{ item.icon }}"></i></div>
+                        {% elif item.type == 'mentorship' %}
+                        <div class="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center text-orange-600"><i class="fas {{ item.icon }}"></i></div>
+                        {% elif item.type == 'research' %}
+                        <div class="w-10 h-10 rounded-full bg-teal-100 flex items-center justify-center text-teal-600"><i class="fas {{ item.icon }}"></i></div>
+                        {% elif item.type == 'announcement' %}
+                        <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-red-600"><i class="fas {{ item.icon }}"></i></div>
+                        {% else %}
+                        <div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-600"><i class="fas {{ item.icon }}"></i></div>
+                        {% endif %}
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex justify-between items-start">
+                            <p class="text-sm font-medium text-gray-900">{{ item.title }}</p>
+                            <span class="text-xs text-gray-400 ml-2 whitespace-nowrap">{{ item.timestamp.strftime('%b %d') if item.timestamp else '' }}</span>
+                        </div>
+                        <p class="text-sm text-gray-500 truncate">{{ item.subtitle }}</p>
+                    </div>
+                    <div class="flex-shrink-0 ml-2 mt-2 text-gray-400">
+                        <i class="fas fa-chevron-down transition-transform duration-300"></i>
+                    </div>
+                </div>
+                
+                <!-- Expandable Details -->
+                <div class="expandable-content w-full text-left pl-14 pr-4">
+                    {% if item.details %}
+                    <div class="text-sm text-gray-700 bg-gray-50 p-3 rounded-lg border border-gray-100 mb-2 mt-2">
+                        {{ item.details | striptags | truncate(200) }}
+                    </div>
+                    {% endif %}
+                    
+                    {% if item.url %}
+                    <div class="mt-2 text-right">
+                        <a href="{{ item.url }}" class="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-800">
+                            View details <i class="fas fa-arrow-right ml-1 text-xs"></i>
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+        <div class="p-8 text-center text-gray-500">
+            <i class="fas fa-inbox text-4xl mb-3 text-gray-300"></i>
+            <p>You're all caught up! No recent activity.</p>
+        </div>
+        {% endif %}
+    </div>
+
 </div>
 
 <style>
+    .hide-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+    .hide-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+
     .expandable-content {
         max-height: 0;
         overflow: hidden;
-        transition: max-height 0.3s ease-out, padding 0.3s ease, margin 0.3s ease, border 0.3s ease;
-        padding-top: 0;
-        margin-top: 0;
-        border-color: transparent;
+        transition: max-height 0.3s ease-out, padding 0.3s ease, margin 0.3s ease, opacity 0.3s ease;
+        opacity: 0;
     }
-    .expandable-content.expanded {
-        max-height: 500px;
-        padding-top: 1rem;
-        margin-top: 1rem;
-        border-color: #f3f4f6; /* Tailwind gray-100 */
-        overflow-y: auto;
+    .feed-item.expanded .expandable-content {
+        max-height: 500px; /* Adjust based on expected content height */
+        padding-top: 0.5rem;
+        padding-bottom: 0.5rem;
+        opacity: 1;
+    }
+    .feed-item.expanded .fa-chevron-down {
+        transform: rotate(180deg);
     }
 </style>
+
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        const cards = document.querySelectorAll('.dashboard-card');
+        const feedItems = document.querySelectorAll('.feed-item');
         
-        cards.forEach(card => {
-            card.addEventListener('click', function(e) {
-                // Ignore clicks on links so they navigate naturally
-                if (e.target.tagName.toLowerCase() === 'a') {
+        feedItems.forEach(item => {
+            item.addEventListener('click', function(e) {
+                // Prevent toggling if clicking on a link inside the expanded content
+                if (e.target.closest('a')) {
                     return;
                 }
                 
-                const content = this.querySelector('.expandable-content');
-                if (!content) return;
+                const isExpanded = this.classList.contains('expanded');
                 
-                const isExpanded = content.classList.contains('expanded');
-                
-                // Close all other cards
-                document.querySelectorAll('.expandable-content').forEach(c => {
-                    if (c !== content) {
-                        c.classList.remove('expanded');
+                // Close all other items
+                feedItems.forEach(i => {
+                    if (i !== this) {
+                        i.classList.remove('expanded');
                     }
                 });
 
-                // Toggle the clicked card
+                // Toggle the clicked item
                 if (!isExpanded) {
-                    content.classList.add('expanded');
+                    this.classList.add('expanded');
                 } else {
-                    content.classList.remove('expanded');
+                    this.classList.remove('expanded');
                 }
             });
         });
