@@ -80,7 +80,7 @@
                         <small style="color: var(--text-secondary); font-size: 14px;">Tell us about yourself</small>
                     </div>
 
-                    <div>
+                    <div id="batch-number-container">
                         {{ profile_form.batch_number.label(style="display: block; font-weight: bold; color: var(--text); margin-bottom: 5px;") }}
                         {{ profile_form.batch_number(style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 5px; font-size: 16px;") }}
                         {% if profile_form.batch_number.errors %}
@@ -474,6 +474,25 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Update hidden fields on form submit
     document.querySelector('form').addEventListener('submit', updateHiddenFields);
+
+    // Toggle Batch Number based on Account Type
+    const accountTypeSelect = document.getElementById('account_type');
+    const batchNumberContainer = document.getElementById('batch-number-container');
+    const batchNumberInput = document.getElementById('batch_number');
+
+    function toggleBatchNumber() {
+        if (accountTypeSelect && accountTypeSelect.value === 'researcher') {
+            batchNumberContainer.style.display = 'none';
+            // Do not clear the value on edit profile, just hide it
+        } else if (batchNumberContainer) {
+            batchNumberContainer.style.display = 'block';
+        }
+    }
+
+    if (accountTypeSelect) {
+        accountTypeSelect.addEventListener('change', toggleBatchNumber);
+        toggleBatchNumber(); // Run on initial load
+    }
 });
 </script>
 

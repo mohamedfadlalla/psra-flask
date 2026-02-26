@@ -18,7 +18,7 @@ class RegisterForm(FlaskForm):
         ('alumni', 'Alumni'),
         ('researcher', 'Researcher')
     ], validators=[DataRequired()])
-    batch_number = SelectField('Batch Number (Optional)', choices=[('', 'Select batch')] + [(str(i), str(i)) for i in range(1, 59)], validators=[Optional()])
+    batch_number = SelectField('Batch Number', choices=[('', 'Select batch')] + [(str(i), str(i)) for i in range(1, 59)], validators=[Optional()])
     is_member = BooleanField('Are you a member of the University of Khartoum Pharmacy?', validators=[DataRequired()])
     phone_number = StringField('Phone Number', validators=[Length(max=20)])
     whatsapp_number = StringField('WhatsApp Number (Optional)', validators=[Length(max=20)])
@@ -32,6 +32,10 @@ class RegisterForm(FlaskForm):
         user = User.query.filter_by(email=email.data.strip()).first()
         if user:
             raise ValidationError('Email already registered.')
+
+    def validate_batch_number(self, batch_number):
+        if self.account_type.data in ['undergraduate', 'graduate', 'alumni'] and not batch_number.data:
+            raise ValidationError('Batch number is required for students and alumni.')
 
 class PostForm(FlaskForm):
     title = StringField('Title', validators=[DataRequired(), Length(min=1, max=200)])
@@ -77,6 +81,10 @@ class ProfileForm(FlaskForm):
     open_to_mentor = BooleanField('Open to Mentorship Requests')
     profile_picture = FileField('Profile Picture', validators=[FileAllowed(['jpg', 'jpeg', 'png', 'gif'], 'Images only!')])
     submit = SubmitField('Update Profile')
+
+    def validate_batch_number(self, batch_number):
+        if self.account_type.data in ['undergraduate', 'graduate', 'alumni'] and not batch_number.data:
+            raise ValidationError('Batch number is required for students and alumni.')
 
 class PasswordChangeForm(FlaskForm):
     current_password = PasswordField('Current Password', validators=[DataRequired()])

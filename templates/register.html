@@ -80,6 +80,30 @@
                                 {% endif %}
                             </div>
                         </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="account_type" class="form-label">Account Type</label>
+                                {{ form.account_type(class="form-input", id="account_type") }}
+                                {% if form.account_type.errors %}
+                                    <div class="form-error">
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                        {% for error in form.account_type.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="form-group" id="batch-number-container">
+                                <label for="batch_number" class="form-label">Batch Number</label>
+                                {{ form.batch_number(class="form-input", id="batch_number") }}
+                                {% if form.batch_number.errors %}
+                                    <div class="form-error">
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                        {% for error in form.batch_number.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
                     </div>
                     
                     <!-- Contact Information -->
@@ -702,6 +726,27 @@ document.getElementById('profile_picture').addEventListener('change', function(e
     } else {
         preview.innerHTML = '<i class="fas fa-user-circle"></i><span>Click to upload photo</span>';
         preview.classList.remove('has-image');
+    }
+});
+
+// Toggle Batch Number based on Account Type
+document.addEventListener('DOMContentLoaded', function() {
+    const accountTypeSelect = document.getElementById('account_type');
+    const batchNumberContainer = document.getElementById('batch-number-container');
+    const batchNumberInput = document.getElementById('batch_number');
+
+    function toggleBatchNumber() {
+        if (accountTypeSelect.value === 'researcher') {
+            batchNumberContainer.style.display = 'none';
+            batchNumberInput.value = ''; // Clear value when hidden
+        } else {
+            batchNumberContainer.style.display = 'block';
+        }
+    }
+
+    if (accountTypeSelect) {
+        accountTypeSelect.addEventListener('change', toggleBatchNumber);
+        toggleBatchNumber(); // Run on initial load
     }
 });
 </script>
