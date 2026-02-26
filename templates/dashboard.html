@@ -9,7 +9,7 @@
     <!-- Horizontally Scrolling Quick-Glance Widgets -->
     <div class="relative group mb-8 px-4">
         <!-- Left Button -->
-        <button id="scrollLeftBtn" class="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white rounded-full shadow border border-gray-100 items-center justify-center text-gray-600 hover:text-blue-600 hover:bg-gray-50 focus:outline-none transition-all opacity-0 pointer-events-none group-hover:opacity-100" aria-label="Scroll left">
+        <button id="scrollLeftBtn" class="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white rounded-full shadow border border-gray-100 items-center justify-center text-gray-600 hover:text-blue-600 hover:bg-gray-50 focus:outline-none transition-all opacity-0 pointer-events-none" aria-label="Scroll left">
             <i class="fas fa-chevron-left"></i>
         </button>
 
@@ -126,7 +126,7 @@
         </div>
 
         <!-- Right Button -->
-        <button id="scrollRightBtn" class="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white rounded-full shadow border border-gray-100 items-center justify-center text-gray-600 hover:text-blue-600 hover:bg-gray-50 focus:outline-none transition-all opacity-0 pointer-events-none group-hover:opacity-100" aria-label="Scroll right">
+        <button id="scrollRightBtn" class="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white rounded-full shadow border border-gray-100 items-center justify-center text-gray-600 hover:text-blue-600 hover:bg-gray-50 focus:outline-none transition-all opacity-0 pointer-events-none" aria-label="Scroll right">
             <i class="fas fa-chevron-right"></i>
         </button>
     </div>
@@ -256,27 +256,40 @@
         const rightBtn = document.getElementById('scrollRightBtn');
 
         if (container && leftBtn && rightBtn) {
-            // Scroll amount is roughly two tiles
-            const scrollAmount = 300; 
+            // Dynamic scroll amount based on first child
+            const getScrollAmount = () => {
+                return container.firstElementChild ? container.firstElementChild.clientWidth + 16 : 300;
+            };
 
+            let rafId;
             const updateButtonStates = () => {
-                // Show/hide left button based on scroll position
-                if (container.scrollLeft <= 5) { // Small buffer
-                    leftBtn.classList.add('opacity-0', 'pointer-events-none');
-                    leftBtn.classList.remove('opacity-100', 'pointer-events-auto');
-                } else {
-                    leftBtn.classList.remove('opacity-0', 'pointer-events-none');
-                    leftBtn.classList.add('opacity-100', 'pointer-events-auto');
-                }
+                if (rafId) return;
+                
+                rafId = requestAnimationFrame(() => {
+                    const scrollLeft = container.scrollLeft;
+                    const clientWidth = container.clientWidth;
+                    const scrollWidth = container.scrollWidth;
 
-                // Show/hide right button based on scroll position
-                if (Math.ceil(container.scrollLeft + container.clientWidth) >= container.scrollWidth - 5) {
-                    rightBtn.classList.add('opacity-0', 'pointer-events-none');
-                    rightBtn.classList.remove('opacity-100', 'pointer-events-auto');
-                } else {
-                    rightBtn.classList.remove('opacity-0', 'pointer-events-none');
-                    rightBtn.classList.add('opacity-100', 'pointer-events-auto');
-                }
+                    // Show/hide left button based on scroll position
+                    if (scrollLeft <= 5) { // Small buffer
+                        leftBtn.classList.add('opacity-0', 'pointer-events-none');
+                        leftBtn.classList.remove('opacity-100', 'pointer-events-auto');
+                    } else {
+                        leftBtn.classList.remove('opacity-0', 'pointer-events-none');
+                        leftBtn.classList.add('opacity-100', 'pointer-events-auto');
+                    }
+
+                    // Show/hide right button based on scroll position
+                    if (Math.ceil(scrollLeft + clientWidth) >= scrollWidth - 5) {
+                        rightBtn.classList.add('opacity-0', 'pointer-events-none');
+                        rightBtn.classList.remove('opacity-100', 'pointer-events-auto');
+                    } else {
+                        rightBtn.classList.remove('opacity-0', 'pointer-events-none');
+                        rightBtn.classList.add('opacity-100', 'pointer-events-auto');
+                    }
+                    
+                    rafId = null;
+                });
             };
 
             // Initial check and resize listen
@@ -288,11 +301,11 @@
 
             // Button clicks
             leftBtn.addEventListener('click', () => {
-                container.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+                container.scrollBy({ left: -getScrollAmount(), behavior: 'smooth' });
             });
 
             rightBtn.addEventListener('click', () => {
-                container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+                container.scrollBy({ left: getScrollAmount(), behavior: 'smooth' });
             });
         }
     });
