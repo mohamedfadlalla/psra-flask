@@ -7,7 +7,14 @@
     <h1 class="text-2xl font-bold text-gray-900 mb-6 text-center">Your Dashboard</h1>
 
     <!-- Horizontally Scrolling Quick-Glance Widgets -->
-    <div class="flex overflow-x-auto gap-4 mb-8 pb-4 snap-x hide-scrollbar">
+    <div class="relative group mb-8 px-4">
+        <!-- Left Button -->
+        <button id="scrollLeftBtn" class="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white rounded-full shadow border border-gray-100 items-center justify-center text-gray-600 hover:text-blue-600 hover:bg-gray-50 focus:outline-none transition-all opacity-0 pointer-events-none group-hover:opacity-100" aria-label="Scroll left">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+
+        <!-- Container -->
+        <div id="widgetsContainer" class="flex overflow-x-auto gap-4 pb-4 snap-x hide-scrollbar">
 
         <!-- Events Tile -->
         <a href="{{ url_for('events') }}" class="dashboard-tile flex-none w-36 snap-start bg-green-50 rounded-2xl shadow-sm border border-green-100 p-4 flex flex-col items-center justify-center relative hover:shadow-md hover:bg-green-100 transition-all text-center h-full">
@@ -116,7 +123,12 @@
             <p class="text-xs text-gray-500">No Announcements</p>
             {% endif %}
         </a>
+        </div>
 
+        <!-- Right Button -->
+        <button id="scrollRightBtn" class="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white rounded-full shadow border border-gray-100 items-center justify-center text-gray-600 hover:text-blue-600 hover:bg-gray-50 focus:outline-none transition-all opacity-0 pointer-events-none group-hover:opacity-100" aria-label="Scroll right">
+            <i class="fas fa-chevron-right"></i>
+        </button>
     </div>
 
     <!-- Consolidated Activity Feed -->
@@ -237,6 +249,52 @@
                 }
             });
         });
+
+        // Horizontal Scrolling Logic
+        const container = document.getElementById('widgetsContainer');
+        const leftBtn = document.getElementById('scrollLeftBtn');
+        const rightBtn = document.getElementById('scrollRightBtn');
+
+        if (container && leftBtn && rightBtn) {
+            // Scroll amount is roughly two tiles
+            const scrollAmount = 300; 
+
+            const updateButtonStates = () => {
+                // Show/hide left button based on scroll position
+                if (container.scrollLeft <= 5) { // Small buffer
+                    leftBtn.classList.add('opacity-0', 'pointer-events-none');
+                    leftBtn.classList.remove('opacity-100', 'pointer-events-auto');
+                } else {
+                    leftBtn.classList.remove('opacity-0', 'pointer-events-none');
+                    leftBtn.classList.add('opacity-100', 'pointer-events-auto');
+                }
+
+                // Show/hide right button based on scroll position
+                if (Math.ceil(container.scrollLeft + container.clientWidth) >= container.scrollWidth - 5) {
+                    rightBtn.classList.add('opacity-0', 'pointer-events-none');
+                    rightBtn.classList.remove('opacity-100', 'pointer-events-auto');
+                } else {
+                    rightBtn.classList.remove('opacity-0', 'pointer-events-none');
+                    rightBtn.classList.add('opacity-100', 'pointer-events-auto');
+                }
+            };
+
+            // Initial check and resize listen
+            updateButtonStates();
+            window.addEventListener('resize', updateButtonStates);
+            
+            // Listen to scroll events to update buttons
+            container.addEventListener('scroll', updateButtonStates);
+
+            // Button clicks
+            leftBtn.addEventListener('click', () => {
+                container.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+            });
+
+            rightBtn.addEventListener('click', () => {
+                container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+            });
+        }
     });
 </script>
 {% endblock %}
