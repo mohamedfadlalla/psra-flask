@@ -26,8 +26,8 @@ OLD_COMMIT=$(git rev-parse HEAD 2>/dev/null || echo "None")
 echo "-> Current Git Commit: $OLD_COMMIT"
 
 # 2. Pull latest code
-echo "-> Pulling latest code from origin main..."
-git pull origin main
+echo "-> Pulling latest code from origin master..."
+git pull origin master
 
 # Record new commit after pull
 NEW_COMMIT=$(git rev-parse HEAD 2>/dev/null || echo "None")
