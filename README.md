@@ -9,6 +9,7 @@ A comprehensive web platform for the Pharmaceutical Studies and Research Associa
 - [Technology Stack](#technology-stack)
 - [Installation & Setup](#installation--setup)
 - [Database Schema](#database-schema)
+- [Website Templates](#website-templates)
 - [CLI Commands](#cli-commands)
 - [License](#license)
 
@@ -60,6 +61,19 @@ Logged-in users have access to all public features plus the following interactiv
   * **Message Management:** Delete specific messages or clear an entire conversation history.
 * **Research Contributions**
   * **Submit Research:** Submit new research publications for admin approval (providing title, researcher name, department, year, DOI URL, etc.).
+* **Mentorship Hub**
+  * **Browse Mentors:** View alumni who have opted in to provide mentorship.
+  * **Request Mentorship:** Send mentorship requests to alumni with a personalized message.
+  * **Manage Requests:** View sent requests, incoming requests, and active mentorships.
+  * **Accept/Reject:** Alumni can accept or reject mentorship requests from students.
+* **Research Projects**
+  * **Browse Projects:** View open research projects posted by researchers and alumni.
+  * **Create Projects:** Researchers and alumni can post research projects with required positions and skills.
+  * **Apply to Projects:** Students can apply to projects with a motivation letter.
+  * **Manage Applications:** Project owners can view, accept, or reject applications. Applicants can track their application status.
+* **Researcher Profile Claims**
+  * **Claim Profile:** Users can submit claims to link their account to existing researcher profiles.
+  * **Track Status:** View pending claims and their approval status.
 
 ### 🛡️ Admin Features (Requires Admin Role)
 Administrators have access to a dedicated backend panel (`/admin/`) to manage the platform and moderate content.
@@ -77,6 +91,7 @@ Administrators have access to a dedicated backend panel (`/admin/`) to manage th
   * **Approve/Reject:** Approve research (makes it public and emails the submitter) or reject/delete it (emails the submitter with an optional reason).
   * **Manage Approved Research:** Edit details of existing public research or delete them from the database.
   * **Manage Researchers:** Edit researcher bios/details or delete researchers entirely.
+  * **Profile Claims:** Review and approve/reject user claims to link their account with researcher profiles.
 * **Mass Communication**
   * **Announcements:** Compose and send mass emails/announcements to registered users.
   * **Targeted Mailing:** Filter email recipients by user status or restrict to "members only".
@@ -149,15 +164,48 @@ The application will be available at `http://127.0.0.1:5000/`
 
 ## 🗄 Database Schema
 
-* **User (`user`)**: Core entity representing system users (students, alumni, undergraduates). Handles authentication, profile data, and preferences.
-* **Post (`post`)**: User-generated content/posts in the forum. Linked to the User table.
+### Core User & Profile Tables
+* **User (`user`)**: Core entity representing system users with roles (student, alumni, researcher, admin). Handles authentication, profile data, notification preferences, and links to role-specific profiles.
+* **Profile (`profiles`)**: Extended user profile with personal information including full name, bio, headline, location, LinkedIn URL, website URL, languages, certifications, projects, publications, professional summary, education history, and work experience.
+* **StudentProfile (`student_profiles`)**: Student-specific data including academic level (undergraduate/graduate), GPA, graduation year, and CV URL.
+* **AlumniProfile (`alumni_profiles`)**: Alumni-specific data including graduation year, job title, company, industry, and mentorship opt-in status.
+* **ResearcherProfile (`researcher_profiles`)**: Researcher-specific data including academic rank, lab name, office location, and mentorship availability.
+
+### Skills & Organization
+* **Skill (`skills`)**: Master list of skills in the system (e.g., Python, Data Analysis).
+* **UserSkill (`user_skills`)**: Many-to-many relationship between users and skills, with optional proficiency level.
+* **Department (`departments`)**: Academic departments for organizing research and profiles.
+
+### Forum & Community
+* **Post (`post`)**: User-generated discussion posts in the forum, linked to a specific category.
 * **Comment (`comment`)**: Threaded comments on posts. Linked to Post and User tables.
-* **Like (`like`)**: Tracks user likes on posts.
-* **Event (`event`)**: System events managed by admins.
-* **Message (`message`)**: Private, real-time messages between users.
-* **Researcher (`researcher`)**: Profiles for researchers. Can be linked to a User account or standalone.
-* **Research (`research`)**: Research papers and publications linked to a researcher. Requires admin approval.
-* **NotificationLog (`notification_log`)**: Logs of system notifications (emails) sent out.
+* **Like (`like`)**: Tracks user likes on posts (unique constraint prevents duplicate likes).
+
+### Events & Messaging
+* **Event (`event`)**: System events managed by admins with title, description, date, time, presenter, external URL, and cover image.
+* **Message (`message`)**: Private messages between users with read status and read timestamp.
+* **Conversation (`conversations`)**: Message conversation threads for organizing messages between users.
+* **ConversationParticipant (`conversation_participants`)**: Junction table linking users to conversations.
+
+### Research & Publications
+* **Researcher (`researcher`)**: Profiles for research authors (doctors and students). Can be standalone or linked to a registered User account.
+* **Research (`research`)**: Research papers and publications linked to a researcher. Requires admin approval (is_approved flag).
+* **Announcement (`announcement`)**: Mass email announcements sent to users, with target filtering and delivery statistics.
+
+### Mentorship System
+* **MentorRequest (`mentor_requests`)**: Mentorship requests from students to alumni, with status (pending/accepted/rejected/ended).
+* **ActiveMentorship (`active_mentorships`)**: Accepted/active mentorship relationships.
+
+### Research Projects
+* **ResearchProject (`research_projects`)**: Research project postings created by researchers/alumni with title, description, required positions, and status (open/closed).
+* **ProjectRequiredSkill (`project_required_skills`)**: Skills required for research projects.
+* **ProjectApplication (`project_applications`)**: Student applications to research projects with motivation letter and status (pending/accepted/rejected).
+
+### Profile Management
+* **ProfileClaim (`profile_claims`)**: User claims to link their account with existing researcher profiles, pending admin approval.
+
+### System
+* **NotificationLog (`notification_log`)**: Logs of all system notifications (emails) sent out, including type, recipient, status, and error messages.
 
 ## ⚙️ System / CLI Commands
 These are automated or command-line interface (CLI) tools used by the server to keep the platform running.
@@ -165,6 +213,79 @@ These are automated or command-line interface (CLI) tools used by the server to 
 * **`flask send-event-reminders`**: Runs in the background to send scheduled email reminders to users about upcoming events. Best run via a daily cron job.
 * **`flask send-new-research-alerts`**: Emails subscribed users when new research is approved and published.
 * **`flask notification-stats`**: Generates reports on how many automated emails/alerts were sent over the last 24 hours, 7 days, or 30 days.
+
+## 📄 Website Templates
+
+The PSRA website uses Jinja2 templates organized into three main categories: main templates, hub templates, and admin templates.
+
+### Main Templates (24 templates)
+Located in the `templates/` directory:
+
+| Template | Description |
+|----------|-------------|
+| `base.html` | Base layout template with navigation, footer, and common elements |
+| `home.html` | Landing page with recent forum comments |
+| `about.html` | About the PSRA organization |
+| `collaborate.html` | Collaboration opportunities page |
+| `contact.html` | Contact information and form |
+| `login.html` | User login page with email/password and Google OAuth |
+| `register.html` | User registration with account type selection |
+| `profile.html` | Current user's profile page |
+| `edit_profile.html` | Edit profile form with all profile fields |
+| `user_profile.html` | Public profile view of other users |
+| `dashboard.html` | User dashboard with activity feed and quick stats |
+| `forum_main.html` | Main forum listing with posts and categories |
+| `post_detail.html` | Single post view with comments |
+| `create_post.html` | Create new forum post |
+| `messages.html` | Conversations inbox |
+| `conversation.html` | Individual conversation thread |
+| `send_message.html` | Send new message form |
+| `users.html` | User directory with search |
+| `researches.html` | Research library with filtering |
+| `researchers.html` | Researchers directory |
+| `researcher_profile.html` | Individual researcher profile |
+| `submit_research.html` | Submit research for approval |
+| `claim_profile.html` | Claim researcher profile |
+| `events.html` | Events listing (live, upcoming, archived) |
+| `placeholder.html` | Generic placeholder for static pages |
+
+### Hub Templates (8 templates)
+Located in the `templates/hub/` directory:
+
+| Template | Description |
+|----------|-------------|
+| `projects.html` | Browse open research projects |
+| `project_detail.html` | Project details with required skills |
+| `create_project.html` | Create new research project |
+| `apply_project.html` | Apply to a research project |
+| `manage_projects.html` | Manage your projects and applications |
+| `mentors.html` | Browse available mentors (alumni) |
+| `request_mentorship.html` | Send mentorship request |
+| `manage_mentorships.html` | Manage mentorship requests and active mentorships |
+
+### Admin Templates (18 templates)
+Located in the `templates/admin/` directory:
+
+| Template | Description |
+|----------|-------------|
+| `dashboard.html` | Admin dashboard with statistics |
+| `users.html` | User management with search/filter |
+| `edit_user.html` | Edit user details and role |
+| `posts.html` | Post management with moderation tools |
+| `edit_post.html` | Edit any forum post |
+| `comments.html` | Comment management |
+| `edit_comment.html` | Edit any comment |
+| `events.html` | Event management |
+| `create_event.html` | Create new event |
+| `edit_event.html` | Edit existing event |
+| `submissions.html` | Research submissions queue |
+| `researchers.html` | Researcher management |
+| `edit_researcher.html` | Edit researcher details |
+| `researches.html` | Manage approved research |
+| `edit_research.html` | Edit research details |
+| `claims.html` | Profile claims queue |
+| `announcements.html` | Announcement history |
+| `send_announcement.html` | Compose mass email |
 
 ## 📄 License
 This project is licensed under the MIT License - see the LICENSE file for details.
