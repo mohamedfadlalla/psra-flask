@@ -92,17 +92,6 @@
                                     </div>
                                 {% endif %}
                             </div>
-                            
-                            <div class="form-group" id="batch-number-container">
-                                <label for="batch_number" class="form-label">Batch Number</label>
-                                {{ form.batch_number(class="form-input", id="batch_number") }}
-                                {% if form.batch_number.errors %}
-                                    <div class="form-error">
-                                        <i class="fas fa-exclamation-triangle"></i>
-                                        {% for error in form.batch_number.errors %}{{ error }}{% endfor %}
-                                    </div>
-                                {% endif %}
-                            </div>
                         </div>
                     </div>
                     
@@ -230,30 +219,6 @@
                                 </div>
                             {% endif %}
                             <p class="form-hint">Optional. Select your university to connect with peers.</p>
-                        </div>
-                    </div>
-                    
-                    <!-- Membership -->
-                    <div class="form-section">
-                        <h3 class="form-section-title">
-                            <i class="fas fa-id-card"></i>
-                            Membership
-                        </h3>
-                        
-                        <div class="form-group">
-                            <div class="membership-option">
-                                {{ form.is_member(class="form-check-input", id="is_member") }}
-                                <label for="is_member" class="membership-label">
-                                    <span class="membership-title">I am a PSRA Member</span>
-                                    <span class="membership-desc">Check this if you're already a member of PSRA</span>
-                                </label>
-                            </div>
-                            {% if form.is_member.errors %}
-                                <div class="form-error">
-                                    <i class="fas fa-exclamation-triangle"></i>
-                                    {% for error in form.is_member.errors %}{{ error }}{% endfor %}
-                                </div>
-                            {% endif %}
                         </div>
                     </div>
                     
@@ -746,27 +711,6 @@ document.getElementById('profile_picture').addEventListener('change', function(e
     } else {
         preview.innerHTML = '<i class="fas fa-user-circle"></i><span>Click to upload photo</span>';
         preview.classList.remove('has-image');
-    }
-});
-
-// Toggle Batch Number based on Account Type
-document.addEventListener('DOMContentLoaded', function() {
-    const accountTypeSelect = document.getElementById('account_type');
-    const batchNumberContainer = document.getElementById('batch-number-container');
-    const batchNumberInput = document.getElementById('batch_number');
-
-    function toggleBatchNumber() {
-        if (accountTypeSelect.value === 'researcher') {
-            batchNumberContainer.style.display = 'none';
-            batchNumberInput.value = ''; // Clear value when hidden
-        } else {
-            batchNumberContainer.style.display = 'block';
-        }
-    }
-
-    if (accountTypeSelect) {
-        accountTypeSelect.addEventListener('change', toggleBatchNumber);
-        toggleBatchNumber(); // Run on initial load
     }
 });
 </script>

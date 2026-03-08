@@ -694,7 +694,6 @@ def send_announcement():
         subject = request.form.get('subject', '').strip()
         body = request.form.get('body', '').strip()
         target_status = request.form.getlist('target_status')
-        members_only = request.form.get('members_only') == 'on'
         
         if not subject or not body:
             flash('Subject and body are required.', FLASH_ERROR)
@@ -714,9 +713,6 @@ def send_announcement():
             if target_roles:
                 query = query.filter(User.role.in_(target_roles))
         
-        if members_only:
-            query = query.filter(User.is_member == True)
-        
         recipients = query.all()
         
         if not recipients:
@@ -724,8 +720,7 @@ def send_announcement():
             return redirect(url_for('admin.send_announcement'))
         
         target_filter = json.dumps({
-            'status': target_status,
-            'members_only': members_only
+            'status': target_status
         })
         
         announcement = Announcement(

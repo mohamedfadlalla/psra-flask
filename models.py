@@ -60,10 +60,8 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(255), nullable=True)
     google_id = db.Column(db.String(100), unique=True, nullable=True)
-    batch_number = db.Column(db.Integer, nullable=True)
     phone_number = db.Column(db.String(20), nullable=True)
     whatsapp_number = db.Column(db.String(20), nullable=True)
-    is_member = db.Column(db.Boolean, default=False)
     is_admin = db.Column(db.Boolean, default=False)
     # Notification preferences
     email_notifications_enabled = db.Column(db.Boolean, default=True)

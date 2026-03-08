@@ -17,22 +17,16 @@ from utils.image_utils import process_profile_picture
 from services import MessageService, UserService
 
 
-def resolve_role_and_track(account_type, batch_number):
-    """Resolve canonical role/track with graduation rule.
+def resolve_role_and_track(account_type):
+    """Resolve canonical role/track.
 
     Business rule:
     - Any graduate is alumni
-    - Any student with batch <= 54 is alumni
     """
-    batch = int(batch_number) if batch_number else None
-
     if account_type == 'researcher':
         return UserRole.RESEARCHER, None
 
     if account_type in ('graduate', 'alumni'):
-        return UserRole.ALUMNI, 'graduate'
-
-    if batch is not None and batch <= 54:
         return UserRole.ALUMNI, 'graduate'
 
     return UserRole.STUDENT, 'undergraduate'
@@ -66,14 +60,12 @@ def register():
     
     form = RegisterForm()
     if form.validate_on_submit():
-        role, academic_level = resolve_role_and_track(form.account_type.data, form.batch_number.data)
+        role, academic_level = resolve_role_and_track(form.account_type.data)
         user = User(
             email=form.email.data.strip(),
             phone_number=form.phone_number.data,
             whatsapp_number=form.whatsapp_number.data
         )
-        user.is_member = form.is_member.data
-        user.batch_number = int(form.batch_number.data) if form.batch_number.data else None
         user.role = role
         user.set_password(form.password.data)
 
@@ -247,7 +239,6 @@ def edit_profile():
         profile_form.headline.data = form_data['headline']
         profile_form.location.data = form_data['location']
         profile_form.about.data = form_data['about']
-        profile_form.batch_number.data = form_data['batch_number']
         profile_form.university_id.data = str(form_data.get('university_id')) if form_data.get('university_id') else ''
         profile_form.email.data = form_data['email']
         profile_form.phone_number.data = form_data['phone_number']
@@ -266,7 +257,7 @@ def edit_profile():
 
     # Handle profile form submission
     if profile_form.submit.data and profile_form.validate_on_submit():
-        role, academic_level = resolve_role_and_track(profile_form.account_type.data, profile_form.batch_number.data)
+        role, academic_level = resolve_role_and_track(profile_form.account_type.data)
 
         # Update basic fields
         current_user.name = profile_form.name.data
@@ -274,7 +265,6 @@ def edit_profile():
         current_user.headline = profile_form.headline.data
         current_user.location = profile_form.location.data
         current_user.about = profile_form.about.data
-        current_user.batch_number = int(profile_form.batch_number.data) if profile_form.batch_number.data else None
         current_user.phone_number = profile_form.phone_number.data
         current_user.whatsapp_number = profile_form.whatsapp_number.data
         current_user.skills = profile_form.skills.data

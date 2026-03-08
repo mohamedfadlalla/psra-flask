@@ -73,14 +73,6 @@
                 <ul class="info-list">
                     <li><strong>Name:</strong> {{ current_user.name }}</li>
                     <li><strong>Status:</strong> {{ current_user.status.title() }}</li>
-                    {% if current_user.batch_number %}
-                    <li><strong>Batch:</strong> {{ current_user.batch_number }}</li>
-                    {% endif %}
-                    {% if current_user.is_member %}
-                    <li><strong>Member:</strong> Yes</li>
-                    {% else %}
-                    <li><strong>Member:</strong> No</li>
-                    {% endif %}
                 </ul>
             </div>
 

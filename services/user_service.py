@@ -45,7 +45,7 @@ class UserService:
         """
         # Update basic profile fields
         basic_fields = [
-            'name', 'headline', 'location', 'about', 'batch_number',
+            'name', 'headline', 'location', 'about',
             'phone_number', 'whatsapp_number', 'skills',
             'linkedin_url', 'website_url', 'languages',
             'certifications', 'projects', 'publications', 'professional_summary'
@@ -209,7 +209,6 @@ class UserService:
             'headline': user.headline,
             'location': user.location,
             'about': user.about,
-            'batch_number': str(user.batch_number) if user.batch_number else None,
             'university_id': str(user.profile.university_id) if user.profile and user.profile.university_id else None,
             'email': user.email,
             'phone_number': user.phone_number,
