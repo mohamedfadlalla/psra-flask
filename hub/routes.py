@@ -4,9 +4,9 @@ from datetime import datetime
 import json
 
 from . import hub_bp
-from .forms import MentorshipRequestForm, JobForm, ResearchProjectForm, ApplicationForm, JobApplicationForm
+from .forms import MentorshipRequestForm, ResearchProjectForm, ApplicationForm
 from models import db, User, UserRole, Profile, AlumniProfile, MentorshipStatus, MentorRequest, ActiveMentorship
-from models import Job, JobType, JobRequiredSkill, Skill, ResearchProject, ProjectStatus, ProjectRequiredSkill, ProjectApplication, ApplicationStatus, JobApplication
+from models import Skill, ResearchProject, ProjectStatus, ProjectRequiredSkill, ProjectApplication, ApplicationStatus
 from utils.constants import FLASH_SUCCESS, FLASH_ERROR
 
 def get_or_create_skills(skill_string):
@@ -127,147 +127,6 @@ def respond_mentorship(request_id, action):
         
     db.session.commit()
     return redirect(url_for('hub.manage_mentorships'))
-
-# ==================== Job Board ====================
-
-@hub_bp.route('/jobs')
-def browse_jobs():
-    """Browse jobs with filtering."""
-    skill_filter = request.args.get('skill', '').strip()
-    type_filter = request.args.get('job_type', '').strip()
-    
-    query = Job.query
-    
-    if type_filter:
-        try:
-            job_type_enum = JobType(type_filter)
-            query = query.filter(Job.job_type == job_type_enum)
-        except ValueError:
-            flash("Invalid job type provided.", FLASH_ERROR)
-            
-    if skill_filter:
-        escaped_skill = skill_filter.replace('\\', '\\\\').replace('%', '\\%').replace('_', '\\_')
-        query = query.join(JobRequiredSkill).join(Skill).filter(
-            Skill.name.ilike(f'%{escaped_skill}%', escape='\\')
-        ).distinct()
-        
-    jobs = query.order_by(Job.created_at.desc()).all()
-    return render_template('hub/jobs.html', jobs=jobs, current_skill=skill_filter, current_type=type_filter, JobType=JobType)
-
-@hub_bp.route('/jobs/create', methods=['GET', 'POST'])
-@login_required
-def create_job():
-    """Post a job (Alumni/Admin only)."""
-    if current_user.role not in [UserRole.ALUMNI, UserRole.ADMIN]:
-        flash('Only alumni and admins can post jobs.', FLASH_ERROR)
-        return redirect(url_for('hub.browse_jobs'))
-
-    form = JobForm()
-    if form.validate_on_submit():
-        job_type_enum = JobType(form.job_type.data)
-        job = Job(
-            posted_by=current_user.id,
-            title=form.title.data,
-            company=form.company.data,
-            description=form.description.data,
-            job_type=job_type_enum,
-            location=form.location.data
-        )
-        db.session.add(job)
-        db.session.flush()
-
-        skills = get_or_create_skills(form.skills.data)
-        for skill in skills:
-            job_skill = JobRequiredSkill(job_id=job.id, skill_id=skill.id)
-            db.session.add(job_skill)
-
-        db.session.commit()
-        flash('Job posted successfully.', FLASH_SUCCESS)
-        return redirect(url_for('hub.browse_jobs'))
-
-    return render_template('hub/create_job.html', form=form)
-
-@hub_bp.route('/jobs/<int:job_id>')
-def job_detail(job_id):
-    """View job details."""
-    job = Job.query.get_or_404(job_id)
-    has_applied = False
-    if current_user.is_authenticated:
-        existing_app = JobApplication.query.filter_by(
-            job_id=job.id,
-            applicant_id=current_user.id
-        ).first()
-        has_applied = existing_app is not None
-    return render_template('hub/job_detail.html', job=job, has_applied=has_applied)
-
-@hub_bp.route('/jobs/<int:job_id>/apply', methods=['GET', 'POST'])
-@login_required
-def apply_job(job_id):
-    """Apply to a job."""
-    job = Job.query.get_or_404(job_id)
-    
-    if job.posted_by == current_user.id:
-        flash('You cannot apply to your own job posting.', FLASH_ERROR)
-        return redirect(url_for('hub.job_detail', job_id=job.id))
-        
-    existing_app = JobApplication.query.filter_by(
-        job_id=job.id,
-        applicant_id=current_user.id
-    ).first()
-    if existing_app:
-        flash('You have already applied for this job.', FLASH_ERROR)
-        return redirect(url_for('hub.job_detail', job_id=job.id))
-
-    form = JobApplicationForm()
-    if form.validate_on_submit():
-        application = JobApplication(
-            job_id=job.id,
-            applicant_id=current_user.id,
-            cover_letter=form.cover_letter.data
-        )
-        db.session.add(application)
-        try:
-            db.session.commit()
-            flash('Application submitted successfully.', FLASH_SUCCESS)
-        except Exception:
-            db.session.rollback()
-            flash('An error occurred while submitting your application. Please try again.', FLASH_ERROR)
-        return redirect(url_for('hub.job_detail', job_id=job.id))
-
-    return render_template('hub/apply_job.html', form=form, job=job)
-
-@hub_bp.route('/jobs/manage')
-@login_required
-def manage_jobs():
-    """Manage jobs (alumni/researcher/admin) and applications."""
-    if current_user.role in [UserRole.ALUMNI, UserRole.RESEARCHER, UserRole.ADMIN]:
-        my_posted_jobs = Job.query.filter_by(posted_by=current_user.id).order_by(Job.created_at.desc()).all()
-    else:
-        my_posted_jobs = []
-        
-    my_job_applications = JobApplication.query.filter_by(applicant_id=current_user.id).order_by(JobApplication.applied_at.desc()).all()
-    return render_template('hub/manage_jobs.html', my_posted_jobs=my_posted_jobs, my_job_applications=my_job_applications)
-
-@hub_bp.route('/job-applications/<int:application_id>/<action>', methods=['POST'])
-@login_required
-def respond_job_application(application_id, action):
-    """Accept or reject a job application."""
-    application = JobApplication.query.get_or_404(application_id)
-    job = application.job
-    
-    if job.posted_by != current_user.id:
-        flash('Unauthorized action.', FLASH_ERROR)
-        return redirect(url_for('hub.manage_jobs'))
-
-    if action == 'accept':
-        application.status = ApplicationStatus.ACCEPTED
-        flash('Application accepted.', FLASH_SUCCESS)
-    elif action == 'reject':
-        application.status = ApplicationStatus.REJECTED
-        flash('Application rejected.', FLASH_SUCCESS)
-        
-    db.session.commit()
-    return redirect(url_for('hub.manage_jobs'))
 
 # ==================== Research Recruitment ====================
 
