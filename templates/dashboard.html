@@ -34,24 +34,6 @@
             {% endif %}
         </a>
 
-        <!-- Jobs Tile -->
-        <a href="{{ url_for('hub.browse_jobs') }}" class="dashboard-tile flex-none w-36 snap-start bg-blue-50 rounded-2xl shadow-sm border border-blue-100 p-4 flex flex-col items-center justify-center relative hover:shadow-md hover:bg-blue-100 transition-all text-center h-full">
-            {% if badge_counts and badge_counts.jobs > 0 %}
-            <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold w-6 h-6 flex items-center justify-center rounded-full shadow-sm">
-                {{ badge_counts.jobs }}
-            </span>
-            {% endif %}
-            <div class="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-sm mb-3 relative z-10">
-                <i class="fas fa-briefcase text-xl text-blue-600"></i>
-            </div>
-            <h2 class="text-sm font-bold text-gray-900 mb-1">Jobs</h2>
-            {% if applied_jobs or posted_jobs %}
-            <p class="text-xs text-blue-700 font-medium">{{ applied_jobs|length }} Applied, {{ posted_jobs|length }} Posted</p>
-            {% else %}
-            <p class="text-xs text-gray-500">Find Jobs</p>
-            {% endif %}
-        </a>
-
         <!-- Projects Tile -->
         <a href="{{ url_for('hub.browse_projects') }}" class="dashboard-tile flex-none w-36 snap-start bg-purple-50 rounded-2xl shadow-sm border border-purple-100 p-4 flex flex-col items-center justify-center relative hover:shadow-md hover:bg-purple-100 transition-all text-center h-full">
             {% if badge_counts and badge_counts.projects > 0 %}
@@ -141,8 +123,6 @@
                     <div class="flex-shrink-0 mt-1 mr-4">
                         {% if item.type == 'event' %}
                         <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-600"><i class="fas {{ item.icon }}"></i></div>
-                        {% elif item.type == 'job' %}
-                        <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600"><i class="fas {{ item.icon }}"></i></div>
                         {% elif item.type == 'project' %}
                         <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-600"><i class="fas {{ item.icon }}"></i></div>
                         {% elif item.type == 'mentorship' %}
