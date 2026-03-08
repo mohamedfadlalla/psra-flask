@@ -55,7 +55,7 @@
                                 {% for error in profile_form.headline.errors %}{{ error }}{% endfor %}
                             </div>
                         {% endif %}
-                        <small style="color: var(--text-secondary); font-size: 14px;">e.g., "Pharmacy Student at University of Khartoum"</small>
+                        <small style="color: var(--text-secondary); font-size: 14px;">e.g., "Pharmacy Student"</small>
                     </div>
 
                     <div>
@@ -67,6 +67,17 @@
                             </div>
                         {% endif %}
                         <small style="color: var(--text-secondary); font-size: 14px;">e.g., "Khartoum, Sudan"</small>
+                    </div>
+
+                    <div>
+                        {{ profile_form.university_id.label(style="display: block; font-weight: bold; color: var(--text); margin-bottom: 5px;") }}
+                        {{ profile_form.university_id(style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 5px; font-size: 16px;") }}
+                        {% if profile_form.university_id.errors %}
+                            <div style="color: red; font-size: 14px; margin-top: 5px;">
+                                {% for error in profile_form.university_id.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                        <small style="color: var(--text-secondary); font-size: 14px;">Optional. Select your university to connect with peers from your institution.</small>
                     </div>
 
                     <div>

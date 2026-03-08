@@ -213,6 +213,26 @@
                         </div>
                     </div>
                     
+                    <!-- University -->
+                    <div class="form-section">
+                        <h3 class="form-section-title">
+                            <i class="fas fa-university"></i>
+                            University Affiliation
+                        </h3>
+                        
+                        <div class="form-group">
+                            <label for="university_id" class="form-label">University</label>
+                            {{ form.university_id(class="form-input", id="university_id") }}
+                            {% if form.university_id.errors %}
+                                <div class="form-error">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    {% for error in form.university_id.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                            <p class="form-hint">Optional. Select your university to connect with peers.</p>
+                        </div>
+                    </div>
+                    
                     <!-- Membership -->
                     <div class="form-section">
                         <h3 class="form-section-title">

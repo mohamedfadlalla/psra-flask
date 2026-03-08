@@ -210,6 +210,7 @@ class UserService:
             'location': user.location,
             'about': user.about,
             'batch_number': str(user.batch_number) if user.batch_number else None,
+            'university_id': str(user.profile.university_id) if user.profile and user.profile.university_id else None,
             'email': user.email,
             'phone_number': user.phone_number,
             'whatsapp_number': user.whatsapp_number,

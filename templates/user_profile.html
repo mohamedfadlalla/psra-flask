@@ -24,6 +24,9 @@
                     {% if user.location %}
                     <p class="location"><i class="fas fa-map-marker-alt"></i> {{ user.location }}</p>
                     {% endif %}
+                    {% if user.profile and user.profile.university %}
+                    <p class="university"><i class="fas fa-university"></i> {{ user.profile.university.name }}{% if user.profile.university.abbreviation %} ({{ user.profile.university.abbreviation }}){% endif %}</p>
+                    {% endif %}
                     <div class="profile-actions">
                         <a href="{{ url_for('forum.send_message', user_id=user.id) }}" class="btn btn-primary message-btn">
                             <i class="fas fa-envelope"></i> Message

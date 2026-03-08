@@ -85,6 +85,9 @@ def register():
             full_name=form.name.data
         )
 
+        if form.university_id.data:
+            profile.university_id = int(form.university_id.data)
+
         db.session.add(profile)
 
         if role == UserRole.STUDENT:
@@ -245,6 +248,7 @@ def edit_profile():
         profile_form.location.data = form_data['location']
         profile_form.about.data = form_data['about']
         profile_form.batch_number.data = form_data['batch_number']
+        profile_form.university_id.data = str(form_data.get('university_id')) if form_data.get('university_id') else ''
         profile_form.email.data = form_data['email']
         profile_form.phone_number.data = form_data['phone_number']
         profile_form.whatsapp_number.data = form_data['whatsapp_number']
@@ -283,6 +287,8 @@ def edit_profile():
         current_user.projects = profile_form.projects.data
         current_user.publications = profile_form.publications.data
         current_user.professional_summary = profile_form.professional_summary.data
+        if current_user.profile:
+            current_user.profile.university_id = int(profile_form.university_id.data) if profile_form.university_id.data else None
 
         # Ensure role-specific profile records and mentorship preference are consistent
         if role == UserRole.STUDENT:

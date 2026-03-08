@@ -17,24 +17,18 @@ depends_on = None
 
 
 def upgrade():
-    # Add google_id column to user table
-    op.add_column('user', sa.Column('google_id', sa.String(100), nullable=True))
-    
-    # Create unique index on google_id
-    op.create_index('ix_user_google_id', 'user', ['google_id'], unique=True)
-    
-    # Make password_hash nullable
-    op.alter_column('user', 'password_hash',
-                    existing_type=sa.String(128),
-                    nullable=True)
+    with op.batch_alter_table('user') as batch_op:
+        batch_op.add_column(sa.Column('google_id', sa.String(100), nullable=True))
+        batch_op.create_index('ix_user_google_id', ['google_id'], unique=True)
+        batch_op.alter_column('password_hash',
+                        existing_type=sa.String(128),
+                        nullable=True)
 
 
 def downgrade():
-    # Remove google_id column
-    op.drop_index('ix_user_google_id', table_name='user')
-    op.drop_column('user', 'google_id')
-    
-    # Make password_hash not nullable
-    op.alter_column('user', 'password_hash',
-                    existing_type=sa.String(128),
-                    nullable=False)
+    with op.batch_alter_table('user') as batch_op:
+        batch_op.drop_index('ix_user_google_id')
+        batch_op.drop_column('google_id')
+        batch_op.alter_column('password_hash',
+                        existing_type=sa.String(128),
+                        nullable=False)

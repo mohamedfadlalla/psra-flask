@@ -4,6 +4,36 @@ from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextA
 from wtforms.validators import DataRequired, Email, EqualTo, Length, ValidationError, Optional, NumberRange
 from models import User
 
+# University choices - hardcoded list
+UNIVERSITY_CHOICES = [
+    ('', 'Select your university (optional)'),
+    ('1', 'University of Khartoum'),
+    ('2', 'Sudan University of Science and Technology'),
+    ('3', 'University of Gezira'),
+    ('4', 'Neelain University'),
+    ('5', 'International University of Africa'),
+    ('6', 'Al Zaiem Al Azhari University'),
+    ('7', 'National University-Sudan'),
+    ('8', 'Omdurman Islamic University'),
+    ('9', 'University of Medical Sciences and Technology'),
+    ('10', 'National Ribat University'),
+    ('11', 'Karary University'),
+    ('12', 'Ahfad University for Women'),
+    ('13', 'University of Shendi'),
+    ('14', 'Merowe University of Technology'),
+    ('15', 'Elsheikh Abdallah Elbadri University'),
+    ('16', 'University of Kassala'),
+    ('17', 'University of Gadarif'),
+    ('18', 'Red Sea University'),
+    ('19', 'University of Kordofan'),
+    ('20', 'University of Nyala'),
+    ('21', 'University of Bahri'),
+    ('22', 'The Future University'),
+    ('23', 'Nile Valley University'),
+    ('24', 'Omdurman Ahlia University'),
+    ('25', 'University of Bakhtalruda'),
+]
+
 class LoginForm(FlaskForm):
     email = StringField('Email', validators=[DataRequired(), Email()])
     password = PasswordField('Password', validators=[DataRequired()])
@@ -19,7 +49,8 @@ class RegisterForm(FlaskForm):
         ('researcher', 'Researcher')
     ], validators=[DataRequired()])
     batch_number = SelectField('Batch Number', choices=[('', 'Select batch')] + [(str(i), str(i)) for i in range(1, 59)], validators=[Optional()])
-    is_member = BooleanField('Are you a member of the University of Khartoum Pharmacy?', validators=[DataRequired()])
+    university_id = SelectField('University', choices=UNIVERSITY_CHOICES, validators=[Optional()])
+    is_member = BooleanField('Are you a member of a Sudanese Pharmacy Student Association?', validators=[DataRequired()])
     phone_number = StringField('Phone Number', validators=[Length(max=20)])
     whatsapp_number = StringField('WhatsApp Number (Optional)', validators=[Length(max=20)])
     profile_picture = FileField('Profile Picture', validators=[FileAllowed(['jpg', 'jpeg', 'png', 'gif'], 'Images only!')])
@@ -63,6 +94,7 @@ class ProfileForm(FlaskForm):
     location = StringField('Location', validators=[Length(max=100)])
     about = TextAreaField('About', validators=[Length(max=1000)])
     batch_number = SelectField('Batch Number', choices=[('', 'Select batch')] + [(str(i), str(i)) for i in range(1, 59)], validators=[Optional()])
+    university_id = SelectField('University', choices=UNIVERSITY_CHOICES, validators=[Optional()])
     email = StringField('Email', render_kw={'readonly': True})
     phone_number = StringField('Phone Number', validators=[Length(max=20)])
     whatsapp_number = StringField('WhatsApp Number (Optional)', validators=[Length(max=20)])

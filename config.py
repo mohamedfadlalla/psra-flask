@@ -5,6 +5,7 @@ Provides configuration classes for different environments.
 """
 
 import os
+import sys
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -17,7 +18,11 @@ class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
     
     # Database configuration
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', 'sqlite:///psra.db')
+    if sys.platform == 'win32':
+        SQLALCHEMY_DATABASE_URI = 'sqlite:///psra.db'
+    else:
+        SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', 'sqlite:///psra.db')
+        
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
     # File upload configuration
