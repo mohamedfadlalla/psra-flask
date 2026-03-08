@@ -17,8 +17,10 @@ class Department(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(150), nullable=False)
     faculty_name = db.Column(db.String(150), nullable=True)
+    university_id = db.Column(db.Integer, db.ForeignKey('universities.id'), nullable=True)
     
     profiles = db.relationship('Profile', back_populates='department', lazy=True)
+    university = db.relationship('University', back_populates='departments')
 
 class Skill(db.Model):
     __tablename__ = 'skills'
@@ -27,6 +29,22 @@ class Skill(db.Model):
     
     # Relationship to user_skills
     users = db.relationship('UserSkill', back_populates='skill', cascade='all, delete-orphan')
+
+class University(db.Model):
+    __tablename__ = 'universities'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(200), nullable=False)
+    abbreviation = db.Column(db.String(20), nullable=True)
+    location = db.Column(db.String(100), nullable=True)
+    is_active = db.Column(db.Boolean, default=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Relationships
+    profiles = db.relationship('Profile', back_populates='university', lazy=True)
+    departments = db.relationship('Department', back_populates='university', lazy=True)
+    
+    def __repr__(self):
+        return f'<University {self.name}>'
 
 class UserSkill(db.Model):
     __tablename__ = 'user_skills'
@@ -275,6 +293,7 @@ class Profile(db.Model):
     bio = db.Column(db.Text, nullable=True)
     profile_picture_url = db.Column(db.Text, nullable=True)
     department_id = db.Column(db.Integer, db.ForeignKey('departments.id'), nullable=True)
+    university_id = db.Column(db.Integer, db.ForeignKey('universities.id'), nullable=True)
     
     # Extended profile fields moved from User
     headline = db.Column(db.String(200), nullable=True)
@@ -293,6 +312,7 @@ class Profile(db.Model):
     
     user = db.relationship('User', back_populates='profile')
     department = db.relationship('Department', back_populates='profiles')
+    university = db.relationship('University', back_populates='profiles')
 
 class StudentProfile(db.Model):
     __tablename__ = 'student_profiles'
