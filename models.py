@@ -100,10 +100,6 @@ class User(UserMixin, db.Model):
         return self.role == UserRole.STUDENT and self.student_profile and self.student_profile.academic_level == 'undergraduate'
 
     @property
-    def can_create_jobs(self):
-        return self.role in (UserRole.ALUMNI, UserRole.RESEARCHER, UserRole.ADMIN)
-
-    @property
     def can_create_projects(self):
         return self.role in (UserRole.ALUMNI, UserRole.RESEARCHER, UserRole.ADMIN)
 
@@ -526,46 +522,7 @@ class ProjectApplication(db.Model):
     project = db.relationship('ResearchProject', back_populates='applications')
     student = db.relationship('User', backref='project_applications')
 
-class JobType(enum.Enum):
-    INTERNSHIP = 'internship'
-    FULL_TIME = 'full_time'
-    PART_TIME = 'part_time'
 
-class Job(db.Model):
-    __tablename__ = 'jobs'
-    id = db.Column(db.Integer, primary_key=True)
-    posted_by = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    title = db.Column(db.String(255), nullable=False)
-    company = db.Column(db.String(200), nullable=False)
-    description = db.Column(db.Text, nullable=True)
-    job_type = db.Column(db.Enum(JobType), nullable=True)
-    location = db.Column(db.String(200), nullable=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    
-    poster = db.relationship('User', backref='posted_jobs')
-    required_skills = db.relationship('JobRequiredSkill', back_populates='job', cascade='all, delete-orphan')
-    applications = db.relationship('JobApplication', back_populates='job', cascade='all, delete-orphan')
-
-class JobRequiredSkill(db.Model):
-    __tablename__ = 'job_required_skills'
-    job_id = db.Column(db.Integer, db.ForeignKey('jobs.id', ondelete='CASCADE'), primary_key=True)
-    skill_id = db.Column(db.Integer, db.ForeignKey('skills.id', ondelete='CASCADE'), primary_key=True)
-    
-    job = db.relationship('Job', back_populates='required_skills')
-    skill = db.relationship('Skill')
-
-
-class JobApplication(db.Model):
-    __tablename__ = 'job_applications'
-    id = db.Column(db.Integer, primary_key=True)
-    job_id = db.Column(db.Integer, db.ForeignKey('jobs.id', ondelete='CASCADE'), nullable=False)
-    applicant_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False)
-    cover_letter = db.Column(db.Text, nullable=True)
-    status = db.Column(db.Enum(ApplicationStatus), default=ApplicationStatus.PENDING)
-    applied_at = db.Column(db.DateTime, default=datetime.utcnow)
-
-    job = db.relationship('Job', back_populates='applications')
-    applicant = db.relationship('User', backref='job_applications')
 
 class Conversation(db.Model):
     __tablename__ = 'conversations'
