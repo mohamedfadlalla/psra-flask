@@ -122,12 +122,8 @@ def home():
 @login_required
 def dashboard():
     """User dashboard aggregating activity across the platform."""
-    from models import Job, JobApplication, ResearchProject, ProjectApplication, MentorRequest, Announcement
+    from models import ResearchProject, ProjectApplication, MentorRequest, Announcement
     from datetime import date, datetime, timedelta
-    
-    # Jobs
-    posted_jobs = Job.query.filter_by(posted_by=current_user.id).all()
-    applied_jobs = JobApplication.query.filter_by(applicant_id=current_user.id).all()
     
     # Projects
     posted_projects = ResearchProject.query.filter_by(researcher_id=current_user.id).all()
@@ -150,7 +146,6 @@ def dashboard():
     
     # Calculate badge counts
     badge_counts = {
-        'jobs': len(applied_jobs) + len(posted_jobs),
         'projects': len(applied_projects) + len(posted_projects),
         'mentorships': len(mentorship_requests_sent) + len(mentorship_requests_received),
         'research': len(researches),
@@ -173,11 +168,6 @@ def dashboard():
                 'url': url
             })
 
-    for app in applied_jobs:
-        add_feed_item('job', 'fa-briefcase', f"Applied: {app.job.title}", f"Status: {app.status.value.title()}", app.job.description, app.applied_at, url_for('hub.job_detail', job_id=app.job.id))
-    for job in posted_jobs:
-        add_feed_item('job', 'fa-briefcase', f"Posted Job: {job.title}", f"Company: {job.company}", job.description, job.created_at, url_for('hub.job_detail', job_id=job.id))
-        
     for app in applied_projects:
         add_feed_item('project', 'fa-microscope', f"Applied: {app.project.title}", f"Status: {app.status.value.title()}", app.project.description, app.applied_at, url_for('hub.project_detail', project_id=app.project.id))
     for project in posted_projects:
@@ -204,8 +194,6 @@ def dashboard():
     
     return render_template('dashboard.html', 
                            badge_counts=badge_counts,
-                           posted_jobs=posted_jobs,
-                           applied_jobs=applied_jobs,
                            posted_projects=posted_projects,
                            applied_projects=applied_projects,
                            mentorship_requests_sent=mentorship_requests_sent,
