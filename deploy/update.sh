@@ -37,13 +37,16 @@ if [ "$OLD_COMMIT" == "$NEW_COMMIT" ]; then
     echo "-> Code is already up to date. Proceeding with service restart just in case."
 fi
 
-# 3. Update Python dependencies
-echo "-> Checking and installing new dependencies..."
-# Activate virtual environment
+# 3. Run database migrations
+echo "-> Running database migrations..."
 source venv/bin/activate
+flask db upgrade
+
+# 4. Update Python dependencies
+echo "-> Checking and installing new dependencies..."
 pip install -r requirements.txt
 
-# 4. Restart Gunicorn service
+# 5. Restart Gunicorn service
 echo "-> Restarting Gunicorn service..."
 # Use sudo to restart the service (flaskapp user has NOPASSWD access configured in bootstrap.sh)
 sudo systemctl restart psra_flask.service
