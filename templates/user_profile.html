@@ -68,8 +68,8 @@
         {% if user.projects %}
         <div class="profile-section">
             <h2><i class="fas fa-project-diagram"></i> Projects</h2>
-            <div class="projects-content">
-                {{ user.projects | replace('\n', '<br>') | safe }}
+            <div class="projects-content preserve-whitespace">
+                {{ user.projects }}
             </div>
         </div>
         {% endif %}
