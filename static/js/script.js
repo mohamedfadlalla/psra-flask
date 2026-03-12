@@ -530,38 +530,6 @@ function smoothScrollTo(targetId) {
 }
 
 // ===========================================
-// LAZY LOADING
-// ===========================================
-
-/**
- * Initialize lazy loading for images
- */
-function initLazyLoading() {
-    const images = document.querySelectorAll('img[data-src]');
-
-    if ('IntersectionObserver' in window) {
-        const imageObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const img = entry.target;
-                    img.src = img.dataset.src;
-                    img.removeAttribute('data-src');
-                    imageObserver.unobserve(img);
-                }
-            });
-        });
-
-        images.forEach(img => imageObserver.observe(img));
-    } else {
-        // Fallback for browsers without IntersectionObserver
-        images.forEach(img => {
-            img.src = img.dataset.src;
-            img.removeAttribute('data-src');
-        });
-    }
-}
-
-// ===========================================
 // FORM VALIDATION HELPERS
 // ===========================================
 
@@ -640,82 +608,6 @@ function initDarkMode() {
 }
 
 // ===========================================
-// CLIENT-SIDE FORM VALIDATION
-// ===========================================
-
-const validators = {
-    required: (value) => value.trim() !== '' ? null : 'This field is required',
-    email: (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) ? null : 'Please enter a valid email address',
-    minLength: (min) => (value) => value.length >= min ? null : `Must be at least ${min} characters`,
-    matches: (otherFieldId, otherLabel) => (value) => {
-        const other = document.getElementById(otherFieldId);
-        return other && value === other.value ? null : `Must match ${otherLabel}`;
-    },
-    checked: (value) => value ? null : 'You must agree to continue'
-};
-
-/**
- * Initialize form validation with rules
- * @param {string} formSelector - CSS selector for the form
- * @param {Object} rules - { fieldId: [validator functions] }
- */
-function initFormValidation(formSelector, rules) {
-    const form = document.querySelector(formSelector);
-    if (!form) return;
-
-    // Validate on blur for each field
-    Object.keys(rules).forEach(fieldId => {
-        const field = document.getElementById(fieldId);
-        if (!field) return;
-
-        field.addEventListener('blur', () => validateField(field, rules[fieldId]));
-        field.addEventListener('input', () => {
-            if (field.classList.contains('error')) {
-                validateField(field, rules[fieldId]);
-            }
-        });
-    });
-
-    // Validate on submit
-    form.addEventListener('submit', function(e) {
-        let isValid = true;
-
-        Object.keys(rules).forEach(fieldId => {
-            const field = document.getElementById(fieldId);
-            if (field && !validateField(field, rules[fieldId])) {
-                isValid = false;
-            }
-        });
-
-        if (!isValid) {
-            e.preventDefault();
-            // Focus first error field
-            const firstError = form.querySelector('.form-input.error, .form-select.error');
-            if (firstError) firstError.focus();
-        }
-    });
-}
-
-/**
- * Validate a single field against its rules
- * @param {HTMLElement} field
- * @param {Function[]} fieldRules
- * @returns {boolean}
- */
-function validateField(field, fieldRules) {
-    for (const rule of fieldRules) {
-        const value = field.type === 'checkbox' ? field.checked : field.value;
-        const error = rule(value);
-        if (error) {
-            showFormError(field.id, error);
-            return false;
-        }
-    }
-    clearFormError(field.id);
-    return true;
-}
-
-// ===========================================
 // INITIALIZATION
 // ===========================================
 
@@ -735,9 +627,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize scroll animations
     initScrollAnimations();
     
-    // Initialize lazy loading
-    initLazyLoading();
-
     // Forum search and filter
     const searchInput = document.getElementById('search-input');
     const categorySelect = document.getElementById('category-select');
