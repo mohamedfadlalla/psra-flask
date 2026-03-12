@@ -1,0 +1,19 @@
+{# 
+  Usage: {% include 'partials/avatar.html' with context %}
+  Optional variables: user, size (sm|md|lg|xl|2xl), classes, show_link
+#}
+{% set avatar_size = size|default('md') %}
+{% set avatar_user = user|default(current_user) %}
+<div class="avatar avatar-{{ avatar_size }} {{ classes|default('') }}">
+    {% if show_link|default(false) and avatar_user %}
+    <a href="{{ url_for('forum.user_profile', user_id=avatar_user.id) }}">
+    {% endif %}
+    {% if avatar_user and avatar_user.profile_picture_url %}
+    <img src="{{ avatar_user.profile_picture_url }}" alt="{{ avatar_user.name }}'s avatar">
+    {% else %}
+    <span class="avatar-placeholder">{{ avatar_user.name[0].upper() if avatar_user and avatar_user.name else '?' }}</span>
+    {% endif %}
+    {% if show_link|default(false) and avatar_user %}
+    </a>
+    {% endif %}
+</div>

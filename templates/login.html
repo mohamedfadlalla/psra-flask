@@ -47,7 +47,7 @@
                     {% endif %}
                 {% endwith %}
                 
-                <form method="post" class="auth-form">
+                <form method="post" class="auth-form" novalidate>
                     {{ form.hidden_tag() }}
                     
                     <div class="form-group">
@@ -86,7 +86,7 @@
                             <input type="checkbox" class="form-check-input" id="remember" name="remember">
                             <label for="remember" class="form-check-label">Remember me</label>
                         </div>
-                        <a href="#" class="forgot-password">Forgot password?</a>
+                        <a href="{{ url_for('contact') }}" class="forgot-password">Forgot password?</a>
                     </div>
                     
                     <button type="submit" class="btn btn-primary btn-lg w-full">

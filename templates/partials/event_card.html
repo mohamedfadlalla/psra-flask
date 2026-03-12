@@ -1,0 +1,60 @@
+{#
+  Usage: {% include 'partials/event_card.html' %}
+  Required variables: event, event_type (live|upcoming|archived)
+  Optional variables: current_user
+#}
+<div class="card event-card {{ event_type }}-event">
+    <div class="card-body">
+        <div class="event-header">
+            <h3>{{ event.title }}</h3>
+            <div class="event-date {{ event_type }}-date">
+                <div class="event-date-day">{{ event.event_date.strftime('%B %d, %Y') }}</div>
+                {% if event.event_time %}
+                <div class="event-date-time">{{ event.event_time.strftime('%I:%M %p') }}</div>
+                {% else %}
+                <div class="event-date-time">All Day</div>
+                {% endif %}
+            </div>
+        </div>
+
+        {% if event.presenter %}
+        <div class="event-presenter">
+            <i class="fas fa-user"></i> Presented by: {{ event.presenter }}
+        </div>
+        {% endif %}
+
+        {% if event.image_url %}
+        <div class="event-image">
+            <img src="{{ url_for('static', filename='images/' + event.image_url) }}" 
+                 alt="{{ event.title }} Image"
+                 {% if event_type == 'archived' %}class="event-image-archived"{% endif %}>
+        </div>
+        {% endif %}
+
+        {% if event.description %}
+        <div class="event-description">{{ event.description }}</div>
+        {% endif %}
+
+        {% if event.event_url %}
+        <div class="event-link">
+            {% if event_type == 'live' %}
+            <a href="{{ event.event_url }}" target="_blank" class="btn btn-success">
+                <i class="fas fa-video"></i> Join Event
+            </a>
+            {% elif event_type == 'upcoming' %}
+            <a href="{{ event.event_url }}" target="_blank" class="btn btn-primary">
+                <i class="fas fa-ticket-alt"></i> Register
+            </a>
+            {% else %}
+            <a href="{{ event.event_url }}" target="_blank" class="btn btn-outline">
+                <i class="fas fa-external-link-alt"></i> View Details
+            </a>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <div class="event-meta">
+            <i class="fas fa-calendar-plus"></i> Created by {{ event.creator.name }} on {{ event.created_at.strftime('%B %d, %Y') }}
+        </div>
+    </div>
+</div>

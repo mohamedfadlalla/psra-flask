@@ -29,14 +29,14 @@
                 extend: {
                     colors: {
                         primary: {
-                            blue: '#2D577B',
-                            'blue-light': '#607D9B',
-                            'blue-dark': '#1E3A5F'
+                            blue: 'var(--primary-blue)',
+                            'blue-light': 'var(--primary-blue-light)',
+                            'blue-dark': 'var(--primary-blue-dark)'
                         },
                         accent: {
-                            orange: '#F59E0B',
-                            'orange-hover': '#D97706',
-                            green: '#4ADE80'
+                            orange: 'var(--accent-orange)',
+                            'orange-hover': 'var(--accent-orange-hover)',
+                            green: 'var(--accent-green)'
                         }
                     },
                     fontFamily: {
@@ -70,6 +70,11 @@
                     <img src="{{ url_for('static', filename='images/logo.png') }}" alt="PSRA Logo">
                 </a>
             </div>
+
+            <!-- Theme Toggle -->
+            <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">
+                <i class="fas fa-moon" id="theme-icon"></i>
+            </button>
 
             <!-- Main Navigation -->
             <nav class="nav-main" id="main-nav" role="navigation" aria-label="Main navigation">

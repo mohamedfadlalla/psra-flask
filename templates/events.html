@@ -16,57 +16,8 @@
             </h3>
             <div class="events-list">
                 {% for event in live_events %}
-                <div class="card event-card live-event">
-                    <div class="card-body">
-                        <div class="event-header">
-                            <h3>{{ event.title }}</h3>
-                            <div class="event-date live-date">
-                                <div style="font-size: 1.2rem; font-weight: bold;">
-                                    {{ event.event_date.strftime('%B %d, %Y') }}
-                                </div>
-                                {% if event.event_time %}
-                                <div style="font-size: 1rem; margin-top: 5px;">
-                                    {{ event.event_time.strftime('%I:%M %p') }}
-                                </div>
-                                {% else %}
-                                <div style="font-size: 1rem; margin-top: 5px;">
-                                    All Day
-                                </div>
-                                {% endif %}
-                            </div>
-                        </div>
-
-                        {% if event.presenter %}
-                        <div class="event-presenter">
-                            <i class="fas fa-user"></i> Presented by: {{ event.presenter }}
-                        </div>
-                        {% endif %}
-
-                        {% if event.image_url %}
-                        <div class="event-image">
-                            <img src="{{ url_for('static', filename='images/' + event.image_url) }}" alt="{{ event.title }} Image">
-                        </div>
-                        {% endif %}
-
-                        {% if event.description %}
-                        <div class="event-description">
-                            {{ event.description }}
-                        </div>
-                        {% endif %}
-
-                        {% if event.event_url %}
-                        <div class="event-link">
-                            <a href="{{ event.event_url }}" target="_blank" class="btn btn-success">
-                                <i class="fas fa-video"></i> Join Event
-                            </a>
-                        </div>
-                        {% endif %}
-
-                        <div class="event-meta">
-                            <i class="fas fa-calendar-plus"></i> Created by {{ event.creator.name }} on {{ event.created_at.strftime('%B %d, %Y') }}
-                        </div>
-                    </div>
-                </div>
+                {% set event_type = 'live' %}
+                {% include 'partials/event_card.html' %}
                 {% endfor %}
             </div>
         </div>
@@ -81,57 +32,8 @@
             </h3>
             <div class="events-list">
                 {% for event in upcoming_events %}
-                <div class="card event-card upcoming-event">
-                    <div class="card-body">
-                        <div class="event-header">
-                            <h3>{{ event.title }}</h3>
-                            <div class="event-date upcoming-date">
-                                <div style="font-size: 1.2rem; font-weight: bold;">
-                                    {{ event.event_date.strftime('%B %d, %Y') }}
-                                </div>
-                                {% if event.event_time %}
-                                <div style="font-size: 1rem; margin-top: 5px;">
-                                    {{ event.event_time.strftime('%I:%M %p') }}
-                                </div>
-                                {% else %}
-                                <div style="font-size: 1rem; margin-top: 5px;">
-                                    All Day
-                                </div>
-                                {% endif %}
-                            </div>
-                        </div>
-
-                        {% if event.presenter %}
-                        <div class="event-presenter">
-                            <i class="fas fa-user"></i> Presented by: {{ event.presenter }}
-                        </div>
-                        {% endif %}
-
-                        {% if event.image_url %}
-                        <div class="event-image">
-                            <img src="{{ url_for('static', filename='images/' + event.image_url) }}" alt="{{ event.title }} Image">
-                        </div>
-                        {% endif %}
-
-                        {% if event.description %}
-                        <div class="event-description">
-                            {{ event.description }}
-                        </div>
-                        {% endif %}
-
-                        {% if event.event_url %}
-                        <div class="event-link">
-                            <a href="{{ event.event_url }}" target="_blank" class="btn btn-primary">
-                                <i class="fas fa-ticket-alt"></i> Register
-                            </a>
-                        </div>
-                        {% endif %}
-
-                        <div class="event-meta">
-                            <i class="fas fa-calendar-plus"></i> Created by {{ event.creator.name }} on {{ event.created_at.strftime('%B %d, %Y') }}
-                        </div>
-                    </div>
-                </div>
+                {% set event_type = 'upcoming' %}
+                {% include 'partials/event_card.html' %}
                 {% endfor %}
             </div>
         </div>
@@ -141,62 +43,13 @@
         {% if archived_events %}
         <div class="events-section">
             <h3 class="section-title">
-                <span class="badge" style="background-color: #6b7280;">ARCHIVED</span>
+                <span class="badge badge-archived">ARCHIVED</span>
                 Past Events
             </h3>
             <div class="events-list">
                 {% for event in archived_events %}
-                <div class="card event-card archived-event">
-                    <div class="card-body">
-                        <div class="event-header">
-                            <h3>{{ event.title }}</h3>
-                            <div class="event-date archived-date">
-                                <div style="font-size: 1.2rem; font-weight: bold;">
-                                    {{ event.event_date.strftime('%B %d, %Y') }}
-                                </div>
-                                {% if event.event_time %}
-                                <div style="font-size: 1rem; margin-top: 5px;">
-                                    {{ event.event_time.strftime('%I:%M %p') }}
-                                </div>
-                                {% else %}
-                                <div style="font-size: 1rem; margin-top: 5px;">
-                                    All Day
-                                </div>
-                                {% endif %}
-                            </div>
-                        </div>
-
-                        {% if event.presenter %}
-                        <div class="event-presenter">
-                            <i class="fas fa-user"></i> Presented by: {{ event.presenter }}
-                        </div>
-                        {% endif %}
-
-                        {% if event.image_url %}
-                        <div class="event-image">
-                            <img src="{{ url_for('static', filename='images/' + event.image_url) }}" alt="{{ event.title }} Image" style="filter: grayscale(50%);">
-                        </div>
-                        {% endif %}
-
-                        {% if event.description %}
-                        <div class="event-description">
-                            {{ event.description }}
-                        </div>
-                        {% endif %}
-
-                        {% if event.event_url %}
-                        <div class="event-link">
-                            <a href="{{ event.event_url }}" target="_blank" class="btn btn-outline">
-                                <i class="fas fa-external-link-alt"></i> View Details
-                            </a>
-                        </div>
-                        {% endif %}
-
-                        <div class="event-meta">
-                            <i class="fas fa-calendar-plus"></i> Created by {{ event.creator.name }} on {{ event.created_at.strftime('%B %d, %Y') }}
-                        </div>
-                    </div>
-                </div>
+                {% set event_type = 'archived' %}
+                {% include 'partials/event_card.html' %}
                 {% endfor %}
             </div>
         </div>
@@ -204,12 +57,10 @@
 
         <!-- No Events Message -->
         {% if not live_events and not upcoming_events and not archived_events %}
-            <div class="card" style="text-align: center; padding: 60px 20px;">
-                <div style="font-size: 4rem; color: var(--text-muted); margin-bottom: 20px;">
-                    <i class="fas fa-calendar-times"></i>
-                </div>
-                <h3 style="color: var(--text-secondary); margin-bottom: 20px;">No Events</h3>
-                <p style="color: var(--text-muted); margin-bottom: 30px;">There are currently no events scheduled. Check back later for updates!</p>
+            <div class="card events-empty-card">
+                <i class="fas fa-calendar-times events-empty-icon"></i>
+                <h3 class="events-empty-title">No Events</h3>
+                <p class="events-empty-text">There are currently no events scheduled. Check back later for updates!</p>
                 {% if current_user.is_authenticated and current_user.is_admin %}
                 <a href="{{ url_for('admin.create_event') }}" class="btn btn-primary">
                     <i class="fas fa-plus"></i> Create First Event
@@ -219,169 +70,4 @@
         {% endif %}
     </div>
 </section>
-
-<style>
-/* Events Page Mobile Styles */
-.page-title {
-    margin-bottom: var(--space-6);
-}
-
-.events-section {
-    margin-bottom: var(--space-10);
-}
-
-.section-title {
-    display: flex;
-    align-items: center;
-    gap: var(--space-3);
-    margin-bottom: var(--space-6);
-    font-size: var(--font-size-xl);
-}
-
-.events-list {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-6);
-}
-
-.event-card {
-    transition: transform var(--transition-normal);
-}
-
-.event-card:hover {
-    transform: translateY(-2px);
-}
-
-.event-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: var(--space-4);
-    margin-bottom: var(--space-4);
-}
-
-.event-header h3 {
-    font-size: var(--font-size-lg);
-    margin: 0;
-    flex: 1;
-}
-
-.event-date {
-    padding: var(--space-3) var(--space-4);
-    border-radius: var(--radius-lg);
-    text-align: center;
-    flex-shrink: 0;
-}
-
-.live-date {
-    background-color: var(--color-error-bg);
-    color: var(--color-error);
-    border: 1px solid var(--color-error);
-}
-
-.upcoming-date {
-    background-color: var(--color-warning-bg);
-    color: var(--color-warning);
-    border: 1px solid var(--color-warning);
-}
-
-.archived-date {
-    background-color: var(--bg-tertiary);
-    color: var(--text-secondary);
-}
-
-.event-presenter {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    color: var(--text-secondary);
-    margin-bottom: var(--space-4);
-    font-size: var(--font-size-sm);
-}
-
-.event-image {
-    margin-bottom: var(--space-4);
-    border-radius: var(--radius-lg);
-    overflow: hidden;
-}
-
-.event-image img {
-    width: 100%;
-    height: auto;
-    max-height: 300px;
-    object-fit: cover;
-}
-
-.event-description {
-    color: var(--text-secondary);
-    line-height: var(--line-height-relaxed);
-    margin-bottom: var(--space-4);
-}
-
-.event-link {
-    margin-bottom: var(--space-4);
-}
-
-.event-meta {
-    font-size: var(--font-size-sm);
-    color: var(--text-muted);
-    padding-top: var(--space-3);
-    border-top: 1px solid var(--border-color);
-}
-
-.badge-live {
-    background-color: var(--color-error);
-    color: white;
-    animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.7; }
-}
-
-.badge-warning {
-    background-color: var(--color-warning);
-    color: white;
-}
-
-/* Mobile Responsive */
-@media (max-width: 768px) {
-    .event-header {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-    
-    .event-date {
-        width: 100%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: var(--space-2);
-    }
-    
-    .event-image img {
-        max-height: 200px;
-    }
-    
-    .event-link .btn {
-        width: 100%;
-    }
-    
-    .section-title {
-        font-size: var(--font-size-lg);
-        flex-wrap: wrap;
-    }
-}
-
-@media (max-width: 480px) {
-    .page-title {
-        font-size: var(--font-size-2xl);
-    }
-    
-    .event-header h3 {
-        font-size: var(--font-size-base);
-    }
-}
-</style>
 {% endblock %}

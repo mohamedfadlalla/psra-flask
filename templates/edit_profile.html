@@ -5,13 +5,13 @@
 {% block content %}
 <section class="section">
     <div class="container">
-        <div style="max-width: 600px; margin: 0 auto;">
+        <div class="max-w-md">
             <h1>Edit Profile</h1>
 
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
                     {% for category, message in messages %}
-                        <div style='padding: 10px; margin-bottom: 20px; border: 1px solid {% if category == "error" %}red{% else %}green{% endif %}; background-color: {% if category == "error" %}#ffe6e6{% else %}#e6ffe6{% endif %}; border-radius: 5px;'>
+                        <div class="alert alert-{{ category }}">
                             {{ message }}
                         </div>
                     {% endfor %}
@@ -19,277 +19,273 @@
             {% endwith %}
 
             <!-- Profile Information Form -->
-            <div style="background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px;">
-                <h2 style="margin-bottom: 20px; color: var(--primary-blue);">Profile Information</h2>
+            <div class="edit-form-card">
+                <h2 class="edit-form-title">Profile Information</h2>
 
-
-
-                <form method="post" enctype="multipart/form-data" style="display: flex; flex-direction: column; gap: 20px;">
+                <form method="post" enctype="multipart/form-data" class="edit-form">
                     {{ profile_form.hidden_tag() }}
 
-                    <div>
-                        {{ profile_form.name.label(style="display: block; font-weight: bold; color: var(--text); margin-bottom: 5px;") }}
-                        {{ profile_form.name(style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 5px; font-size: 16px;") }}
+                    <div class="form-group">
+                        {{ profile_form.name.label(class="form-label-bold") }}
+                        {{ profile_form.name(class="form-input-basic") }}
                         {% if profile_form.name.errors %}
-                            <div style="color: red; font-size: 14px; margin-top: 5px;">
+                            <div class="form-error-text">
                                 {% for error in profile_form.name.errors %}{{ error }}{% endfor %}
                             </div>
                         {% endif %}
                     </div>
 
-                    <div>
-                        {{ profile_form.account_type.label(style="display: block; font-weight: bold; color: var(--text); margin-bottom: 5px;") }}
-                        {{ profile_form.account_type(style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 5px; font-size: 16px;") }}
+                    <div class="form-group">
+                        {{ profile_form.account_type.label(class="form-label-bold") }}
+                        {{ profile_form.account_type(class="form-input-basic") }}
                         {% if profile_form.account_type.errors %}
-                            <div style="color: red; font-size: 14px; margin-top: 5px;">
+                            <div class="form-error-text">
                                 {% for error in profile_form.account_type.errors %}{{ error }}{% endfor %}
                             </div>
                         {% endif %}
                     </div>
 
-                    <div>
-                        {{ profile_form.headline.label(style="display: block; font-weight: bold; color: var(--text); margin-bottom: 5px;") }}
-                        {{ profile_form.headline(style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 5px; font-size: 16px;") }}
+                    <div class="form-group">
+                        {{ profile_form.headline.label(class="form-label-bold") }}
+                        {{ profile_form.headline(class="form-input-basic") }}
                         {% if profile_form.headline.errors %}
-                            <div style="color: red; font-size: 14px; margin-top: 5px;">
+                            <div class="form-error-text">
                                 {% for error in profile_form.headline.errors %}{{ error }}{% endfor %}
                             </div>
                         {% endif %}
-                        <small style="color: var(--text-secondary); font-size: 14px;">e.g., "Pharmacy Student"</small>
+                        <small class="form-hint-text">e.g., "Pharmacy Student"</small>
                     </div>
 
-                    <div>
-                        {{ profile_form.location.label(style="display: block; font-weight: bold; color: var(--text); margin-bottom: 5px;") }}
-                        {{ profile_form.location(style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 5px; font-size: 16px;") }}
+                    <div class="form-group">
+                        {{ profile_form.location.label(class="form-label-bold") }}
+                        {{ profile_form.location(class="form-input-basic") }}
                         {% if profile_form.location.errors %}
-                            <div style="color: red; font-size: 14px; margin-top: 5px;">
+                            <div class="form-error-text">
                                 {% for error in profile_form.location.errors %}{{ error }}{% endfor %}
                             </div>
                         {% endif %}
-                        <small style="color: var(--text-secondary); font-size: 14px;">e.g., "Khartoum, Sudan"</small>
+                        <small class="form-hint-text">e.g., "Khartoum, Sudan"</small>
                     </div>
 
-                    <div>
-                        {{ profile_form.university_id.label(style="display: block; font-weight: bold; color: var(--text); margin-bottom: 5px;") }}
-                        {{ profile_form.university_id(style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 5px; font-size: 16px;") }}
+                    <div class="form-group">
+                        {{ profile_form.university_id.label(class="form-label-bold") }}
+                        {{ profile_form.university_id(class="form-input-basic") }}
                         {% if profile_form.university_id.errors %}
-                            <div style="color: red; font-size: 14px; margin-top: 5px;">
+                            <div class="form-error-text">
                                 {% for error in profile_form.university_id.errors %}{{ error }}{% endfor %}
                             </div>
                         {% endif %}
-                        <small style="color: var(--text-secondary); font-size: 14px;">Optional. Select your university to connect with peers from your institution.</small>
+                        <small class="form-hint-text">Optional. Select your university to connect with peers from your institution.</small>
                     </div>
 
-                    <div>
-                        {{ profile_form.about.label(style="display: block; font-weight: bold; color: var(--text); margin-bottom: 5px;") }}
-                        {{ profile_form.about(style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 5px; font-size: 16px; min-height: 100px; resize: vertical;") }}
+                    <div class="form-group">
+                        {{ profile_form.about.label(class="form-label-bold") }}
+                        {{ profile_form.about(class="form-input-basic form-textarea-md") }}
                         {% if profile_form.about.errors %}
-                            <div style="color: red; font-size: 14px; margin-top: 5px;">
+                            <div class="form-error-text">
                                 {% for error in profile_form.about.errors %}{{ error }}{% endfor %}
                             </div>
                         {% endif %}
-                        <small style="color: var(--text-secondary); font-size: 14px;">Tell us about yourself</small>
+                        <small class="form-hint-text">Tell us about yourself</small>
                     </div>
 
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        {{ profile_form.open_to_mentor(style="width: 18px; height: 18px;") }}
-                        <label for="open_to_mentor" style="font-weight: bold; color: var(--text);">Open to Mentorship Requests (for alumni/researchers)</label>
+                    <div class="form-check-row">
+                        {{ profile_form.open_to_mentor(class="form-check-input") }}
+                        <label for="open_to_mentor">Open to Mentorship Requests (for alumni/researchers)</label>
                     </div>
 
-                    <div>
-                        {{ profile_form.email.label(style="display: block; font-weight: bold; color: var(--text); margin-bottom: 5px;") }}
-                        {{ profile_form.email(style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 5px; font-size: 16px; background-color: #f5f5f5;") }}
-                        <small style="color: var(--text-secondary); font-size: 14px;">Email cannot be changed</small>
+                    <div class="form-group">
+                        {{ profile_form.email.label(class="form-label-bold") }}
+                        {{ profile_form.email(class="form-input-readonly") }}
+                        <small class="form-hint-text">Email cannot be changed</small>
                     </div>
 
-                    <div>
-                        {{ profile_form.phone_number.label(style="display: block; font-weight: bold; color: var(--text); margin-bottom: 5px;") }}
-                        {{ profile_form.phone_number(style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 5px; font-size: 16px;") }}
+                    <div class="form-group">
+                        {{ profile_form.phone_number.label(class="form-label-bold") }}
+                        {{ profile_form.phone_number(class="form-input-basic") }}
                         {% if profile_form.phone_number.errors %}
-                            <div style="color: red; font-size: 14px; margin-top: 5px;">
+                            <div class="form-error-text">
                                 {% for error in profile_form.phone_number.errors %}{{ error }}{% endfor %}
                             </div>
                         {% endif %}
                     </div>
 
-                    <div>
-                        {{ profile_form.whatsapp_number.label(style="display: block; font-weight: bold; color: var(--text); margin-bottom: 5px;") }}
-                        {{ profile_form.whatsapp_number(style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 5px; font-size: 16px;") }}
+                    <div class="form-group">
+                        {{ profile_form.whatsapp_number.label(class="form-label-bold") }}
+                        {{ profile_form.whatsapp_number(class="form-input-basic") }}
                         {% if profile_form.whatsapp_number.errors %}
-                            <div style="color: red; font-size: 14px; margin-top: 5px;">
+                            <div class="form-error-text">
                                 {% for error in profile_form.whatsapp_number.errors %}{{ error }}{% endfor %}
                             </div>
                         {% endif %}
                     </div>
 
-                    <div>
-                        {{ profile_form.skills.label(style="display: block; font-weight: bold; color: var(--text); margin-bottom: 5px;") }}
-                        {{ profile_form.skills(style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 5px; font-size: 16px;") }}
+                    <div class="form-group">
+                        {{ profile_form.skills.label(class="form-label-bold") }}
+                        {{ profile_form.skills(class="form-input-basic") }}
                         {% if profile_form.skills.errors %}
-                            <div style="color: red; font-size: 14px; margin-top: 5px;">
+                            <div class="form-error-text">
                                 {% for error in profile_form.skills.errors %}{{ error }}{% endfor %}
                             </div>
                         {% endif %}
-                        <small style="color: var(--text-secondary); font-size: 14px;">e.g., "Research, Pharmacology, Data Analysis"</small>
+                        <small class="form-hint-text">e.g., "Research, Pharmacology, Data Analysis"</small>
                     </div>
 
                     <!-- Work Experience Section -->
                     <div class="dynamic-section">
-                        <h3 style="margin-bottom: 15px; color: var(--primary-blue);">Work Experience</h3>
+                        <h3 class="edit-form-title">Work Experience</h3>
                         <div id="experience-container">
                             <!-- Experience entries will be added here dynamically -->
                         </div>
-                        <button type="button" id="add-experience" class="btn-add" style="background: var(--secondary-blue); color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; margin-top: 10px;">Add Work Experience</button>
+                        <button type="button" id="add-experience" class="btn-add-entry">Add Work Experience</button>
                         {{ profile_form.experience_data(style="display: none;") }}
                     </div>
 
                     <!-- Education Section -->
                     <div class="dynamic-section">
-                        <h3 style="margin-bottom: 15px; color: var(--primary-blue);">Education</h3>
+                        <h3 class="edit-form-title">Education</h3>
                         <div id="education-container">
                             <!-- Education entries will be added here dynamically -->
                         </div>
-                        <button type="button" id="add-education" class="btn-add" style="background: var(--secondary-blue); color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; margin-top: 10px;">Add Education</button>
+                        <button type="button" id="add-education" class="btn-add-entry">Add Education</button>
                         {{ profile_form.education_data(style="display: none;") }}
                     </div>
 
-                    <div>
-                        {{ profile_form.linkedin_url.label(style="display: block; font-weight: bold; color: var(--text); margin-bottom: 5px;") }}
-                        {{ profile_form.linkedin_url(style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 5px; font-size: 16px;") }}
+                    <div class="form-group">
+                        {{ profile_form.linkedin_url.label(class="form-label-bold") }}
+                        {{ profile_form.linkedin_url(class="form-input-basic") }}
                         {% if profile_form.linkedin_url.errors %}
-                            <div style="color: red; font-size: 14px; margin-top: 5px;">
+                            <div class="form-error-text">
                                 {% for error in profile_form.linkedin_url.errors %}{{ error }}{% endfor %}
                             </div>
                         {% endif %}
-                        <small style="color: var(--text-secondary); font-size: 14px;">Your LinkedIn profile URL</small>
+                        <small class="form-hint-text">Your LinkedIn profile URL</small>
                     </div>
 
-                    <div>
-                        {{ profile_form.website_url.label(style="display: block; font-weight: bold; color: var(--text); margin-bottom: 5px;") }}
-                        {{ profile_form.website_url(style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 5px; font-size: 16px;") }}
+                    <div class="form-group">
+                        {{ profile_form.website_url.label(class="form-label-bold") }}
+                        {{ profile_form.website_url(class="form-input-basic") }}
                         {% if profile_form.website_url.errors %}
-                            <div style="color: red; font-size: 14px; margin-top: 5px;">
+                            <div class="form-error-text">
                                 {% for error in profile_form.website_url.errors %}{{ error }}{% endfor %}
                             </div>
                         {% endif %}
-                        <small style="color: var(--text-secondary); font-size: 14px;">Your personal website URL</small>
+                        <small class="form-hint-text">Your personal website URL</small>
                     </div>
 
-                    <div>
-                        {{ profile_form.languages.label(style="display: block; font-weight: bold; color: var(--text); margin-bottom: 5px;") }}
-                        {{ profile_form.languages(style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 5px; font-size: 16px;") }}
+                    <div class="form-group">
+                        {{ profile_form.languages.label(class="form-label-bold") }}
+                        {{ profile_form.languages(class="form-input-basic") }}
                         {% if profile_form.languages.errors %}
-                            <div style="color: red; font-size: 14px; margin-top: 5px;">
+                            <div class="form-error-text">
                                 {% for error in profile_form.languages.errors %}{{ error }}{% endfor %}
                             </div>
                         {% endif %}
-                        <small style="color: var(--text-secondary); font-size: 14px;">e.g., "English, Arabic, French"</small>
+                        <small class="form-hint-text">e.g., "English, Arabic, French"</small>
                     </div>
 
-                    <div>
-                        {{ profile_form.certifications.label(style="display: block; font-weight: bold; color: var(--text); margin-bottom: 5px;") }}
-                        {{ profile_form.certifications(style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 5px; font-size: 16px; min-height: 80px; resize: vertical;") }}
+                    <div class="form-group">
+                        {{ profile_form.certifications.label(class="form-label-bold") }}
+                        {{ profile_form.certifications(class="form-input-basic form-textarea-sm") }}
                         {% if profile_form.certifications.errors %}
-                            <div style="color: red; font-size: 14px; margin-top: 5px;">
+                            <div class="form-error-text">
                                 {% for error in profile_form.certifications.errors %}{{ error }}{% endfor %}
                             </div>
                         {% endif %}
-                        <small style="color: var(--text-secondary); font-size: 14px;">Your certifications and achievements</small>
+                        <small class="form-hint-text">Your certifications and achievements</small>
                     </div>
 
-                    <div>
-                        {{ profile_form.projects.label(style="display: block; font-weight: bold; color: var(--text); margin-bottom: 5px;") }}
-                        {{ profile_form.projects(style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 5px; font-size: 16px; min-height: 80px; resize: vertical;") }}
+                    <div class="form-group">
+                        {{ profile_form.projects.label(class="form-label-bold") }}
+                        {{ profile_form.projects(class="form-input-basic form-textarea-sm") }}
                         {% if profile_form.projects.errors %}
-                            <div style="color: red; font-size: 14px; margin-top: 5px;">
+                            <div class="form-error-text">
                                 {% for error in profile_form.projects.errors %}{{ error }}{% endfor %}
                             </div>
                         {% endif %}
-                        <small style="color: var(--text-secondary); font-size: 14px;">Your projects and portfolio</small>
+                        <small class="form-hint-text">Your projects and portfolio</small>
                     </div>
 
-                    <div>
-                        {{ profile_form.professional_summary.label(style="display: block; font-weight: bold; color: var(--text); margin-bottom: 5px;") }}
-                        {{ profile_form.professional_summary(style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 5px; font-size: 16px; min-height: 100px; resize: vertical;") }}
+                    <div class="form-group">
+                        {{ profile_form.professional_summary.label(class="form-label-bold") }}
+                        {{ profile_form.professional_summary(class="form-input-basic form-textarea-md") }}
                         {% if profile_form.professional_summary.errors %}
-                            <div style="color: red; font-size: 14px; margin-top: 5px;">
+                            <div class="form-error-text">
                                 {% for error in profile_form.professional_summary.errors %}{{ error }}{% endfor %}
                             </div>
                         {% endif %}
-                        <small style="color: var(--text-secondary); font-size: 14px;">A brief professional summary</small>
+                        <small class="form-hint-text">A brief professional summary</small>
                     </div>
 
-                    <div>
-                        {{ profile_form.publications.label(style="display: block; font-weight: bold; color: var(--text); margin-bottom: 5px;") }}
-                        {{ profile_form.publications(style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 5px; font-size: 16px; min-height: 100px; resize: vertical;") }}
+                    <div class="form-group">
+                        {{ profile_form.publications.label(class="form-label-bold") }}
+                        {{ profile_form.publications(class="form-input-basic form-textarea-md") }}
                         {% if profile_form.publications.errors %}
-                            <div style="color: red; font-size: 14px; margin-top: 5px;">
+                            <div class="form-error-text">
                                 {% for error in profile_form.publications.errors %}{{ error }}{% endfor %}
                             </div>
                         {% endif %}
-                        <small style="color: var(--text-secondary); font-size: 14px;">Your publications, research papers, and academic achievements</small>
+                        <small class="form-hint-text">Your publications, research papers, and academic achievements</small>
                     </div>
 
-
-
-                    <div>
-                        {{ profile_form.profile_picture.label(style="display: block; font-weight: bold; color: var(--text); margin-bottom: 5px;") }}
-                        {{ profile_form.profile_picture(style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 5px; font-size: 16px;") }}
-                        <small style="color: var(--text-secondary); font-size: 14px;">Optional. Upload a profile picture (JPG, PNG, GIF). Will be cropped to a circle.</small>
+                    <div class="form-group">
+                        {{ profile_form.profile_picture.label(class="form-label-bold") }}
+                        {{ profile_form.profile_picture(class="form-input-basic") }}
+                        <small class="form-hint-text">Optional. Upload a profile picture (JPG, PNG, GIF). Will be cropped to a circle.</small>
                         {% if profile_form.profile_picture.errors %}
-                            <div style="color: red; font-size: 14px; margin-top: 5px;">
+                            <div class="form-error-text">
                                 {% for error in profile_form.profile_picture.errors %}{{ error }}{% endfor %}
                             </div>
                         {% endif %}
                     </div>
 
-                    {{ profile_form.submit(class="btn", style="background: var(--primary-blue); color: white; padding: 12px; border: none; border-radius: 5px; font-size: 16px; cursor: pointer;") }}
+                    {{ profile_form.submit(class="btn-submit-primary") }}
                 </form>
             </div>
 
             <!-- Password Change Form -->
-            <div style="background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-                <h2 style="margin-bottom: 20px; color: var(--primary-blue);">Change Password</h2>
+            <div class="edit-form-card">
+                <h2 class="edit-form-title">Change Password</h2>
 
-                <form method="post" style="display: flex; flex-direction: column; gap: 20px;">
+                <form method="post" class="edit-form">
                     {{ password_form.hidden_tag() }}
 
-                    <div>
-                        {{ password_form.current_password.label(style="display: block; font-weight: bold; color: var(--text); margin-bottom: 5px;") }}
-                        {{ password_form.current_password(style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 5px; font-size: 16px;") }}
+                    <div class="form-group">
+                        {{ password_form.current_password.label(class="form-label-bold") }}
+                        {{ password_form.current_password(class="form-input-basic") }}
                         {% if password_form.current_password.errors %}
-                            <div style="color: red; font-size: 14px; margin-top: 5px;">
+                            <div class="form-error-text">
                                 {% for error in password_form.current_password.errors %}{{ error }}{% endfor %}
                             </div>
                         {% endif %}
                     </div>
 
-                    <div>
-                        {{ password_form.new_password.label(style="display: block; font-weight: bold; color: var(--text); margin-bottom: 5px;") }}
-                        {{ password_form.new_password(style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 5px; font-size: 16px;") }}
+                    <div class="form-group">
+                        {{ password_form.new_password.label(class="form-label-bold") }}
+                        {{ password_form.new_password(class="form-input-basic") }}
                         {% if password_form.new_password.errors %}
-                            <div style="color: red; font-size: 14px; margin-top: 5px;">
+                            <div class="form-error-text">
                                 {% for error in password_form.new_password.errors %}{{ error }}{% endfor %}
                             </div>
                         {% endif %}
                     </div>
 
-                    <div>
-                        {{ password_form.confirm_password.label(style="display: block; font-weight: bold; color: var(--text); margin-bottom: 5px;") }}
-                        {{ password_form.confirm_password(style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 5px; font-size: 16px;") }}
+                    <div class="form-group">
+                        {{ password_form.confirm_password.label(class="form-label-bold") }}
+                        {{ password_form.confirm_password(class="form-input-basic") }}
                         {% if password_form.confirm_password.errors %}
-                            <div style="color: red; font-size: 14px; margin-top: 5px;">
+                            <div class="form-error-text">
                                 {% for error in password_form.confirm_password.errors %}{{ error }}{% endfor %}
                             </div>
                         {% endif %}
                     </div>
 
-                    {{ password_form.submit(class="btn", style="background: var(--secondary-blue); color: white; padding: 12px; border: none; border-radius: 5px; font-size: 16px; cursor: pointer;") }}
+                    {{ password_form.submit(class="btn-submit-secondary") }}
                 </form>
             </div>
 
-            <div style="text-align: center; margin-top: 20px;">
-                <a href="{{ url_for('forum.profile') }}" style="color: var(--primary-blue); text-decoration: none;">← Back to Profile</a>
+            <div class="back-link-container">
+                <a href="{{ url_for('forum.profile') }}" class="back-link">&larr; Back to Profile</a>
             </div>
         </div>
     </div>
@@ -326,33 +322,33 @@ document.addEventListener('DOMContentLoaded', function() {
 
         return `
             <div class="entry-item" data-index="${entryIndex}">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <div class="entry-header">
                     <h4>Work Experience</h4>
-                    <button type="button" class="remove-entry" style="background: #dc3545; color: white; border: none; padding: 4px 8px; border-radius: 3px; cursor: pointer;">Remove</button>
+                    <button type="button" class="entry-remove-btn">Remove</button>
                 </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                <div class="entry-grid">
                     <div>
-                        <label style="display: block; font-weight: bold; margin-bottom: 3px;">Company</label>
-                        <input type="text" class="company" value="${data.company}" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" placeholder="Company name">
+                        <label class="entry-label">Company</label>
+                        <input type="text" class="company" value="${data.company}" placeholder="Company name">
                     </div>
                     <div>
-                        <label style="display: block; font-weight: bold; margin-bottom: 3px;">Title</label>
-                        <input type="text" class="title" value="${data.title}" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" placeholder="Job title">
+                        <label class="entry-label">Title</label>
+                        <input type="text" class="title" value="${data.title}" placeholder="Job title">
                     </div>
                 </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                <div class="entry-grid">
                     <div>
-                        <label style="display: block; font-weight: bold; margin-bottom: 3px;">Start Date</label>
-                        <input type="month" class="start-date" value="${data.start_date}" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                        <label class="entry-label">Start Date</label>
+                        <input type="month" class="start-date" value="${data.start_date}">
                     </div>
                     <div>
-                        <label style="display: block; font-weight: bold; margin-bottom: 3px;">End Date (leave empty if current)</label>
-                        <input type="month" class="end-date" value="${data.end_date}" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                        <label class="entry-label">End Date (leave empty if current)</label>
+                        <input type="month" class="end-date" value="${data.end_date}">
                     </div>
                 </div>
                 <div>
-                    <label style="display: block; font-weight: bold; margin-bottom: 3px;">Description</label>
-                    <textarea class="description" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; min-height: 60px; resize: vertical;" placeholder="Describe your responsibilities and achievements">${data.description}</textarea>
+                    <label class="entry-label">Description</label>
+                    <textarea class="description" placeholder="Describe your responsibilities and achievements">${data.description}</textarea>
                 </div>
             </div>
         `;
@@ -365,33 +361,33 @@ document.addEventListener('DOMContentLoaded', function() {
 
         return `
             <div class="entry-item" data-index="${entryIndex}">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <div class="entry-header">
                     <h4>Education</h4>
-                    <button type="button" class="remove-entry" style="background: #dc3545; color: white; border: none; padding: 4px 8px; border-radius: 3px; cursor: pointer;">Remove</button>
+                    <button type="button" class="entry-remove-btn">Remove</button>
                 </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                <div class="entry-grid">
                     <div>
-                        <label style="display: block; font-weight: bold; margin-bottom: 3px;">Institution</label>
-                        <input type="text" class="institution" value="${data.institution}" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" placeholder="University/School name">
+                        <label class="entry-label">Institution</label>
+                        <input type="text" class="institution" value="${data.institution}" placeholder="University/School name">
                     </div>
                     <div>
-                        <label style="display: block; font-weight: bold; margin-bottom: 3px;">Degree</label>
-                        <input type="text" class="degree" value="${data.degree}" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" placeholder="Degree/Program name">
+                        <label class="entry-label">Degree</label>
+                        <input type="text" class="degree" value="${data.degree}" placeholder="Degree/Program name">
                     </div>
                 </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                <div class="entry-grid">
                     <div>
-                        <label style="display: block; font-weight: bold; margin-bottom: 3px;">Start Date</label>
-                        <input type="month" class="start-date" value="${data.start_date}" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                        <label class="entry-label">Start Date</label>
+                        <input type="month" class="start-date" value="${data.start_date}">
                     </div>
                     <div>
-                        <label style="display: block; font-weight: bold; margin-bottom: 3px;">End Date (leave empty if current)</label>
-                        <input type="month" class="end-date" value="${data.end_date}" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                        <label class="entry-label">End Date (leave empty if current)</label>
+                        <input type="month" class="end-date" value="${data.end_date}">
                     </div>
                 </div>
                 <div>
-                    <label style="display: block; font-weight: bold; margin-bottom: 3px;">Description</label>
-                    <textarea class="description" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; min-height: 60px; resize: vertical;" placeholder="Additional details about your studies">${data.description}</textarea>
+                    <label class="entry-label">Description</label>
+                    <textarea class="description" placeholder="Additional details about your studies">${data.description}</textarea>
                 </div>
             </div>
         `;
@@ -463,7 +459,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Event delegation for remove buttons
     document.addEventListener('click', function(e) {
-        if (e.target.classList.contains('remove-entry')) {
+        if (e.target.classList.contains('entry-remove-btn')) {
             e.target.closest('.entry-item').remove();
             updateHiddenFields();
         }

@@ -48,10 +48,12 @@ function toggleLike(postId, btnElement) {
         count = parseInt(text);
         if (isNaN(count)) count = 0;
         
-        // Apply optimistic update
+        // Apply optimistic update + loading state
         const newCount = isLiked ? Math.max(0, count - 1) : count + 1;
         likeBtn.innerHTML = `<i class="fas fa-thumbs-up"></i> ${newCount}`;
         likeBtn.classList.toggle('liked', !isLiked);
+        likeBtn.classList.add('btn-loading');
+        likeBtn.disabled = true;
     }
 
     // Prepare headers
@@ -83,6 +85,8 @@ function toggleLike(postId, btnElement) {
         if (likeBtn) {
             likeBtn.innerHTML = `<i class="fas fa-thumbs-up"></i> ${data.likes}`;
             likeBtn.classList.toggle('liked', data.liked);
+            likeBtn.classList.remove('btn-loading');
+            likeBtn.disabled = false;
         }
     })
     .catch(error => {
@@ -94,6 +98,8 @@ function toggleLike(postId, btnElement) {
         if (likeBtn) {
             likeBtn.innerHTML = originalHtml;
             likeBtn.classList.toggle('liked', isLiked);
+            likeBtn.classList.remove('btn-loading');
+            likeBtn.disabled = false;
         }
         
         showToast('Error updating like. Please try again.', 'error');
@@ -106,6 +112,17 @@ function toggleLike(postId, btnElement) {
 function filterPosts() {
     const category = document.getElementById('category-select')?.value || '';
     const search = document.getElementById('search-input')?.value || '';
+
+    // Show skeleton loading
+    const postsContainer = document.querySelector('.forum-container > div:last-child');
+    if (postsContainer) {
+        const postsList = postsContainer.querySelector('.posts-list') || postsContainer;
+        postsList.innerHTML = `
+            <div class="skeleton-card"><div class="skeleton-line title"></div><div class="skeleton-line"></div><div class="skeleton-line short"></div></div>
+            <div class="skeleton-card"><div class="skeleton-line title"></div><div class="skeleton-line"></div><div class="skeleton-line medium"></div></div>
+            <div class="skeleton-card"><div class="skeleton-line title"></div><div class="skeleton-line"></div><div class="skeleton-line short"></div></div>
+        `;
+    }
 
     fetch(`/forum/?category=${encodeURIComponent(category)}&search=${encodeURIComponent(search)}`, {
         headers: {
@@ -120,8 +137,6 @@ function filterPosts() {
             titleElement.innerHTML = `Forum <span class="text-secondary">› ${data.selected_category || 'All Discussions'}</span>`;
         }
 
-        // Update the posts section
-        const postsContainer = document.querySelector('.forum-container > div:last-child');
         if (!postsContainer) return;
 
         let postsHtml = '';
@@ -190,6 +205,8 @@ function showToast(message, type = 'info', duration = 5000) {
 
     const toast = document.createElement('div');
     toast.className = `toast toast-${type}`;
+    toast.setAttribute('role', type === 'error' ? 'alert' : 'status');
+    toast.setAttribute('aria-live', type === 'error' ? 'assertive' : 'polite');
     
     const iconMap = {
         success: 'fa-check-circle',
@@ -199,10 +216,10 @@ function showToast(message, type = 'info', duration = 5000) {
     };
 
     toast.innerHTML = `
-        <i class="fas ${iconMap[type] || iconMap.info}"></i>
+        <i class="fas ${iconMap[type] || iconMap.info}" aria-hidden="true"></i>
         <span>${message}</span>
         <button class="toast-close" aria-label="Close notification">
-            <i class="fas fa-times"></i>
+            <i class="fas fa-times" aria-hidden="true"></i>
         </button>
     `;
 
@@ -583,10 +600,128 @@ function clearFormError(fieldId) {
 }
 
 // ===========================================
+// DARK MODE TOGGLE
+// ===========================================
+
+/**
+ * Initialize dark mode toggle
+ */
+function initDarkMode() {
+    const toggle = document.getElementById('theme-toggle');
+    const icon = document.getElementById('theme-icon');
+    if (!toggle || !icon) return;
+
+    // Load saved preference or system preference
+    const saved = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    
+    if (saved === 'dark' || (!saved && prefersDark)) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        icon.classList.remove('fa-moon');
+        icon.classList.add('fa-sun');
+    }
+
+    toggle.addEventListener('click', function() {
+        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        
+        if (isDark) {
+            document.documentElement.removeAttribute('data-theme');
+            localStorage.setItem('theme', 'light');
+            icon.classList.remove('fa-sun');
+            icon.classList.add('fa-moon');
+        } else {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            localStorage.setItem('theme', 'dark');
+            icon.classList.remove('fa-moon');
+            icon.classList.add('fa-sun');
+        }
+    });
+}
+
+// ===========================================
+// CLIENT-SIDE FORM VALIDATION
+// ===========================================
+
+const validators = {
+    required: (value) => value.trim() !== '' ? null : 'This field is required',
+    email: (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) ? null : 'Please enter a valid email address',
+    minLength: (min) => (value) => value.length >= min ? null : `Must be at least ${min} characters`,
+    matches: (otherFieldId, otherLabel) => (value) => {
+        const other = document.getElementById(otherFieldId);
+        return other && value === other.value ? null : `Must match ${otherLabel}`;
+    },
+    checked: (value) => value ? null : 'You must agree to continue'
+};
+
+/**
+ * Initialize form validation with rules
+ * @param {string} formSelector - CSS selector for the form
+ * @param {Object} rules - { fieldId: [validator functions] }
+ */
+function initFormValidation(formSelector, rules) {
+    const form = document.querySelector(formSelector);
+    if (!form) return;
+
+    // Validate on blur for each field
+    Object.keys(rules).forEach(fieldId => {
+        const field = document.getElementById(fieldId);
+        if (!field) return;
+
+        field.addEventListener('blur', () => validateField(field, rules[fieldId]));
+        field.addEventListener('input', () => {
+            if (field.classList.contains('error')) {
+                validateField(field, rules[fieldId]);
+            }
+        });
+    });
+
+    // Validate on submit
+    form.addEventListener('submit', function(e) {
+        let isValid = true;
+
+        Object.keys(rules).forEach(fieldId => {
+            const field = document.getElementById(fieldId);
+            if (field && !validateField(field, rules[fieldId])) {
+                isValid = false;
+            }
+        });
+
+        if (!isValid) {
+            e.preventDefault();
+            // Focus first error field
+            const firstError = form.querySelector('.form-input.error, .form-select.error');
+            if (firstError) firstError.focus();
+        }
+    });
+}
+
+/**
+ * Validate a single field against its rules
+ * @param {HTMLElement} field
+ * @param {Function[]} fieldRules
+ * @returns {boolean}
+ */
+function validateField(field, fieldRules) {
+    for (const rule of fieldRules) {
+        const value = field.type === 'checkbox' ? field.checked : field.value;
+        const error = rule(value);
+        if (error) {
+            showFormError(field.id, error);
+            return false;
+        }
+    }
+    clearFormError(field.id);
+    return true;
+}
+
+// ===========================================
 // INITIALIZATION
 // ===========================================
 
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize dark mode
+    initDarkMode();
+
     // Initialize mobile navigation
     initMobileNav();
     

@@ -88,7 +88,7 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 
-# Context processor for unread message count
+# Context processor for unread message count and current time
 @app.context_processor
 def inject_unread_messages():
     """Make unread message count available to all templates."""
@@ -96,6 +96,13 @@ def inject_unread_messages():
         unread_count = Message.query.filter_by(receiver_id=current_user.id, is_read=False).count()
         return {'unread_message_count': unread_count}
     return {'unread_message_count': 0}
+
+
+@app.context_processor
+def inject_now():
+    """Make current datetime available to all templates for year display etc."""
+    from datetime import datetime
+    return {'now': datetime.utcnow()}
 
 
 # Register blueprints
@@ -370,9 +377,7 @@ def events():
 @app.route('/support')
 def support():
     """Display support and donations page."""
-    return render_template('placeholder.html', 
-                          title='Support & Donations', 
-                          content='Content for this page is coming soon. Please check back later.')
+    return render_template('support.html')
 
 
 @app.route('/about')
@@ -396,17 +401,13 @@ def contact():
 @app.route('/privacy')
 def privacy():
     """Display privacy policy page."""
-    return render_template('placeholder.html', 
-                          title='Privacy Policy', 
-                          content='Content for this page is coming soon. Please check back later.')
+    return render_template('privacy.html')
 
 
 @app.route('/faq')
 def faq():
     """Display FAQ page."""
-    return render_template('placeholder.html', 
-                          title='FAQ', 
-                          content='Content for this page is coming soon. Please check back later.')
+    return render_template('faq.html')
 
 
 # ==================== Forum Redirect ====================

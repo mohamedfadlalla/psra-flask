@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}FAQ - PSRA{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container container-md">
+        <h1>Frequently Asked Questions</h1>
+
+        <div class="profile-section">
+            <h3>What is PSRA?</h3>
+            <p>The Pharmaceutical Studies and Research Association (PSRA) is a student-led organization dedicated to fostering scientific inquiry and innovation in pharmaceutical sciences. We connect pharmacy students and researchers across Sudan.</p>
+        </div>
+
+        <div class="profile-section">
+            <h3>Who can join PSRA?</h3>
+            <p>Any pharmacy student, alumni, or researcher affiliated with a Sudanese university can join. Membership is free and open to all who are passionate about pharmaceutical research.</p>
+        </div>
+
+        <div class="profile-section">
+            <h3>How do I submit my research?</h3>
+            <p>After creating an account and logging in, navigate to the <a href="{{ url_for('submit_research') }}">Submit Research</a> page. Fill in the required details about your publication and submit it for admin approval.</p>
+        </div>
+
+        <div class="profile-section">
+            <h3>How does the mentorship program work?</h3>
+            <p>Alumni and researchers who opt-in as mentors can receive mentorship requests from students. Browse available mentors in the <a href="{{ url_for('hub.browse_mentors') }}">Mentors</a> section and send a request with your goals.</p>
+        </div>
+
+        <div class="profile-section">
+            <h3>How can I find research projects to work on?</h3>
+            <p>Visit the <a href="{{ url_for('hub.browse_projects') }}">Projects</a> page to browse open research opportunities. You can filter by skills and apply directly through the platform.</p>
+        </div>
+
+        <div class="profile-section">
+            <h3>How do I contact support?</h3>
+            <p>Reach out to us through our <a href="{{ url_for('contact') }}">Contact page</a> or email us at <a href="mailto:info@psra-sudan.org">info@psra-sudan.org</a>.</p>
+        </div>
+    </div>
+</section>
+{% endblock %}

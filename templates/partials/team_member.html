@@ -1,0 +1,18 @@
+{#
+  Usage: {% include 'partials/team_member.html' %}
+  Required variables: member_name, member_role
+  Optional variables: member_image (filename in static/images/)
+#}
+<div class="card team-member-card">
+    {% if member_image|default('') %}
+    <img src="{{ url_for('static', filename='images/' + member_image) }}" 
+         alt="{{ member_name }}" 
+         class="team-member-avatar">
+    {% else %}
+    <div class="team-member-avatar team-member-avatar-placeholder">
+        <span>{{ member_name[0].upper() }}</span>
+    </div>
+    {% endif %}
+    <h3 class="team-member-name">{{ member_name }}</h3>
+    <p class="team-member-role">{{ member_role }}</p>
+</div>

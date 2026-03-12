@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}Privacy Policy - PSRA{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container container-md">
+        <h1>Privacy Policy</h1>
+        <p class="text-secondary mb-8">Last updated: January 2026</p>
+
+        <div class="profile-section">
+            <h2>Information We Collect</h2>
+            <p>We collect information you provide directly to us, such as when you create an account, update your profile, submit research, participate in forum discussions, or contact us. This may include:</p>
+            <ul class="info-list">
+                <li><strong>Account Information:</strong> Name, email address, phone number, university affiliation, and role (student/alumni/researcher).</li>
+                <li><strong>Profile Information:</strong> Headline, bio, profile picture, skills, education, work experience, and social links.</li>
+                <li><strong>Content:</strong> Forum posts, comments, research submissions, messages, and project applications.</li>
+            </ul>
+        </div>
+
+        <div class="profile-section">
+            <h2>How We Use Your Information</h2>
+            <p>We use the information we collect to:</p>
+            <ul class="info-list">
+                <li>Provide, maintain, and improve our services.</li>
+                <li>Connect you with researchers, mentors, and research projects.</li>
+                <li>Send notifications about events, new research, and platform updates.</li>
+                <li>Facilitate forum discussions and messaging between members.</li>
+            </ul>
+        </div>
+
+        <div class="profile-section">
+            <h2>Data Security</h2>
+            <p>We implement appropriate security measures to protect your personal information. However, no method of transmission over the internet is 100% secure, and we cannot guarantee absolute security.</p>
+        </div>
+
+        <div class="profile-section">
+            <h2>Contact Us</h2>
+            <p>If you have questions about this Privacy Policy, please <a href="{{ url_for('contact') }}">contact us</a>.</p>
+        </div>
+    </div>
+</section>
+{% endblock %}
