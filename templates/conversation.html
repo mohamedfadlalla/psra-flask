@@ -81,6 +81,8 @@
     </div>
 </section>
 
+<!-- Socket.IO (lazy-loaded only on chat pages) -->
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
 <!-- Chat functionality script -->
 <script src="{{ url_for('static', filename='js/chat.js') }}"></script>
 {% endblock %}

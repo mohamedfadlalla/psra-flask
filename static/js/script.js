@@ -377,6 +377,7 @@ function initScrollAnimations() {
     animatedElements.forEach(element => {
         observer.observe(element);
     });
+    observer.disconnect();
 }
 
 // ===========================================
@@ -752,7 +753,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize upcoming event section if on home page
     if (document.getElementById('upcoming-event')) {
         updateUpcomingEvent();
-        setInterval(updateUpcomingEvent, 1000);
+        setInterval(updateUpcomingEvent, 30000);
     }
 
     // Smooth scroll for anchor links

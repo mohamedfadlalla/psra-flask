@@ -10,6 +10,12 @@ class ChatManager {
     }
 
     init() {
+        // Guard: Socket.IO must be loaded
+        if (typeof io === 'undefined') {
+            console.error('Socket.IO library not loaded');
+            return;
+        }
+
         // Get user IDs from the page
         this.currentUserId = document.body.getAttribute('data-current-user-id');
         this.otherUserId = document.body.getAttribute('data-other-user-id');
