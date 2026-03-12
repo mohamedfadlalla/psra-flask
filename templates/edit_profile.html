@@ -26,109 +26,109 @@
                     {{ profile_form.hidden_tag() }}
 
                     <div class="form-group">
-                        {{ profile_form.name.label(class="form-label-bold") }}
-                        {{ profile_form.name(class="form-input-basic") }}
+                        {{ profile_form.name.label(class="form-label") }}
+                        {{ profile_form.name(class="form-input") }}
                         {% if profile_form.name.errors %}
-                            <div class="form-error-text">
+                            <div class="form-error">
                                 {% for error in profile_form.name.errors %}{{ error }}{% endfor %}
                             </div>
                         {% endif %}
                     </div>
 
                     <div class="form-group">
-                        {{ profile_form.account_type.label(class="form-label-bold") }}
-                        {{ profile_form.account_type(class="form-input-basic") }}
+                        {{ profile_form.account_type.label(class="form-label") }}
+                        {{ profile_form.account_type(class="form-input") }}
                         {% if profile_form.account_type.errors %}
-                            <div class="form-error-text">
+                            <div class="form-error">
                                 {% for error in profile_form.account_type.errors %}{{ error }}{% endfor %}
                             </div>
                         {% endif %}
                     </div>
 
                     <div class="form-group">
-                        {{ profile_form.headline.label(class="form-label-bold") }}
-                        {{ profile_form.headline(class="form-input-basic") }}
+                        {{ profile_form.headline.label(class="form-label") }}
+                        {{ profile_form.headline(class="form-input") }}
                         {% if profile_form.headline.errors %}
-                            <div class="form-error-text">
+                            <div class="form-error">
                                 {% for error in profile_form.headline.errors %}{{ error }}{% endfor %}
                             </div>
                         {% endif %}
-                        <small class="form-hint-text">e.g., "Pharmacy Student"</small>
+                        <small class="form-hint">e.g., "Pharmacy Student"</small>
                     </div>
 
                     <div class="form-group">
-                        {{ profile_form.location.label(class="form-label-bold") }}
-                        {{ profile_form.location(class="form-input-basic") }}
+                        {{ profile_form.location.label(class="form-label") }}
+                        {{ profile_form.location(class="form-input") }}
                         {% if profile_form.location.errors %}
-                            <div class="form-error-text">
+                            <div class="form-error">
                                 {% for error in profile_form.location.errors %}{{ error }}{% endfor %}
                             </div>
                         {% endif %}
-                        <small class="form-hint-text">e.g., "Khartoum, Sudan"</small>
+                        <small class="form-hint">e.g., "Khartoum, Sudan"</small>
                     </div>
 
                     <div class="form-group">
-                        {{ profile_form.university_id.label(class="form-label-bold") }}
-                        {{ profile_form.university_id(class="form-input-basic") }}
+                        {{ profile_form.university_id.label(class="form-label") }}
+                        {{ profile_form.university_id(class="form-input") }}
                         {% if profile_form.university_id.errors %}
-                            <div class="form-error-text">
+                            <div class="form-error">
                                 {% for error in profile_form.university_id.errors %}{{ error }}{% endfor %}
                             </div>
                         {% endif %}
-                        <small class="form-hint-text">Optional. Select your university to connect with peers from your institution.</small>
+                        <small class="form-hint">Optional. Select your university to connect with peers from your institution.</small>
                     </div>
 
                     <div class="form-group">
-                        {{ profile_form.about.label(class="form-label-bold") }}
-                        {{ profile_form.about(class="form-input-basic form-textarea-md") }}
+                        {{ profile_form.about.label(class="form-label") }}
+                        {{ profile_form.about(class="form-input form-textarea-md") }}
                         {% if profile_form.about.errors %}
-                            <div class="form-error-text">
+                            <div class="form-error">
                                 {% for error in profile_form.about.errors %}{{ error }}{% endfor %}
                             </div>
                         {% endif %}
-                        <small class="form-hint-text">Tell us about yourself</small>
+                        <small class="form-hint">Tell us about yourself</small>
                     </div>
 
-                    <div class="form-check-row">
+                    <div class="form-check">
                         {{ profile_form.open_to_mentor(class="form-check-input") }}
                         <label for="open_to_mentor">Open to Mentorship Requests (for alumni/researchers)</label>
                     </div>
 
                     <div class="form-group">
-                        {{ profile_form.email.label(class="form-label-bold") }}
-                        {{ profile_form.email(class="form-input-readonly") }}
-                        <small class="form-hint-text">Email cannot be changed</small>
+                        {{ profile_form.email.label(class="form-label") }}
+                        {{ profile_form.email(class="form-input") }}
+                        <small class="form-hint">Email cannot be changed</small>
                     </div>
 
                     <div class="form-group">
-                        {{ profile_form.phone_number.label(class="form-label-bold") }}
-                        {{ profile_form.phone_number(class="form-input-basic") }}
+                        {{ profile_form.phone_number.label(class="form-label") }}
+                        {{ profile_form.phone_number(class="form-input") }}
                         {% if profile_form.phone_number.errors %}
-                            <div class="form-error-text">
+                            <div class="form-error">
                                 {% for error in profile_form.phone_number.errors %}{{ error }}{% endfor %}
                             </div>
                         {% endif %}
                     </div>
 
                     <div class="form-group">
-                        {{ profile_form.whatsapp_number.label(class="form-label-bold") }}
-                        {{ profile_form.whatsapp_number(class="form-input-basic") }}
+                        {{ profile_form.whatsapp_number.label(class="form-label") }}
+                        {{ profile_form.whatsapp_number(class="form-input") }}
                         {% if profile_form.whatsapp_number.errors %}
-                            <div class="form-error-text">
+                            <div class="form-error">
                                 {% for error in profile_form.whatsapp_number.errors %}{{ error }}{% endfor %}
                             </div>
                         {% endif %}
                     </div>
 
                     <div class="form-group">
-                        {{ profile_form.skills.label(class="form-label-bold") }}
-                        {{ profile_form.skills(class="form-input-basic") }}
+                        {{ profile_form.skills.label(class="form-label") }}
+                        {{ profile_form.skills(class="form-input") }}
                         {% if profile_form.skills.errors %}
-                            <div class="form-error-text">
+                            <div class="form-error">
                                 {% for error in profile_form.skills.errors %}{{ error }}{% endfor %}
                             </div>
                         {% endif %}
-                        <small class="form-hint-text">e.g., "Research, Pharmacology, Data Analysis"</small>
+                        <small class="form-hint">e.g., "Research, Pharmacology, Data Analysis"</small>
                     </div>
 
                     <!-- Work Experience Section -->
@@ -137,7 +137,7 @@
                         <div id="experience-container">
                             <!-- Experience entries will be added here dynamically -->
                         </div>
-                        <button type="button" id="add-experience" class="btn-add-entry">Add Work Experience</button>
+                        <button type="button" id="add-experience" class="btn btn-secondary btn-sm">Add Work Experience</button>
                         {{ profile_form.experience_data(style="display: none;") }}
                     </div>
 
@@ -147,99 +147,99 @@
                         <div id="education-container">
                             <!-- Education entries will be added here dynamically -->
                         </div>
-                        <button type="button" id="add-education" class="btn-add-entry">Add Education</button>
+                        <button type="button" id="add-education" class="btn btn-secondary btn-sm">Add Education</button>
                         {{ profile_form.education_data(style="display: none;") }}
                     </div>
 
                     <div class="form-group">
-                        {{ profile_form.linkedin_url.label(class="form-label-bold") }}
-                        {{ profile_form.linkedin_url(class="form-input-basic") }}
+                        {{ profile_form.linkedin_url.label(class="form-label") }}
+                        {{ profile_form.linkedin_url(class="form-input") }}
                         {% if profile_form.linkedin_url.errors %}
-                            <div class="form-error-text">
+                            <div class="form-error">
                                 {% for error in profile_form.linkedin_url.errors %}{{ error }}{% endfor %}
                             </div>
                         {% endif %}
-                        <small class="form-hint-text">Your LinkedIn profile URL</small>
+                        <small class="form-hint">Your LinkedIn profile URL</small>
                     </div>
 
                     <div class="form-group">
-                        {{ profile_form.website_url.label(class="form-label-bold") }}
-                        {{ profile_form.website_url(class="form-input-basic") }}
+                        {{ profile_form.website_url.label(class="form-label") }}
+                        {{ profile_form.website_url(class="form-input") }}
                         {% if profile_form.website_url.errors %}
-                            <div class="form-error-text">
+                            <div class="form-error">
                                 {% for error in profile_form.website_url.errors %}{{ error }}{% endfor %}
                             </div>
                         {% endif %}
-                        <small class="form-hint-text">Your personal website URL</small>
+                        <small class="form-hint">Your personal website URL</small>
                     </div>
 
                     <div class="form-group">
-                        {{ profile_form.languages.label(class="form-label-bold") }}
-                        {{ profile_form.languages(class="form-input-basic") }}
+                        {{ profile_form.languages.label(class="form-label") }}
+                        {{ profile_form.languages(class="form-input") }}
                         {% if profile_form.languages.errors %}
-                            <div class="form-error-text">
+                            <div class="form-error">
                                 {% for error in profile_form.languages.errors %}{{ error }}{% endfor %}
                             </div>
                         {% endif %}
-                        <small class="form-hint-text">e.g., "English, Arabic, French"</small>
+                        <small class="form-hint">e.g., "English, Arabic, French"</small>
                     </div>
 
                     <div class="form-group">
-                        {{ profile_form.certifications.label(class="form-label-bold") }}
-                        {{ profile_form.certifications(class="form-input-basic form-textarea-sm") }}
+                        {{ profile_form.certifications.label(class="form-label") }}
+                        {{ profile_form.certifications(class="form-input form-textarea-sm") }}
                         {% if profile_form.certifications.errors %}
-                            <div class="form-error-text">
+                            <div class="form-error">
                                 {% for error in profile_form.certifications.errors %}{{ error }}{% endfor %}
                             </div>
                         {% endif %}
-                        <small class="form-hint-text">Your certifications and achievements</small>
+                        <small class="form-hint">Your certifications and achievements</small>
                     </div>
 
                     <div class="form-group">
-                        {{ profile_form.projects.label(class="form-label-bold") }}
-                        {{ profile_form.projects(class="form-input-basic form-textarea-sm") }}
+                        {{ profile_form.projects.label(class="form-label") }}
+                        {{ profile_form.projects(class="form-input form-textarea-sm") }}
                         {% if profile_form.projects.errors %}
-                            <div class="form-error-text">
+                            <div class="form-error">
                                 {% for error in profile_form.projects.errors %}{{ error }}{% endfor %}
                             </div>
                         {% endif %}
-                        <small class="form-hint-text">Your projects and portfolio</small>
+                        <small class="form-hint">Your projects and portfolio</small>
                     </div>
 
                     <div class="form-group">
-                        {{ profile_form.professional_summary.label(class="form-label-bold") }}
-                        {{ profile_form.professional_summary(class="form-input-basic form-textarea-md") }}
+                        {{ profile_form.professional_summary.label(class="form-label") }}
+                        {{ profile_form.professional_summary(class="form-input form-textarea-md") }}
                         {% if profile_form.professional_summary.errors %}
-                            <div class="form-error-text">
+                            <div class="form-error">
                                 {% for error in profile_form.professional_summary.errors %}{{ error }}{% endfor %}
                             </div>
                         {% endif %}
-                        <small class="form-hint-text">A brief professional summary</small>
+                        <small class="form-hint">A brief professional summary</small>
                     </div>
 
                     <div class="form-group">
-                        {{ profile_form.publications.label(class="form-label-bold") }}
-                        {{ profile_form.publications(class="form-input-basic form-textarea-md") }}
+                        {{ profile_form.publications.label(class="form-label") }}
+                        {{ profile_form.publications(class="form-input form-textarea-md") }}
                         {% if profile_form.publications.errors %}
-                            <div class="form-error-text">
+                            <div class="form-error">
                                 {% for error in profile_form.publications.errors %}{{ error }}{% endfor %}
                             </div>
                         {% endif %}
-                        <small class="form-hint-text">Your publications, research papers, and academic achievements</small>
+                        <small class="form-hint">Your publications, research papers, and academic achievements</small>
                     </div>
 
                     <div class="form-group">
-                        {{ profile_form.profile_picture.label(class="form-label-bold") }}
-                        {{ profile_form.profile_picture(class="form-input-basic") }}
-                        <small class="form-hint-text">Optional. Upload a profile picture (JPG, PNG, GIF). Will be cropped to a circle.</small>
+                        {{ profile_form.profile_picture.label(class="form-label") }}
+                        {{ profile_form.profile_picture(class="form-input") }}
+                        <small class="form-hint">Optional. Upload a profile picture (JPG, PNG, GIF). Will be cropped to a circle.</small>
                         {% if profile_form.profile_picture.errors %}
-                            <div class="form-error-text">
+                            <div class="form-error">
                                 {% for error in profile_form.profile_picture.errors %}{{ error }}{% endfor %}
                             </div>
                         {% endif %}
                     </div>
 
-                    {{ profile_form.submit(class="btn-submit-primary") }}
+                    {{ profile_form.submit(class="btn btn-primary") }}
                 </form>
             </div>
 
@@ -251,36 +251,36 @@
                     {{ password_form.hidden_tag() }}
 
                     <div class="form-group">
-                        {{ password_form.current_password.label(class="form-label-bold") }}
-                        {{ password_form.current_password(class="form-input-basic") }}
+                        {{ password_form.current_password.label(class="form-label") }}
+                        {{ password_form.current_password(class="form-input") }}
                         {% if password_form.current_password.errors %}
-                            <div class="form-error-text">
+                            <div class="form-error">
                                 {% for error in password_form.current_password.errors %}{{ error }}{% endfor %}
                             </div>
                         {% endif %}
                     </div>
 
                     <div class="form-group">
-                        {{ password_form.new_password.label(class="form-label-bold") }}
-                        {{ password_form.new_password(class="form-input-basic") }}
+                        {{ password_form.new_password.label(class="form-label") }}
+                        {{ password_form.new_password(class="form-input") }}
                         {% if password_form.new_password.errors %}
-                            <div class="form-error-text">
+                            <div class="form-error">
                                 {% for error in password_form.new_password.errors %}{{ error }}{% endfor %}
                             </div>
                         {% endif %}
                     </div>
 
                     <div class="form-group">
-                        {{ password_form.confirm_password.label(class="form-label-bold") }}
-                        {{ password_form.confirm_password(class="form-input-basic") }}
+                        {{ password_form.confirm_password.label(class="form-label") }}
+                        {{ password_form.confirm_password(class="form-input") }}
                         {% if password_form.confirm_password.errors %}
-                            <div class="form-error-text">
+                            <div class="form-error">
                                 {% for error in password_form.confirm_password.errors %}{{ error }}{% endfor %}
                             </div>
                         {% endif %}
                     </div>
 
-                    {{ password_form.submit(class="btn-submit-secondary") }}
+                    {{ password_form.submit(class="btn btn-secondary") }}
                 </form>
             </div>
 
