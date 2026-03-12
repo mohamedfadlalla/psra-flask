@@ -1347,7 +1347,7 @@ img {
 
 .hero-scroll-indicator {
     position: absolute;
-    bottom: 10rem;
+    bottom: var(--space-8);
     left: 50%;
     transform: translateX(-50%);
     z-index: 3;
