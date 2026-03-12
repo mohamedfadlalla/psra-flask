@@ -45,7 +45,7 @@ Anyone visiting the website can access these features without logging in.
 Logged-in users have access to all public features plus the following interactive functionalities.
 
 * **Profile Management**
-  * **View/Edit Profile:** Update personal information, headline, location, contact details, batch number, and professional summary.
+  * **View/Edit Profile:** Update personal information, headline, location, contact details, and professional summary.
   * **Resume/Portfolio Building:** Add skills, education history, work experience, languages, certifications, projects, and publications.
   * **Media:** Upload a profile picture and a cover photo.
   * **Security:** Change account password.
