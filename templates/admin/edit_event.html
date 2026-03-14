@@ -64,7 +64,8 @@
                     </div>
                     {% endif %}
                     <input type="file" id="image" name="image" accept="image/*" style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 4px; font-size: 16px;">
-                    <small style="color: var(--text-muted); display: block; margin-top: 5px;">Upload a new image to replace the current one (JPG, PNG, etc.)</small>
+                    <small style="color: var(--text-muted); display: block; margin-top: 5px;">Upload a new image to replace the current one (JPG, PNG, etc. Max 2MB)</small>
+                    <small id="image-size-error" style="color: #dc3545; display: none; margin-top: 5px;"><i class="fas fa-exclamation-triangle"></i> File size exceeds 2MB limit. Please choose a smaller image.</small>
                 </div>
 
                 <div style="margin-bottom: 20px; padding: 15px; background-color: var(--bg-secondary); border-radius: 4px;">
@@ -81,4 +82,23 @@
         </div>
     </div>
 </section>
+
+<script>
+document.getElementById('image').addEventListener('change', function(e) {
+    const errorMsg = document.getElementById('image-size-error');
+    const file = e.target.files[0];
+    const MAX_SIZE = 2 * 1024 * 1024; // 2MB
+    
+    if (file) {
+        if (file.size > MAX_SIZE) {
+            errorMsg.style.display = 'block';
+            e.target.value = '';
+        } else {
+            errorMsg.style.display = 'none';
+        }
+    } else {
+        errorMsg.style.display = 'none';
+    }
+});
+</script>
 {% endblock %}
