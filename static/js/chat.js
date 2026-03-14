@@ -131,14 +131,32 @@ class ChatManager {
 
         // Create message element
         const messageDiv = document.createElement('div');
-        messageDiv.className = `message ${isSent ? 'sent' : 'received'}`;
+        messageDiv.className = `flex flex-col mb-4 group ${isSent ? 'items-end' : 'items-start'}`;
         messageDiv.setAttribute('data-message-id', messageData.id);
 
+        const bubbleClasses = isSent 
+            ? 'chat-bubble-sent px-4 py-2.5 rounded-2xl rounded-br-sm shadow-sm' 
+            : 'chat-bubble-received px-4 py-2.5 rounded-2xl rounded-bl-sm';
+
+        const readReceiptHtml = (isSent && messageData.is_read) 
+            ? '<i class="fas fa-check-double text-blue-400"></i>' 
+            : '';
+
+        const deleteHtml = isSent 
+            ? `<button onclick="deleteMessage(${messageData.id})" class="hidden group-hover:inline-block text-red-400 hover:text-red-600 transition-colors ml-2">
+                   <i class="fas fa-trash-alt text-[10px]"></i>
+               </button>` 
+            : '';
+
         messageDiv.innerHTML = `
-            <div class="message-content">
-                <p>${this.escapeHtml(messageData.content)}</p>
-                <small class="message-time">${this.formatTime(messageData.created_at)}</small>
-                ${isSent && messageData.is_read ? '<small class="read-receipt">✓✓</small>' : ''}
+            <div class="relative max-w-[85%] sm:max-w-[70%] ${bubbleClasses}">
+                <p class="whitespace-pre-wrap break-words leading-relaxed text-[15px] m-0">${this.escapeHtml(messageData.content)}</p>
+            </div>
+            
+            <div class="flex items-center gap-1 mt-1 text-[11px] text-gray-400">
+                <span>${this.formatTime(messageData.created_at)}</span>
+                ${readReceiptHtml}
+                ${deleteHtml}
             </div>
         `;
 
@@ -202,13 +220,22 @@ class ChatManager {
         // Update read receipts for sent messages
         data.message_ids.forEach(messageId => {
             const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
-            if (messageElement && messageElement.classList.contains('sent')) {
-                const existingReceipt = messageElement.querySelector('.read-receipt');
-                if (!existingReceipt) {
-                    const receipt = document.createElement('small');
-                    receipt.className = 'read-receipt';
-                    receipt.textContent = '✓✓';
-                    messageElement.querySelector('.message-content').appendChild(receipt);
+            if (messageElement && messageElement.classList.contains('items-end')) {
+                const timeContainer = messageElement.querySelector('.gap-1');
+                if (timeContainer) {
+                    const existingReceipt = timeContainer.querySelector('.fa-check-double');
+                    if (!existingReceipt) {
+                        const receipt = document.createElement('i');
+                        receipt.className = 'fas fa-check-double text-blue-400';
+                        
+                        // Insert after the time span (first child of timeContainer)
+                        const timeSpan = timeContainer.querySelector('span');
+                        if (timeSpan && timeSpan.nextSibling) {
+                            timeContainer.insertBefore(receipt, timeSpan.nextSibling);
+                        } else {
+                            timeContainer.appendChild(receipt);
+                        }
+                    }
                 }
             }
         });

@@ -3,3 +3,5 @@ instance/
 __pycache__/
 *.pyc
 client_secret.json
+instance/psra.db
+__pycache__/app.cpython-313.pyc

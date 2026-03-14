@@ -3629,3 +3629,17 @@ img {
 [data-theme="dark"] .btn-view-all:hover {
     background-color: var(--primary-blue);
 }
+
+/* Chat Bubbles explicit CSS for dynamic rendering */
+.chat-bubble-sent {
+    background-color: var(--primary-blue) !important;
+    color: #ffffff !important;
+    border-color: var(--primary-blue) !important;
+}
+.chat-bubble-received {
+    background-color: #f3f4f6 !important;
+    color: #1f2937 !important;
+    border-color: #e5e7eb !important;
+    border-width: 1px !important;
+    border-style: solid !important;
+}
