@@ -42,6 +42,12 @@ login_manager.init_app(app)
 login_manager.login_view = 'forum.login'
 login_manager.login_message = 'Please log in to access this page.'
 
+@login_manager.unauthorized_handler
+def unauthorized():
+    """Redirect unauthenticated users to login page."""
+    flash('Please log in to access this page.', 'info')
+    return redirect(url_for('forum.login'))
+
 # Initialize OAuth
 oauth.init_app(app)
 

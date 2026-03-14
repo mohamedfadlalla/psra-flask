@@ -7,7 +7,7 @@
     <h1 class="text-3xl font-bold text-primary-blue mb-8">Manage Mentorships</h1>
 
     <!-- Incoming Requests (For Alumni) -->
-    {% if current_user.role.value == 'alumni' %}
+    {% if current_user.is_authenticated and current_user.role.value == 'alumni' %}
     <div class="mb-12">
         <h2 class="text-2xl font-semibold border-b pb-2 mb-6">Incoming Requests</h2>
         {% if incoming_requests %}
