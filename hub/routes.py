@@ -8,6 +8,7 @@ from .forms import MentorshipRequestForm, ResearchProjectForm, ApplicationForm
 from models import db, User, UserRole, Profile, AlumniProfile, MentorshipStatus, MentorRequest, ActiveMentorship
 from models import Skill, ResearchProject, ProjectStatus, ProjectRequiredSkill, ProjectApplication, ApplicationStatus
 from utils.constants import FLASH_SUCCESS, FLASH_ERROR
+from utils.email_utils import send_mentorship_request_email, send_mentorship_response_email
 
 def get_or_create_skills(skill_string):
     if not skill_string:
@@ -65,6 +66,9 @@ def request_mentorship(alumni_id):
         )
         db.session.add(mentor_req)
         db.session.commit()
+        
+        send_mentorship_request_email(alumni, current_user, form.message.data)
+        
         flash('Mentorship request sent successfully.', FLASH_SUCCESS)
         return redirect(url_for('hub.browse_mentors'))
 
@@ -120,9 +124,14 @@ def respond_mentorship(request_id, action):
         from services.message_service import MessageService
         MessageService.get_or_create_conversation(mentor_req.student_id, mentor_req.alumni_id)
         
+        send_mentorship_response_email(mentor_req.student, current_user, 'accepted')
+        
         flash('Mentorship request accepted.', FLASH_SUCCESS)
     elif action == 'reject':
         mentor_req.status = MentorshipStatus.REJECTED
+        
+        send_mentorship_response_email(mentor_req.student, current_user, 'rejected')
+        
         flash('Mentorship request rejected.', FLASH_SUCCESS)
         
     db.session.commit()

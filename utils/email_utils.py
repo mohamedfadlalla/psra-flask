@@ -518,3 +518,172 @@ def send_research_status_email(user, research, status, reason=None):
                                         status_color=status_color, reason=reason)
     
     return send_email(subject, [user.email], html_body)
+
+
+def send_mentorship_request_email(alumni, student, message):
+    """
+    Send a mentorship request notification email to the alumni.
+    
+    Args:
+        alumni: User model instance (the alumni/mentor receiving the request)
+        student: User model instance (the student making the request)
+        message: The message from the student
+        
+    Returns:
+        tuple: (success: bool, error_message: str or None)
+    """
+    subject = f"New Mentorship Request from {student.name} - PSRA"
+    
+    html_template = """
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8">
+        <style>
+            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .header { background-color: #2D577B; color: white; padding: 20px; text-align: center; }
+            .content { padding: 20px; background-color: #f9f9f9; }
+            .request-details { background-color: white; padding: 15px; border-radius: 5px; margin: 15px 0; }
+            .message-box { background-color: #f0f0f0; padding: 10px; border-left: 4px solid #2D577B; margin: 10px 0; }
+            .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
+            .btn { display: inline-block; padding: 10px 20px; background-color: #2D577B; color: white; text-decoration: none; border-radius: 5px; margin: 5px; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>New Mentorship Request</h1>
+            </div>
+            <div class="content">
+                <p>Dear {{ alumni.name }},</p>
+                
+                <p>You have received a new mentorship request!</p>
+                
+                <div class="request-details">
+                    <p><strong>From:</strong> {{ student.name }}</p>
+                    <p><strong>Email:</strong> {{ student.email }}</p>
+                </div>
+                
+                <p><strong>Message:</strong></p>
+                <div class="message-box">
+                    {{ message }}
+                </div>
+                
+                <p>Log in to your PSRA dashboard to review and respond to this request.</p>
+                
+                <p><a href="{{ url }}" class="btn">Manage Mentorships</a></p>
+                
+                <p>Best regards,<br>PSRA Team</p>
+            </div>
+            <div class="footer">
+                <p>This is an automated notification from the Pharmaceutical Studies and Research Association.</p>
+            </div>
+        </div>
+    </body>
+    </html>
+    """
+    
+    from flask import url_for
+    from flask import current_app
+    
+    with current_app.app_context():
+        manage_url = url_for('hub.manage_mentorships', _external=True)
+        html_body = render_template_string(html_template, 
+                                         alumni=alumni, 
+                                         student=student, 
+                                         message=message,
+                                         url=manage_url)
+    
+    return send_email(subject, [alumni.email], html_body)
+
+
+def send_mentorship_response_email(student, alumni, status, message=None):
+    """
+    Send a mentorship response (accept/reject) notification email to the student.
+    
+    Args:
+        student: User model instance (the student receiving the response)
+        alumni: User model instance (the alumni/mentor who responded)
+        status: 'accepted' or 'rejected'
+        message: Optional message from the alumni
+        
+    Returns:
+        tuple: (success: bool, error_message: str or None)
+    """
+    if status == 'accepted':
+        subject = f"Your Mentorship Request Has Been Accepted - PSRA"
+        status_color = "#28a745"
+        status_message = "Great news! Your mentorship request has been accepted."
+    else:
+        subject = f"Your Mentorship Request Has Been Declined - PSRA"
+        status_color = "#dc3545"
+        status_message = "Unfortunately, your mentorship request has been declined."
+    
+    html_template = """
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8">
+        <style>
+            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .header { background-color: {{ status_color }}; color: white; padding: 20px; text-align: center; }
+            .content { padding: 20px; background-color: #f9f9f9; }
+            .response-details { background-color: white; padding: 15px; border-radius: 5px; margin: 15px 0; }
+            .message-box { background-color: #f0f0f0; padding: 10px; border-left: 4px solid {{ status_color }}; margin: 10px 0; }
+            .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>Mentorship Request Update</h1>
+            </div>
+            <div class="content">
+                <p>Dear {{ student.name }},</p>
+                
+                <p>{{ status_message }}</p>
+                
+                <div class="response-details">
+                    <p><strong>Mentor:</strong> {{ alumni.name }}</p>
+                    {% if alumni.alumni_profile and alumni.alumni_profile.job_title %}
+                    <p><strong>Job Title:</strong> {{ alumni.alumni_profile.job_title }}</p>
+                    {% endif %}
+                    {% if alumni.alumni_profile and alumni.alumni_profile.company %}
+                    <p><strong>Company:</strong> {{ alumni.alumni_profile.company }}</p>
+                    {% endif %}
+                </div>
+                
+                {% if message %}
+                <p><strong>Message from mentor:</strong></p>
+                <div class="message-box">
+                    {{ message }}
+                </div>
+                {% endif %}
+                
+                {% if status == 'accepted' %}
+                <p>You can now connect with your mentor through the PSRA messaging system.</p>
+                {% endif %}
+                
+                <p>Log in to your PSRA dashboard to view more details.</p>
+                
+                <p>Best regards,<br>PSRA Team</p>
+            </div>
+            <div class="footer">
+                <p>This is an automated notification from the Pharmaceutical Studies and Research Association.</p>
+            </div>
+        </div>
+    </body>
+    </html>
+    """
+    
+    html_body = render_template_string(html_template, 
+                                     student=student, 
+                                     alumni=alumni, 
+                                     status=status,
+                                     status_color=status_color,
+                                     status_message=status_message,
+                                     message=message)
+    
+    return send_email(subject, [student.email], html_body)
