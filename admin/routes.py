@@ -759,3 +759,76 @@ def send_announcement():
     
     mail_configured, mail_error = is_mail_configured()
     return render_template('admin/send_announcement.html', mail_configured=mail_configured, mail_error=mail_error)
+
+
+# ==================== Test Email ====================
+
+@admin_bp.route('/test-email', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def test_email():
+    """Test email sending functionality."""
+    if request.method == 'POST':
+        recipient = request.form.get('recipient', '').strip()
+        
+        if not recipient:
+            flash('Please provide a recipient email address.', FLASH_ERROR)
+            return redirect(url_for('admin.test_email'))
+        
+        mail_configured, mail_error = is_mail_configured()
+        if not mail_configured:
+            flash(f'Mail not configured: {mail_error}', FLASH_ERROR)
+            return redirect(url_for('admin.test_email'))
+        
+        try:
+            from utils.email_utils import send_email
+            from flask import render_template_string
+            
+            subject = "PSRA Email Test"
+            html_template = """
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="utf-8">
+                <style>
+                    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+                    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                    .header { background-color: #28a745; color: white; padding: 20px; text-align: center; }
+                    .content { padding: 20px; background-color: #f9f9f9; }
+                    .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <div class="header">
+                        <h1>Email Test Successful!</h1>
+                    </div>
+                    <div class="content">
+                        <p>Hello,</p>
+                        <p>This is a test email from the PSRA website.</p>
+                        <p>If you received this email, your email configuration is working correctly.</p>
+                        <p>Best regards,<br>PSRA Team</p>
+                    </div>
+                    <div class="footer">
+                        <p>This is an automated test email.</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+            """
+            
+            success, error = send_email(subject, [recipient], html_template)
+            
+            if success:
+                flash(f'Test email sent successfully to {recipient}!', FLASH_SUCCESS)
+            else:
+                flash(f'Failed to send test email: {error}', FLASH_ERROR)
+                
+        except Exception as e:
+            current_app.logger.error(f"Test email failed: {str(e)}")
+            flash(f'Test email failed: {str(e)}', FLASH_ERROR)
+        
+        return redirect(url_for('admin.test_email'))
+    
+    mail_configured, mail_error = is_mail_configured()
+    return render_template('admin/test_email.html', mail_configured=mail_configured, mail_error=mail_error)

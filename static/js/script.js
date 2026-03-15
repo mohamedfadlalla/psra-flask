@@ -377,7 +377,58 @@ function initScrollAnimations() {
     animatedElements.forEach(element => {
         observer.observe(element);
     });
-    observer.disconnect();
+}
+
+// ===========================================
+// STATS COUNTER ANIMATION
+// ===========================================
+
+/**
+ * Initialize stats counter animation when in view
+ */
+function initStatsCounter() {
+    const statsSection = document.querySelector('.stats-section-home');
+    if (!statsSection) return;
+
+    const statNumbers = document.querySelectorAll('.stats-section-home .stat-number');
+    let animated = false;
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting && !animated) {
+                animated = true;
+                statNumbers.forEach(stat => {
+                    const target = parseInt(stat.getAttribute('data-target'));
+                    if (isNaN(target)) return;
+
+                    const duration = 2000; // 2 seconds
+                    const startTime = performance.now();
+
+                    function updateCounter(currentTime) {
+                        const elapsedTime = currentTime - startTime;
+                        const progress = Math.min(elapsedTime / duration, 1);
+                        
+                        // Easing function (easeOutExpo) for a nice slowdown effect
+                        const easeProgress = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+                        
+                        const currentVal = Math.floor(easeProgress * target);
+                        stat.textContent = currentVal;
+
+                        if (progress < 1) {
+                            requestAnimationFrame(updateCounter);
+                        } else {
+                            stat.textContent = target; // Ensure exact final value
+                        }
+                    }
+
+                    requestAnimationFrame(updateCounter);
+                });
+                observer.disconnect(); // Stop observing once animated
+            }
+        });
+    }, { threshold: 0.2 });
+
+    observer.observe(statsSection);
 }
 
 // ===========================================
@@ -626,6 +677,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Initialize scroll animations
     initScrollAnimations();
+    
+    // Initialize stats counter
+    initStatsCounter();
     
     // Forum search and filter
     const searchInput = document.getElementById('search-input');

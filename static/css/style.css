@@ -2924,6 +2924,20 @@ img {
     margin-bottom: var(--space-2);
 }
 
+.stats-section-home .stat-number {
+    color: var(--text-inverse);
+}
+
+.stats-section-home .stat-label {
+    color: var(--text-inverse);
+    opacity: 0.9;
+}
+
+.stats-section-home .stat-icon {
+    color: var(--text-inverse);
+    opacity: 1;
+}
+
 .stat-label {
     font-size: var(--font-size-sm);
     opacity: 0.85;
