@@ -11,18 +11,17 @@ from sqlalchemy import or_, and_, func
 from models import db, Research, Researcher, User
 
 
-# Valid department choices for filtering
-DEPARTMENT_CHOICES = [
-    ('all', 'All Departments'),
-    ('Pharmaceutics & Drug Delivery', 'Pharmaceutics & Drug Delivery'),
-    ('Pharmacology & Toxicology', 'Pharmacology & Toxicology'),
-    ('Clinical Pharmacy & Pharmacy Practice', 'Clinical Pharmacy & Pharmacy Practice'),
-    ('Pharmaceutical Chemistry', 'Pharmaceutical Chemistry'),
-]
-
-
 class ResearchService:
     """Service class for research-related operations."""
+    
+    # Valid department choices for filtering
+    DEPARTMENT_CHOICES = [
+        ('all', 'All Departments'),
+        ('Pharmaceutics & Drug Delivery', 'Pharmaceutics & Drug Delivery'),
+        ('Pharmacology & Toxicology', 'Pharmacology & Toxicology'),
+        ('Clinical Pharmacy & Pharmacy Practice', 'Clinical Pharmacy & Pharmacy Practice'),
+        ('Pharmaceutical Chemistry', 'Pharmaceutical Chemistry'),
+    ]
     
     @staticmethod
     def get_year_choices() -> List[Tuple[str, str]]:
