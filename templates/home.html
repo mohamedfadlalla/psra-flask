@@ -11,9 +11,15 @@
         <h1 class="hero-title">Advancing Pharmaceutical Sciences Through Research & Collaboration</h1>
         <p class="hero-subtitle">Join a community of pharmacy students and researchers dedicated to advancing healthcare. Discover research opportunities, collaborate on projects, and make a real impact.</p>
         <div class="hero-actions">
+            {% if current_user.is_authenticated %}
+            <a href="{{ url_for('dashboard') }}" class="hero-btn-primary">
+                <i class="fas fa-tachometer-alt"></i> Go to Dashboard
+            </a>
+            {% else %}
             <a href="{{ url_for('forum.register') }}" class="hero-btn-primary">
                 <i class="fas fa-user-plus"></i> Join the Community
             </a>
+            {% endif %}
             <a href="{{ url_for('research') }}" class="hero-btn-outline">
                 <i class="fas fa-flask"></i> Explore Research
             </a>
