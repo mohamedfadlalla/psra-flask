@@ -126,9 +126,22 @@ app.register_blueprint(hub_bp, url_prefix='/hub')
 
 @app.route('/')
 def home():
-    """Display home page with recent comments."""
+    """Display home page with recent comments and stats."""
+    from models import University
+    
     recent_comments = Comment.query.order_by(Comment.created_at.desc()).limit(5).all()
-    return render_template('home.html', recent_comments=recent_comments)
+    
+    active_members_count = User.query.count()
+    research_pubs_count = Research.query.filter_by(is_approved=True).count()
+    events_hosted_count = Event.query.count()
+    partner_unis_count = University.query.filter_by(is_active=True).count()
+    
+    return render_template('home.html', 
+                           recent_comments=recent_comments,
+                           active_members_count=active_members_count,
+                           research_pubs_count=research_pubs_count,
+                           events_hosted_count=events_hosted_count,
+                           partner_unis_count=partner_unis_count)
 
 
 @app.route('/dashboard')
