@@ -763,11 +763,11 @@ def send_project_application_email(researcher, student, project, motivation_lett
     from flask import url_for
     from flask import current_app
     
-    project_filled = project.filled_positions if hasattr(project, 'filled_positions') else 0
-    project_total = project.total_positions if hasattr(project, 'total_positions') else 'N/A'
+    project_filled = len([a for a in project.applications if a.status.value == 'accepted']) if project.applications else 0
+    project_total = project.required_positions
     
     with current_app.app_context():
-        manage_url = url_for('hub.manage_research_projects', _external=True)
+        manage_url = url_for('hub.manage_projects', _external=True)
         html_body = render_template_string(html_template, 
                                          researcher=researcher, 
                                          student=student, 
