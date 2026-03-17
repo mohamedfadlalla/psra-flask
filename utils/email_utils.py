@@ -687,3 +687,94 @@ def send_mentorship_response_email(student, alumni, status, message=None):
                                      message=message)
     
     return send_email(subject, [student.email], html_body)
+
+
+def send_project_application_email(researcher, student, project, motivation_letter):
+    """
+    Send a research project application notification email to the researcher.
+    
+    Args:
+        researcher: User model instance (the researcher receiving the application)
+        student: User model instance (the student applying)
+        project: ResearchProject model instance
+        motivation_letter: The student's motivation letter
+        
+    Returns:
+        tuple: (success: bool, error_message: str or None)
+    """
+    subject = f"New Application for Your Research Project: {project.title} - PSRA"
+    
+    html_template = """
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8">
+        <style>
+            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .header { background-color: #2D577B; color: white; padding: 20px; text-align: center; }
+            .content { padding: 20px; background-color: #f9f9f9; }
+            .project-details { background-color: white; padding: 15px; border-radius: 5px; margin: 15px 0; }
+            .student-details { background-color: white; padding: 15px; border-radius: 5px; margin: 15px 0; }
+            .motivation-box { background-color: #f0f0f0; padding: 10px; border-left: 4px solid #2D577B; margin: 10px 0; }
+            .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
+            .btn { display: inline-block; padding: 10px 20px; background-color: #2D577B; color: white; text-decoration: none; border-radius: 5px; margin: 5px; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>New Research Project Application</h1>
+            </div>
+            <div class="content">
+                <p>Dear {{ researcher.name }},</p>
+                
+                <p>You have received a new application for your research project!</p>
+                
+                <div class="project-details">
+                    <p><strong>Project Title:</strong> {{ project.title }}</p>
+                    <p><strong>Positions Filled:</strong> {{ project_filled }} / {{ project_total }}</p>
+                </div>
+                
+                <div class="student-details">
+                    <p><strong>Applicant:</strong> {{ student.name }}</p>
+                    <p><strong>Email:</strong> {{ student.email }}</p>
+                </div>
+                
+                <p><strong>Motivation Letter:</strong></p>
+                <div class="motivation-box">
+                    {{ motivation_letter }}
+                </div>
+                
+                <p>Log in to your PSRA dashboard to review and manage this application.</p>
+                
+                <p><a href="{{ url }}" class="btn">Manage Applications</a></p>
+                
+                <p>Best regards,<br>PSRA Team</p>
+            </div>
+            <div class="footer">
+                <p>This is an automated notification from the Pharmaceutical Studies and Research Association.</p>
+            </div>
+        </div>
+    </body>
+    </html>
+    """
+    
+    from flask import url_for
+    from flask import current_app
+    
+    project_filled = project.filled_positions if hasattr(project, 'filled_positions') else 0
+    project_total = project.total_positions if hasattr(project, 'total_positions') else 'N/A'
+    
+    with current_app.app_context():
+        manage_url = url_for('hub.manage_research_projects', _external=True)
+        html_body = render_template_string(html_template, 
+                                         researcher=researcher, 
+                                         student=student, 
+                                         project=project,
+                                         motivation_letter=motivation_letter,
+                                         project_filled=project_filled,
+                                         project_total=project_total,
+                                         url=manage_url)
+    
+    return send_email(subject, [researcher.email], html_body)
