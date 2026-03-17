@@ -1,6 +1,6 @@
-from flask import current_app, render_template_string
+from flask import current_app, render_template_string, url_for
 from flask_mail import Message
-from models import User
+from models import User, ApplicationStatus
 import logging
 
 
@@ -760,10 +760,7 @@ def send_project_application_email(researcher, student, project, motivation_lett
     </html>
     """
     
-    from flask import url_for
-    from flask import current_app
-    
-    project_filled = len([a for a in project.applications if a.status.value == 'accepted']) if project.applications else 0
+    project_filled = len([a for a in project.applications if a.status == ApplicationStatus.ACCEPTED]) if project.applications else 0
     project_total = project.required_positions
     
     with current_app.app_context():
@@ -777,4 +774,6 @@ def send_project_application_email(researcher, student, project, motivation_lett
                                          project_total=project_total,
                                          url=manage_url)
     
-    return send_email(subject, [researcher.email], html_body)
+    result = send_email(subject, [researcher.email], html_body)
+    current_app.logger.info(f"Project application notification sent to {researcher.email} for project '{project.title}'")
+    return result
