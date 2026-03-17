@@ -777,3 +777,98 @@ def send_project_application_email(researcher, student, project, motivation_lett
     result = send_email(subject, [researcher.email], html_body)
     current_app.logger.info(f"Project application notification sent to {researcher.email} for project '{project.title}'")
     return result
+
+
+def send_project_application_response_email(student, researcher, project, status, message=None):
+    """
+    Send a research project application response (accept/reject) notification email to the student.
+    
+    Args:
+        student: User model instance (the student receiving the response)
+        researcher: User model instance (the researcher who responded)
+        project: ResearchProject model instance
+        status: 'accepted' or 'rejected'
+        message: Optional message from the researcher
+        
+    Returns:
+        tuple: (success: bool, error_message: str or None)
+    """
+    if status == 'accepted' or status == ApplicationStatus.ACCEPTED:
+        subject = f"Your Application Has Been Accepted - {project.title} - PSRA"
+        status_color = "#28a745"
+        status_message = "Great news! Your application for the research project has been accepted."
+    else:
+        subject = f"Your Application Has Been Declined - {project.title} - PSRA"
+        status_color = "#dc3545"
+        status_message = "Unfortunately, your application for the research project has been declined."
+    
+    html_template = """
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8">
+        <style>
+            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .header { background-color: {{ status_color }}; color: white; padding: 20px; text-align: center; }
+            .content { padding: 20px; background-color: #f9f9f9; }
+            .project-details { background-color: white; padding: 15px; border-radius: 5px; margin: 15px 0; }
+            .message-box { background-color: #f0f0f0; padding: 10px; border-left: 4px solid {{ status_color }}; margin: 10px 0; }
+            .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
+            .btn { display: inline-block; padding: 10px 20px; background-color: #2D577B; color: white; text-decoration: none; border-radius: 5px; margin: 5px; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>Research Project Application Update</h1>
+            </div>
+            <div class="content">
+                <p>Dear {{ student.name }},</p>
+                
+                <p>{{ status_message }}</p>
+                
+                <div class="project-details">
+                    <p><strong>Project Title:</strong> {{ project.title }}</p>
+                    <p><strong>Researcher:</strong> {{ researcher.name }}</p>
+                    <p><strong>Researcher Email:</strong> {{ researcher.email }}</p>
+                </div>
+                
+                {% if message %}
+                <p><strong>Message from researcher:</strong></p>
+                <div class="message-box">
+                    {{ message }}
+                </div>
+                {% endif %}
+                
+                {% if status == 'accepted' or status == 'ApplicationStatus.ACCEPTED' %}
+                <p>You can now message the researcher through the PSRA messaging system.</p>
+                <p><a href="{{ message_url }}" class="btn">Message Researcher</a></p>
+                {% endif %}
+                
+                <p>Log in to your PSRA dashboard to view more details.</p>
+                
+                <p>Best regards,<br>PSRA Team</p>
+            </div>
+            <div class="footer">
+                <p>This is an automated notification from the Pharmaceutical Studies and Research Association.</p>
+            </div>
+        </div>
+    </body>
+    </html>
+    """
+    
+    with current_app.app_context():
+        message_url = url_for('hub.messages', _external=True)
+        html_body = render_template_string(html_template, 
+                                         student=student, 
+                                         researcher=researcher, 
+                                         project=project,
+                                         status=status,
+                                         status_color=status_color,
+                                         status_message=status_message,
+                                         message=message,
+                                         message_url=message_url)
+    
+    current_app.logger.info(f"Project application response ({status}) email sent to {student.email} for project '{project.title}'")
+    return send_email(subject, [student.email], html_body)
