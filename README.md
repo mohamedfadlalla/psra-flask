@@ -29,7 +29,7 @@ Anyone visiting the website can access these features without logging in.
 
 * **Informational Pages & Directory**
   * **Home Page:** View the landing page and recent forum comments.
-  * **Static Pages:** Access About, Support & Donations, Collaborate, Contact, Privacy Policy, and FAQ pages.
+  * **Static Pages:** Access About, Get Involved, Collaborate, Contact, Privacy Policy, and FAQ pages.
   * **Event Directory:** View categorized events (Live, Upcoming, and Archived).
   * **Researcher Directory:** View a list of all researchers, research statistics, and individual researcher profiles.
 * **Research Library**

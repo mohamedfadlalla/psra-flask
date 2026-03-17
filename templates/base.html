@@ -62,7 +62,7 @@
                     <li><a href="{{ url_for('forum.users') }}" class="nav-link {% if request.endpoint == 'forum.users' %}active{% endif %}">Find Users</a></li>
                     {% endif %}
                     <li><a href="{{ url_for('events') }}" class="nav-link {% if request.endpoint == 'events' %}active{% endif %}">Events</a></li>
-                    <li><a href="{{ url_for('support') }}" class="nav-link {% if request.endpoint == 'support' %}active{% endif %}">Support</a></li>
+                    <li><a href="{{ url_for('get_involved') }}" class="nav-link {% if request.endpoint == 'get_involved' %}active{% endif %}">Get Involved</a></li>
                     
                     {% if not current_user.is_authenticated %}
                     <li class="nav-auth-links nav-auth-links-desktop">

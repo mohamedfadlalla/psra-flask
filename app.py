@@ -393,10 +393,10 @@ def events():
                           archived_events=events_data['archived'])
 
 
-@app.route('/support')
-def support():
-    """Display support and donations page."""
-    return render_template('support.html')
+@app.route('/get-involved')
+def get_involved():
+    """Display get involved page."""
+    return render_template('get_involved.html')
 
 
 @app.route('/about')

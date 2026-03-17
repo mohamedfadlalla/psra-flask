@@ -26,6 +26,11 @@ def get_or_create_skills(skill_string):
 
 # ==================== Mentorship Module ====================
 
+@hub_bp.route('/mentorship')
+def mentorship_info():
+    """Display mentorship information page."""
+    return render_template('hub/mentorship.html')
+
 @hub_bp.route('/mentors')
 @login_required
 def browse_mentors():
