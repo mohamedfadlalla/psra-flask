@@ -3,38 +3,36 @@
 {% block title %}Messages - PSRA{% endblock %}
 
 {% block content %}
-<section class="section bg-gray-50 min-h-screen py-8">
-    <div class="container mx-auto px-4 max-w-3xl">
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-            <h1 class="text-3xl font-bold text-gray-900 m-0">Your Messages</h1>
-            <a href="{{ url_for('forum.send_message_by_username') }}" class="btn btn-primary whitespace-nowrap"><i class="fas fa-edit mr-2"></i>New Message</a>
+<section class="section messages-page">
+    <div class="container">
+        <div class="messages-page-header">
+            <h1 class="messages-page-title">Your Messages</h1>
+            <a href="{{ url_for('forum.send_message_by_username') }}" class="btn btn-primary"><i class="fas fa-edit"></i>New Message</a>
         </div>
 
         {% if conversations %}
-            <div class="space-y-3">
+            <div class="messages-list">
                 {% for conv in conversations %}
-                <a href="{{ url_for('forum.conversation', user_id=conv.user.id) }}" class="block bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md hover:border-blue-100 transition-all duration-200 overflow-hidden {% if conv.unread_count > 0 %}border-l-4 border-l-primary-blue bg-blue-50/30{% endif %}">
-                    <div class="flex items-center p-4 sm:p-5">
-                        <div class="flex-shrink-0 mr-4">
-                            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-primary-blue to-blue-light flex items-center justify-center text-white font-bold text-xl ring-2 ring-white shadow-sm">
-                                {{ conv.user.name[0].upper() }}
-                            </div>
+                <a href="{{ url_for('forum.conversation', user_id=conv.user.id) }}" class="conversation-preview {% if conv.unread_count > 0 %}unread{% endif %}">
+                    <div class="conversation-preview-content">
+                        <div class="conversation-preview-avatar">
+                            {{ conv.user.name[0].upper() }}
                         </div>
-                        <div class="flex-1 min-w-0">
-                            <div class="flex justify-between items-baseline mb-1">
-                                <h3 class="text-base font-bold text-gray-900 truncate pr-2">
+                        <div class="conversation-preview-info">
+                            <div class="conversation-preview-header">
+                                <h3 class="conversation-preview-name">
                                     {{ conv.user.name }}
                                     {% if conv.unread_count > 0 %}
-                                        <span class="inline-flex items-center justify-center bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full ml-2">{{ conv.unread_count }}</span>
+                                        <span class="unread-badge">{{ conv.unread_count }}</span>
                                     {% endif %}
                                 </h3>
                                 {% if conv.latest_message %}
-                                    <span class="text-xs text-gray-500 whitespace-nowrap">{{ conv.latest_message.created_at.strftime('%b %d') }}</span>
+                                    <span class="conversation-preview-date">{{ conv.latest_message.created_at.strftime('%b %d') }}</span>
                                 {% endif %}
                             </div>
-                            <p class="text-sm text-gray-600 truncate">
+                            <p class="conversation-preview-message">
                                 {% if conv.latest_message %}
-                                    {% if conv.latest_message.sender_id == current_user.id %}You: {% endif %}{{ conv.latest_message.content }}
+                                    {% if conv.latest_message.sender_id == current_user.id %}<span class="prefix">You: </span>{% endif %}{{ conv.latest_message.content }}
                                 {% else %}
                                     <span class="italic">No messages yet</span>
                                 {% endif %}
@@ -45,12 +43,12 @@
                 {% endfor %}
             </div>
         {% else %}
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-10 text-center">
-                <i class="fas fa-inbox text-4xl text-gray-400 mb-4"></i>
-                <h2 class="text-xl font-bold text-gray-900 mb-2">No messages yet</h2>
-                <p class="text-gray-600 mb-6">You haven't started any conversations yet.</p>
+            <div class="messages-empty">
+                <i class="fas fa-inbox messages-empty-icon"></i>
+                <h2 class="messages-empty-title">No messages yet</h2>
+                <p class="messages-empty-text">You haven't started any conversations yet.</p>
                 <a href="{{ url_for('forum.send_message_by_username') }}" class="btn btn-primary">Send your first message</a>
-                <p class="mt-4 text-sm text-gray-500">or <a href="{{ url_for('forum.forum_main') }}" class="text-blue-500 hover:underline">browse the forum</a> to find users to message.</p>
+                <p class="messages-empty-hint">or <a href="{{ url_for('forum.forum_main') }}" class="messages-empty-link">browse the forum</a> to find users to message.</p>
             </div>
         {% endif %}
     </div>

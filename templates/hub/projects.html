@@ -3,69 +3,69 @@
 {% block title %}Research Projects - PSRA{% endblock %}
 
 {% block content %}
-<div class="container mx-auto px-4 py-8">
-    <div class="flex justify-between items-center mb-8 flex-wrap gap-4">
+<div class="hub-container">
+    <div class="hub-header">
         <div>
-            <h1 class="text-3xl font-bold text-primary-blue">Research Projects</h1>
-            <p class="text-gray-600 mt-2">Discover and join cutting-edge pharmaceutical research.</p>
+            <h1 class="hub-title">Research Projects</h1>
+            <p class="hub-subtitle">Discover and join cutting-edge pharmaceutical research.</p>
         </div>
         {% if current_user.is_authenticated and current_user.role.value in ['researcher', 'admin'] %}
-        <a href="{{ url_for('hub.create_project') }}" class="bg-accent-green hover:bg-green-600 text-white px-6 py-2 rounded-lg font-semibold transition-colors flex items-center gap-2">
+        <a href="{{ url_for('hub.create_project') }}" class="btn btn-success">
             <i class="fas fa-plus"></i> Create Project
         </a>
         {% endif %}
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div class="hub-grid">
         {% for project in projects %}
-        <div class="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-all border border-gray-100 flex flex-col h-full relative overflow-hidden group">
-            <div class="absolute top-0 right-0 bg-blue-100 text-blue-800 text-xs font-bold px-3 py-1 rounded-bl-lg uppercase tracking-wider z-10">
+        <div class="hub-card group">
+            <div class="hub-card-status">
                 {{ project.status.value }}
             </div>
             
-            <div class="mb-4 flex-grow relative z-20">
-                <h2 class="text-xl font-bold text-gray-800 line-clamp-2 mb-2 pr-12" title="{{ project.title }}">
-                    <a href="{{ url_for('hub.project_detail', project_id=project.id) }}" class="hover:text-primary-blue transition-colors">{{ project.title }}</a>
+            <div class="hub-card-content">
+                <h2 class="hub-card-title" title="{{ project.title }}">
+                    <a href="{{ url_for('hub.project_detail', project_id=project.id) }}">{{ project.title }}</a>
                 </h2>
                 
-                <div class="flex items-center gap-2 mb-4 text-sm text-gray-600">
-                    <div class="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center font-bold text-[10px] text-gray-600">
+                <div class="hub-card-author">
+                    <div class="hub-card-avatar">
                         {{ project.researcher.name[0].upper() }}
                     </div>
-                    <span>Led by <span class="font-semibold">{{ project.researcher.name }}</span></span>
+                    <span>Led by <span class="hub-researcher-highlight">{{ project.researcher.name }}</span></span>
                 </div>
                 
-                <p class="text-gray-700 line-clamp-3 text-sm mb-4 leading-relaxed">{{ project.description }}</p>
+                <p class="hub-card-desc">{{ project.description }}</p>
                 
                 {% if project.required_skills %}
-                <div class="flex flex-wrap gap-1 mt-auto">
+                <div class="hub-card-skills">
                     {% for req_skill in project.required_skills[:3] %}
-                    <span class="px-2 py-1 bg-gray-50 text-gray-600 text-xs rounded border border-gray-200">{{ req_skill.skill.name }}</span>
+                    <span class="hub-card-skill">{{ req_skill.skill.name }}</span>
                     {% endfor %}
                     {% if project.required_skills|length > 3 %}
-                    <span class="px-2 py-1 bg-gray-50 text-gray-600 text-xs rounded border border-gray-200">+{{ project.required_skills|length - 3 }}</span>
+                    <span class="hub-card-skill">+{{ project.required_skills|length - 3 }}</span>
                     {% endif %}
                 </div>
                 {% endif %}
             </div>
             
-            <div class="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between z-20">
-                <div class="text-xs text-gray-500 flex items-center gap-1">
-                    <i class="fas fa-users text-gray-400"></i>
+            <div class="hub-card-footer">
+                <div class="hub-card-meta">
+                    <i class="fas fa-users"></i>
                     <span>{{ project.applications|length }} / {{ project.required_positions }} spots filled</span>
                 </div>
-                <a href="{{ url_for('hub.project_detail', project_id=project.id) }}" class="text-primary-blue font-semibold hover:text-blue-dark flex items-center gap-1 text-sm group-hover:translate-x-1 transition-transform">
+                <a href="{{ url_for('hub.project_detail', project_id=project.id) }}" class="hub-card-link">
                     View Project <i class="fas fa-arrow-right"></i>
                 </a>
             </div>
         </div>
         {% else %}
-        <div class="col-span-full text-center py-16 bg-white rounded-xl shadow-sm border border-dashed border-gray-300">
-            <div class="w-20 h-20 mx-auto bg-gray-50 rounded-full flex items-center justify-center mb-4">
-                <i class="fas fa-flask text-4xl text-gray-300"></i>
+        <div class="hub-empty">
+            <div class="hub-empty-icon">
+                <i class="fas fa-flask"></i>
             </div>
-            <h3 class="text-xl font-bold text-gray-800 mb-2">No active projects</h3>
-            <p class="text-gray-500 max-w-md mx-auto">There are currently no open research projects recruiting students. Check back soon for new opportunities.</p>
+            <h3 class="hub-empty-title">No active projects</h3>
+            <p class="hub-empty-text">There are currently no open research projects recruiting students. Check back soon for new opportunities.</p>
         </div>
         {% endfor %}
     </div>

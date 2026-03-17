@@ -3,92 +3,88 @@
 {% block title %}{{ project.title }} - Project Details - PSRA{% endblock %}
 
 {% block content %}
-<div class="container mx-auto px-4 py-8 max-w-4xl">
-    <div class="mb-6 flex items-center text-sm text-gray-500">
-        <a href="{{ url_for('hub.browse_projects') }}" class="hover:text-primary-blue transition-colors flex items-center gap-2">
-            <i class="fas fa-arrow-left"></i> Back to Projects
-        </a>
-    </div>
+<div class="hub-detail-container">
+    <a href="{{ url_for('hub.browse_projects') }}" class="hub-back-link">
+        <i class="fas fa-arrow-left"></i> Back to Projects
+    </a>
 
-    <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
+    <div class="hub-detail-card">
         <!-- Project Header -->
-        <div class="relative bg-gradient-to-br from-primary-blue to-blue-dark p-8 text-white">
-            <div class="absolute top-6 right-6">
-                {% if project.status.value == 'open' %}
-                <span class="bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-sm">
-                    Open for Application
-                </span>
-                {% else %}
-                <span class="bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-sm">
-                    Closed
-                </span>
-                {% endif %}
+        <div class="hub-detail-header">
+            {% if project.status.value == 'open' %}
+            <div class="hub-detail-status hub-detail-status-open">
+                Open for Application
             </div>
+            {% else %}
+            <div class="hub-detail-status hub-detail-status-closed">
+                Closed
+            </div>
+            {% endif %}
             
-            <h1 class="text-3xl md:text-4xl font-bold mb-4 pr-32 leading-tight">{{ project.title }}</h1>
+            <h1 class="hub-detail-title">{{ project.title }}</h1>
             
-            <div class="flex flex-wrap items-center gap-6 text-blue-100 text-sm">
-                <div class="flex items-center gap-2">
+            <div class="hub-detail-meta">
+                <div class="hub-detail-meta-item">
                     <i class="far fa-calendar-alt"></i> Posted {{ project.created_at.strftime('%b %d, %Y') }}
                 </div>
-                <div class="flex items-center gap-2">
+                <div class="hub-detail-meta-item">
                     <i class="fas fa-users"></i> {{ project.applications|selectattr('status.value', 'equalto', 'accepted')|list|length }} / {{ project.required_positions }} spots filled
                 </div>
             </div>
         </div>
 
         <!-- Project Content Layout -->
-        <div class="flex flex-col md:flex-row">
+        <div class="hub-detail-layout">
             
             <!-- Main Content Area -->
-            <div class="md:w-2/3 p-8 md:border-r border-gray-100">
-                <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
-                    <div class="w-8 h-8 rounded bg-blue-100 text-primary-blue flex items-center justify-center">
-                        <i class="fas fa-align-left text-sm"></i>
+            <div class="hub-detail-main">
+                <h2 class="hub-section-title">
+                    <div class="hub-section-icon hub-section-icon-blue">
+                        <i class="fas fa-align-left"></i>
                     </div>
                     Project Description
                 </h2>
                 
-                <div class="prose max-w-none text-gray-700 leading-relaxed mb-10 whitespace-pre-line font-body">
+                <div class="hub-prose">
                     {{ project.description }}
                 </div>
 
                 {% if project.required_skills %}
-                <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
-                    <div class="w-8 h-8 rounded bg-orange-100 text-accent-orange flex items-center justify-center">
-                        <i class="fas fa-tools text-sm"></i>
+                <h2 class="hub-section-title">
+                    <div class="hub-section-icon hub-section-icon-orange">
+                        <i class="fas fa-tools"></i>
                     </div>
                     Required Skills
                 </h2>
                 
-                <div class="flex flex-wrap gap-3 mb-8">
+                <div class="hub-skills-list">
                     {% for req_skill in project.required_skills %}
-                    <span class="px-4 py-2 bg-gray-50 text-gray-700 border border-gray-200 rounded-lg text-sm font-semibold shadow-sm">{{ req_skill.skill.name }}</span>
+                    <span class="hub-skill-pill">{{ req_skill.skill.name }}</span>
                     {% endfor %}
                 </div>
                 {% endif %}
             </div>
 
             <!-- Sidebar -->
-            <div class="md:w-1/3 bg-gray-50 p-8 flex flex-col">
-                <div class="mb-10">
-                    <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">Lead Researcher</h3>
-                    <div class="flex items-center gap-4">
-                        <div class="w-14 h-14 rounded-full bg-white shadow-sm border-2 border-primary-blue flex items-center justify-center font-bold text-xl text-primary-blue overflow-hidden">
+            <div class="hub-detail-sidebar">
+                <div>
+                    <h3 class="hub-sidebar-label">Lead Researcher</h3>
+                    <div class="hub-researcher-profile">
+                        <div class="hub-researcher-avatar">
                             {% if project.researcher.profile_picture_url %}
-                                <img src="{{ project.researcher.profile_picture_url }}" alt="Profile" class="w-full h-full object-cover">
+                                <img src="{{ project.researcher.profile_picture_url }}" alt="Profile">
                             {% else %}
                                 {{ project.researcher.name[0].upper() }}
                             {% endif %}
                         </div>
                         <div>
-                            <div class="font-bold text-lg text-gray-800">{{ project.researcher.name }}</div>
-                            <a href="{{ url_for('forum.user_profile', user_id=project.researcher.id) }}" class="text-sm text-primary-blue hover:text-blue-dark font-medium transition-colors">View Profile</a>
+                            <div class="hub-researcher-name">{{ project.researcher.name }}</div>
+                            <a href="{{ url_for('forum.user_profile', user_id=project.researcher.id) }}" class="hub-researcher-link">View Profile</a>
                         </div>
                     </div>
                 </div>
 
-                <div class="mt-auto">
+                <div class="hub-action-box">
                     {% if current_user.is_authenticated %}
                         {% set has_applied = namespace(value=false) %}
                         {% for app in project.applications %}
@@ -98,26 +94,26 @@
                         {% endfor %}
                         
                         {% if current_user.id == project.researcher_id %}
-                            <a href="{{ url_for('hub.manage_projects') }}" class="block w-full text-center bg-white border-2 border-primary-blue text-primary-blue hover:bg-primary-blue hover:text-white font-bold py-3 px-6 rounded-xl transition-all duration-300">
+                            <a href="{{ url_for('hub.manage_projects') }}" class="hub-action-btn hub-action-btn-outline">
                                 Manage Applications
                             </a>
                         {% elif has_applied.value %}
-                            <button disabled class="block w-full text-center bg-green-500 text-white font-bold py-4 px-6 rounded-xl cursor-not-allowed">
-                                <i class="fas fa-check-circle mr-2"></i>Already Applied
+                            <button disabled class="hub-action-btn hub-action-btn-success">
+                                <i class="fas fa-check-circle"></i>Already Applied
                             </button>
                         {% elif project.status.value == 'open' %}
-                            <a href="{{ url_for('hub.apply_project', project_id=project.id) }}" class="block w-full text-center bg-accent-orange hover:bg-orange-600 text-white font-bold py-4 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                            <a href="{{ url_for('hub.apply_project', project_id=project.id) }}" class="hub-action-btn hub-action-btn-primary">
                                 Apply Now
                             </a>
                         {% else %}
-                            <button disabled class="block w-full text-center bg-gray-300 text-gray-500 font-bold py-4 px-6 rounded-xl cursor-not-allowed">
+                            <button disabled class="hub-action-btn hub-action-btn-disabled">
                                 Applications Closed
                             </button>
                         {% endif %}
                     {% else %}
-                        <div class="text-center p-6 bg-white rounded-xl border border-gray-200 shadow-sm">
-                            <p class="text-sm text-gray-600 mb-4">Log in to apply for this research project.</p>
-                            <a href="{{ url_for('forum.login') }}?next={{ request.path }}" class="inline-block w-full bg-primary-blue hover:bg-blue-dark text-white font-bold py-2 px-4 rounded-lg transition-colors">
+                        <div class="hub-login-box">
+                            <p class="hub-login-text">Log in to apply for this research project.</p>
+                            <a href="{{ url_for('forum.login') }}?next={{ request.path }}" class="btn btn-secondary hub-login-btn">
                                 Sign In
                             </a>
                         </div>

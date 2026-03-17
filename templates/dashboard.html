@@ -3,162 +3,162 @@
 {% block title %}Dashboard - PSRA{% endblock %}
 
 {% block content %}
-<div class="container mx-auto px-4 py-8 max-w-3xl">
-    <h1 class="text-2xl font-bold text-gray-900 mb-6 text-center">Your Dashboard</h1>
+<div class="dashboard-page">
+    <h1 class="dashboard-page-title">Your Dashboard</h1>
 
     <!-- Horizontally Scrolling Quick-Glance Widgets -->
-    <div class="relative group mb-8 px-4">
+    <div class="dashboard-widgets-wrapper">
         <!-- Left Button -->
-        <button id="scrollLeftBtn" class="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white rounded-full shadow border border-gray-100 items-center justify-center text-gray-600 hover:text-blue-600 hover:bg-gray-50 focus:outline-none transition-all opacity-0 pointer-events-none" aria-label="Scroll left">
+        <button id="scrollLeftBtn" class="dashboard-scroll-btn dashboard-scroll-btn-left" aria-label="Scroll left">
             <i class="fas fa-chevron-left"></i>
         </button>
 
         <!-- Container -->
-        <div id="widgetsContainer" class="flex overflow-x-auto gap-4 pb-4 snap-x hide-scrollbar">
+        <div id="widgetsContainer" class="dashboard-widgets-container hide-scrollbar">
 
         <!-- Events Tile -->
-        <a href="{{ url_for('events') }}" class="dashboard-tile flex-none w-36 snap-start bg-green-50 rounded-2xl shadow-sm border border-green-100 p-4 flex flex-col items-center justify-center relative hover:shadow-md hover:bg-green-100 transition-all text-center h-full">
+        <a href="{{ url_for('events') }}" class="dashboard-tile dashboard-tile-events">
             {% if badge_counts and badge_counts.events > 0 %}
-            <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold w-6 h-6 flex items-center justify-center rounded-full shadow-sm">
+            <span class="dashboard-tile-badge">
                 {{ badge_counts.events }}
             </span>
             {% endif %}
-            <div class="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-sm mb-3 relative z-10">
-                <i class="fas fa-calendar-alt text-xl text-green-600"></i>
+            <div class="dashboard-tile-icon">
+                <i class="fas fa-calendar-alt"></i>
             </div>
-            <h2 class="text-sm font-bold text-gray-900 mb-1">Events</h2>
+            <h2 class="dashboard-tile-label">Events</h2>
             {% if upcoming_events %}
-            <p class="text-xs text-green-700 font-medium">{{ upcoming_events|length }} Upcoming</p>
+            <p class="dashboard-tile-count">{{ upcoming_events|length }} Upcoming</p>
             {% else %}
-            <p class="text-xs text-gray-500">Find Events</p>
+            <p class="dashboard-tile-empty">Find Events</p>
             {% endif %}
         </a>
 
         <!-- Projects Tile -->
-        <a href="{{ url_for('hub.browse_projects') }}" class="dashboard-tile flex-none w-36 snap-start bg-purple-50 rounded-2xl shadow-sm border border-purple-100 p-4 flex flex-col items-center justify-center relative hover:shadow-md hover:bg-purple-100 transition-all text-center h-full">
+        <a href="{{ url_for('hub.browse_projects') }}" class="dashboard-tile dashboard-tile-projects">
             {% if badge_counts and badge_counts.projects > 0 %}
-            <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold w-6 h-6 flex items-center justify-center rounded-full shadow-sm">
+            <span class="dashboard-tile-badge">
                 {{ badge_counts.projects }}
             </span>
             {% endif %}
-            <div class="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-sm mb-3 relative z-10">
-                <i class="fas fa-microscope text-xl text-purple-600"></i>
+            <div class="dashboard-tile-icon">
+                <i class="fas fa-microscope"></i>
             </div>
-            <h2 class="text-sm font-bold text-gray-900 mb-1">Projects</h2>
+            <h2 class="dashboard-tile-label">Projects</h2>
             {% if applied_projects or posted_projects %}
-            <p class="text-xs text-purple-700 font-medium">{{ applied_projects|length }} Applied, {{ posted_projects|length }} Posted</p>
+            <p class="dashboard-tile-count">{{ applied_projects|length }} Applied, {{ posted_projects|length }} Posted</p>
             {% else %}
-            <p class="text-xs text-gray-500">Find Projects</p>
+            <p class="dashboard-tile-empty">Find Projects</p>
             {% endif %}
         </a>
 
         <!-- Mentorships Tile -->
-        <a href="{{ url_for('hub.manage_mentorships') }}" class="dashboard-tile flex-none w-36 snap-start bg-orange-50 rounded-2xl shadow-sm border border-orange-100 p-4 flex flex-col items-center justify-center relative hover:shadow-md hover:bg-orange-100 transition-all text-center h-full">
+        <a href="{{ url_for('hub.manage_mentorships') }}" class="dashboard-tile dashboard-tile-mentorships">
             {% if badge_counts and badge_counts.mentorships > 0 %}
-            <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold w-6 h-6 flex items-center justify-center rounded-full shadow-sm">
+            <span class="dashboard-tile-badge">
                 {{ badge_counts.mentorships }}
             </span>
             {% endif %}
-            <div class="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-sm mb-3 relative z-10">
-                <i class="fas fa-user-friends text-xl text-orange-600"></i>
+            <div class="dashboard-tile-icon">
+                <i class="fas fa-user-friends"></i>
             </div>
-            <h2 class="text-sm font-bold text-gray-900 mb-1">Mentorships</h2>
+            <h2 class="dashboard-tile-label">Mentorships</h2>
             {% if mentorship_requests_sent or mentorship_requests_received %}
-            <p class="text-xs text-orange-700 font-medium">{{ mentorship_requests_sent|length }} Sent, {{ mentorship_requests_received|length }} Received</p>
+            <p class="dashboard-tile-count">{{ mentorship_requests_sent|length }} Sent, {{ mentorship_requests_received|length }} Received</p>
             {% else %}
-            <p class="text-xs text-gray-500">Find a Mentor</p>
+            <p class="dashboard-tile-empty">Find a Mentor</p>
             {% endif %}
         </a>
 
         <!-- Research Tile -->
-        <a href="{{ url_for('research') }}" class="dashboard-tile flex-none w-36 snap-start bg-teal-50 rounded-2xl shadow-sm border border-teal-100 p-4 flex flex-col items-center justify-center relative hover:shadow-md hover:bg-teal-100 transition-all text-center h-full">
+        <a href="{{ url_for('research') }}" class="dashboard-tile dashboard-tile-research">
             {% if badge_counts and badge_counts.research > 0 %}
-            <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold w-6 h-6 flex items-center justify-center rounded-full shadow-sm">
+            <span class="dashboard-tile-badge">
                 {{ badge_counts.research }}
             </span>
             {% endif %}
-            <div class="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-sm mb-3 relative z-10">
-                <i class="fas fa-book-open text-xl text-teal-600"></i>
+            <div class="dashboard-tile-icon">
+                <i class="fas fa-book-open"></i>
             </div>
-            <h2 class="text-sm font-bold text-gray-900 mb-1">Research</h2>
+            <h2 class="dashboard-tile-label">Research</h2>
             {% if researches %}
-            <p class="text-xs text-teal-700 font-medium">{{ researches|length }} Publications</p>
+            <p class="dashboard-tile-count">{{ researches|length }} Publications</p>
             {% else %}
-            <p class="text-xs text-gray-500">Publish Research</p>
+            <p class="dashboard-tile-empty">Publish Research</p>
             {% endif %}
         </a>
 
         <!-- Announcements Tile -->
-        <a href="{{ url_for('events') }}" class="dashboard-tile flex-none w-36 snap-start bg-red-50 rounded-2xl shadow-sm border border-red-100 p-4 flex flex-col items-center justify-center relative hover:shadow-md hover:bg-red-100 transition-all text-center h-full">
+        <a href="{{ url_for('events') }}" class="dashboard-tile dashboard-tile-announcements">
             {% if badge_counts and badge_counts.announcements > 0 %}
-            <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold w-6 h-6 flex items-center justify-center rounded-full shadow-sm">
+            <span class="dashboard-tile-badge">
                 {{ badge_counts.announcements }}
             </span>
             {% endif %}
-            <div class="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-sm mb-3 relative z-10">
-                <i class="fas fa-bullhorn text-xl text-red-600"></i>
+            <div class="dashboard-tile-icon">
+                <i class="fas fa-bullhorn"></i>
             </div>
-            <h2 class="text-sm font-bold text-gray-900 mb-1">Announcements</h2>
+            <h2 class="dashboard-tile-label">Announcements</h2>
             {% if recent_announcements %}
-            <p class="text-xs text-red-700 font-medium">{{ recent_announcements|length }} Recent</p>
+            <p class="dashboard-tile-count">{{ recent_announcements|length }} Recent</p>
             {% else %}
-            <p class="text-xs text-gray-500">No Announcements</p>
+            <p class="dashboard-tile-empty">No Announcements</p>
             {% endif %}
         </a>
         </div>
 
         <!-- Right Button -->
-        <button id="scrollRightBtn" class="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white rounded-full shadow border border-gray-100 items-center justify-center text-gray-600 hover:text-blue-600 hover:bg-gray-50 focus:outline-none transition-all opacity-0 pointer-events-none" aria-label="Scroll right">
+        <button id="scrollRightBtn" class="dashboard-scroll-btn dashboard-scroll-btn-right" aria-label="Scroll right">
             <i class="fas fa-chevron-right"></i>
         </button>
     </div>
 
     <!-- Consolidated Activity Feed -->
-    <h2 class="text-xl font-bold text-gray-900 mb-4 px-2 border-b pb-2">Recent Updates</h2>
-    <div class="feed-container bg-white rounded-2xl shadow-sm border border-gray-200 divide-y divide-gray-100">
+    <h2 class="dashboard-feed-title">Recent Updates</h2>
+    <div class="dashboard-feed-container">
         {% if feed_items %}
             {% for item in feed_items %}
-            <div class="feed-item p-4 hover:bg-gray-50 cursor-pointer transition-colors relative">
-                <div class="flex items-start">
-                    <div class="flex-shrink-0 mt-1 mr-4">
+            <div class="dashboard-feed-item">
+                <div class="dashboard-feed-item-inner">
+                    <div class="dashboard-feed-item-icon">
                         {% if item.type == 'event' %}
-                        <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-600"><i class="fas {{ item.icon }}"></i></div>
+                        <div class="dashboard-feed-icon-circle dashboard-feed-icon-event"><i class="fas {{ item.icon }}"></i></div>
                         {% elif item.type == 'project' %}
-                        <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-600"><i class="fas {{ item.icon }}"></i></div>
+                        <div class="dashboard-feed-icon-circle dashboard-feed-icon-project"><i class="fas {{ item.icon }}"></i></div>
                         {% elif item.type == 'mentorship' %}
-                        <div class="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center text-orange-600"><i class="fas {{ item.icon }}"></i></div>
+                        <div class="dashboard-feed-icon-circle dashboard-feed-icon-mentorship"><i class="fas {{ item.icon }}"></i></div>
                         {% elif item.type == 'research' %}
-                        <div class="w-10 h-10 rounded-full bg-teal-100 flex items-center justify-center text-teal-600"><i class="fas {{ item.icon }}"></i></div>
+                        <div class="dashboard-feed-icon-circle dashboard-feed-icon-research"><i class="fas {{ item.icon }}"></i></div>
                         {% elif item.type == 'announcement' %}
-                        <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-red-600"><i class="fas {{ item.icon }}"></i></div>
+                        <div class="dashboard-feed-icon-circle dashboard-feed-icon-announcement"><i class="fas {{ item.icon }}"></i></div>
                         {% else %}
-                        <div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-600"><i class="fas {{ item.icon }}"></i></div>
+                        <div class="dashboard-feed-icon-circle dashboard-feed-icon-default"><i class="fas {{ item.icon }}"></i></div>
                         {% endif %}
                     </div>
-                    <div class="flex-1 min-w-0">
-                        <div class="flex justify-between items-start">
-                            <p class="text-sm font-medium text-gray-900">{{ item.title }}</p>
-                            <span class="text-xs text-gray-400 ml-2 whitespace-nowrap">{{ item.timestamp.strftime('%b %d') if item.timestamp else '' }}</span>
+                    <div class="dashboard-feed-item-content">
+                        <div class="dashboard-feed-item-header">
+                            <p class="dashboard-feed-item-title">{{ item.title }}</p>
+                            <span class="dashboard-feed-item-date">{{ item.timestamp.strftime('%b %d') if item.timestamp else '' }}</span>
                         </div>
-                        <p class="text-sm text-gray-500 truncate">{{ item.subtitle }}</p>
+                        <p class="dashboard-feed-item-subtitle">{{ item.subtitle }}</p>
                     </div>
-                    <div class="flex-shrink-0 ml-2 mt-2 text-gray-400">
-                        <i class="fas fa-chevron-down transition-transform duration-300"></i>
+                    <div class="dashboard-feed-item-arrow">
+                        <i class="fas fa-chevron-down"></i>
                     </div>
                 </div>
-                
+
                 <!-- Expandable Details -->
-                <div class="expandable-content w-full text-left pl-14 pr-4">
+                <div class="dashboard-feed-expandable">
                     {% if item.details %}
-                    <div class="text-sm text-gray-700 bg-gray-50 p-3 rounded-lg border border-gray-100 mb-2 mt-2">
+                    <div class="dashboard-feed-expandable-details">
                         {{ item.details | striptags | truncate(200) }}
                     </div>
                     {% endif %}
-                    
+
                     {% if item.url %}
-                    <div class="mt-2 text-right">
-                        <a href="{{ item.url }}" class="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-800">
-                            View details <i class="fas fa-arrow-right ml-1 text-xs"></i>
+                    <div class="dashboard-feed-expandable-link">
+                        <a href="{{ item.url }}">
+                            View details <i class="fas fa-arrow-right"></i>
                         </a>
                     </div>
                     {% endif %}
@@ -166,8 +166,8 @@
             </div>
             {% endfor %}
         {% else %}
-        <div class="p-8 text-center text-gray-500">
-            <i class="fas fa-inbox text-4xl mb-3 text-gray-300"></i>
+        <div class="dashboard-feed-empty">
+            <i class="fas fa-inbox"></i>
             <p>You're all caught up! No recent activity.</p>
         </div>
         {% endif %}
@@ -175,45 +175,19 @@
 
 </div>
 
-<style>
-    .hide-scrollbar::-webkit-scrollbar {
-        display: none;
-    }
-    .hide-scrollbar {
-        -ms-overflow-style: none;
-        scrollbar-width: none;
-    }
-
-    .expandable-content {
-        max-height: 0;
-        overflow: hidden;
-        transition: max-height 0.3s ease-out, padding 0.3s ease, margin 0.3s ease, opacity 0.3s ease;
-        opacity: 0;
-    }
-    .feed-item.expanded .expandable-content {
-        max-height: 500px; /* Adjust based on expected content height */
-        padding-top: 0.5rem;
-        padding-bottom: 0.5rem;
-        opacity: 1;
-    }
-    .feed-item.expanded .fa-chevron-down {
-        transform: rotate(180deg);
-    }
-</style>
-
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        const feedItems = document.querySelectorAll('.feed-item');
-        
+        const feedItems = document.querySelectorAll('.dashboard-feed-item');
+
         feedItems.forEach(item => {
             item.addEventListener('click', function(e) {
                 // Prevent toggling if clicking on a link inside the expanded content
                 if (e.target.closest('a')) {
                     return;
                 }
-                
+
                 const isExpanded = this.classList.contains('expanded');
-                
+
                 // Close all other items
                 feedItems.forEach(i => {
                     if (i !== this) {
@@ -244,30 +218,26 @@
             let rafId;
             const updateButtonStates = () => {
                 if (rafId) return;
-                
+
                 rafId = requestAnimationFrame(() => {
                     const scrollLeft = container.scrollLeft;
                     const clientWidth = container.clientWidth;
                     const scrollWidth = container.scrollWidth;
 
                     // Show/hide left button based on scroll position
-                    if (scrollLeft <= 5) { // Small buffer
-                        leftBtn.classList.add('opacity-0', 'pointer-events-none');
-                        leftBtn.classList.remove('opacity-100', 'pointer-events-auto');
+                    if (scrollLeft <= 5) {
+                        leftBtn.classList.remove('visible');
                     } else {
-                        leftBtn.classList.remove('opacity-0', 'pointer-events-none');
-                        leftBtn.classList.add('opacity-100', 'pointer-events-auto');
+                        leftBtn.classList.add('visible');
                     }
 
                     // Show/hide right button based on scroll position
                     if (Math.ceil(scrollLeft + clientWidth) >= scrollWidth - 5) {
-                        rightBtn.classList.add('opacity-0', 'pointer-events-none');
-                        rightBtn.classList.remove('opacity-100', 'pointer-events-auto');
+                        rightBtn.classList.remove('visible');
                     } else {
-                        rightBtn.classList.remove('opacity-0', 'pointer-events-none');
-                        rightBtn.classList.add('opacity-100', 'pointer-events-auto');
+                        rightBtn.classList.add('visible');
                     }
-                    
+
                     rafId = null;
                 });
             };
@@ -275,7 +245,7 @@
             // Initial check and resize listen
             updateButtonStates();
             window.addEventListener('resize', updateButtonStates);
-            
+
             // Listen to scroll events to update buttons
             container.addEventListener('scroll', updateButtonStates);
 

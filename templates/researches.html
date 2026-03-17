@@ -114,15 +114,15 @@
     <section class="section">
         <div class="container">
             {% if researches %}
-            <div class="results-count mb-4">
+            <div class="results-count">
                 <p class="text-secondary">Showing {{ researches|length }} of {{ pagination.total }} publications</p>
             </div>
             
-            <div class="grid md:grid-cols-2 lg:grid-cols-3">
+            <div class="research-results-grid">
                 {% for research in researches %}
                 <div class="card research-card card-elevated">
                     <div class="card-body">
-                        <div class="research-header flex justify-between items-center mb-3">
+                        <div class="research-header">
                             <span class="badge badge-primary">{{ research.year }}</span>
                             <span class="text-sm text-muted">{{ research.department }}</span>
                         </div>
@@ -135,7 +135,7 @@
                             {{ research.title }}
                             {% endif %}
                         </h3>
-                        <div class="research-author flex items-center gap-2 mb-3">
+                        <div class="research-author">
                             <div class="avatar avatar-sm">
                                 {% if research.author.profile_picture_url %}
                                 <img src="{{ research.author.profile_picture_url }}" alt="{{ research.author.name }}">
@@ -144,7 +144,7 @@
                                 {% endif %}
                             </div>
                             <div>
-                                <a href="{{ url_for('researcher_profile', researcher_id=research.author.id) }}" class="text-primary font-medium">
+                                <a href="{{ url_for('researcher_profile', researcher_id=research.author.id) }}" class="text-primary font-semibold">
                                     {{ research.author.name }}
                                 </a>
                                 <div class="text-sm text-muted">{{ research.researcher_type|title }}</div>
@@ -164,7 +164,7 @@
             
             <!-- Pagination -->
             {% if pagination.pages > 1 %}
-            <div class="pagination flex justify-center items-center gap-2 mt-8">
+            <div class="pagination">
                 {% if pagination.has_prev %}
                 <a href="{{ url_for('research', page=pagination.prev_num, department=current_department, year=current_year, researcher=current_researcher, researcher_type=current_researcher_type, search=search_query) }}" 
                    class="btn btn-outline">
@@ -172,7 +172,7 @@
                 </a>
                 {% endif %}
                 
-                <div class="pagination-numbers flex gap-1">
+                <div class="pagination-numbers">
                     {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
                         {% if page_num %}
                             {% if page_num == pagination.page %}
@@ -198,7 +198,7 @@
             
             {% else %}
             <div class="card">
-                <div class="card-body text-center" style="padding: 60px 20px;">
+                <div class="card-body card-body-empty">
                     <div style="font-size: 4rem; color: var(--text-muted); margin-bottom: 20px;">
                         <i class="fas fa-search"></i>
                     </div>
@@ -215,10 +215,10 @@
 
     <!-- Submit Research CTA -->
     {% if current_user.is_authenticated %}
-    <section class="section" style="background-color: var(--bg-secondary);">
-        <div class="container text-center">
+    <section class="section research-cta-section">
+        <div class="container">
             <h3>Have a research publication to share?</h3>
-            <p class="text-secondary mb-4">Submit your research to be included in our database</p>
+            <p class="research-cta-subtitle">Submit your research to be included in our database</p>
             <a href="{{ url_for('submit_research') }}" class="btn btn-primary btn-lg">
                 <i class="fas fa-plus"></i> Submit Research
             </a>

@@ -3,11 +3,12 @@
 {% block title %}Forum - PSRA{% endblock %}
 
 {% block content %}
-<section class="section bg-gray-50 min-h-screen py-8">
-    <div class="container forum-container mx-auto px-4">
+<section class="section forum-page">
+    <div class="container">
+        <div class="forum-layout">
         <!-- Mobile Filter Toggle Button -->
-        <button class="w-full bg-white border border-gray-200 text-gray-700 font-medium py-3 px-4 rounded-xl shadow-sm mb-6 flex items-center justify-center gap-2 md:hidden hover:bg-gray-50 transition-colors" id="forum-filter-toggle" aria-label="Toggle filters">
-            <i class="fas fa-filter text-primary-blue"></i> Show Filters
+        <button class="forum-filter-toggle-btn" id="forum-filter-toggle" aria-label="Toggle filters">
+            <i class="fas fa-filter"></i> Show Filters
         </button>
         
         <!-- Mobile Overlay -->
@@ -37,7 +38,7 @@
             <div class="card">
                 <div class="card-body">
                     <h3><i class="fas fa-plus-circle"></i> Quick Actions</h3>
-                    <a href="{{ url_for('forum.create_post') }}" class="btn btn-primary w-full">
+                    <a href="{{ url_for('forum.create_post') }}" class="btn btn-primary btn-block">
                         <i class="fas fa-pen"></i> New Discussion
                     </a>
                 </div>
@@ -46,46 +47,46 @@
         </div>
 
         <!-- Main Content -->
-        <div>
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-                <h2 class="text-2xl font-bold text-gray-900 m-0">Forum <span class="text-gray-500 font-normal text-xl">› {{ selected_category or 'All Discussions' }}</span></h2>
+        <div class="forum-main-content">
+            <div class="forum-page-header">
+                <h2 class="forum-page-title">Forum <span>› {{ selected_category or 'All Discussions' }}</span></h2>
                 {% if current_user.is_authenticated %}
-                <div class="flex flex-wrap gap-2 w-full sm:w-auto">
-                    <a href="{{ url_for('forum.create_post') }}" class="flex-1 sm:flex-none justify-center btn btn-sm btn-primary whitespace-nowrap">
+                <div class="forum-page-actions">
+                    <a href="{{ url_for('forum.create_post') }}" class="btn btn-sm btn-primary">
                         <i class="fas fa-pen"></i> New Discussion
                     </a>
                 </div>
                 {% endif %}
             </div>
 
-            <div class="space-y-4">
+            <div class="forum-posts-list">
             {% for post in posts %}
-            <article class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow duration-200">
-                <div class="p-5 sm:p-6">
-                    <div class="flex items-center gap-3 mb-4">
+            <article class="forum-post-card">
+                <div class="forum-post-card-body">
+                    <div class="forum-post-author">
                         {% if post.author.profile_picture_url %}
-                        <img src="{{ post.author.profile_picture_url }}" alt="{{ post.author.name }}" class="w-10 h-10 rounded-full object-cover ring-2 ring-gray-50 flex-shrink-0">
+                        <img src="{{ post.author.profile_picture_url }}" alt="{{ post.author.name }}" class="forum-post-avatar-img">
                         {% else %}
-                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-primary-blue to-blue-light flex items-center justify-center text-white font-bold text-sm ring-2 ring-gray-50 flex-shrink-0">
+                        <div class="forum-post-avatar-placeholder">
                             {{ post.author.name[0].upper() }}
                         </div>
                         {% endif %}
-                        <div class="min-w-0">
-                            <h4 class="font-semibold text-gray-900 text-sm truncate">
-                                <a href="{{ url_for('forum.user_profile', user_id=post.author.id) }}" class="hover:text-primary-blue transition-colors">{{ post.author.name }}</a>
+                        <div class="forum-post-author-info">
+                            <h4 class="forum-post-author-name">
+                                <a href="{{ url_for('forum.user_profile', user_id=post.author.id) }}">{{ post.author.name }}</a>
                             </h4>
-                            <div class="text-xs text-gray-500 truncate">
+                            <div class="forum-post-date">
                                 <time datetime="{{ post.created_at.isoformat() }}">{{ post.created_at.strftime('%B %d, %Y %I:%M %p') }}</time>
                             </div>
                         </div>
                     </div>
                     
-                    <h3 class="text-xl font-bold text-gray-900 mb-2 leading-tight">
-                        <a href="{{ url_for('forum.post_detail', post_id=post.id) }}" class="hover:text-primary-blue transition-colors">{{ post.title }}</a>
+                    <h3 class="forum-post-title">
+                        <a href="{{ url_for('forum.post_detail', post_id=post.id) }}">{{ post.title }}</a>
                     </h3>
-                    <p class="text-gray-600 text-sm line-clamp-3 mb-4">{{ post.content[:300] }}{% if post.content|length > 300 %}...{% endif %}</p>
+                    <p class="forum-post-excerpt">{{ post.content[:300] }}{% if post.content|length > 300 %}...{% endif %}</p>
                     
-                    <div class="flex items-center gap-2 pt-4 border-t border-gray-50 flex-wrap sm:flex-nowrap">
+                    <div class="forum-post-meta">
                         {% set user_liked = false %}
                         {% if current_user.is_authenticated %}
                             {% for like in post.likes %}
@@ -97,19 +98,19 @@
                         
                         <button id="like-btn-{{ post.id }}" 
                                 onclick="toggleLike({{ post.id }}, this)" 
-                                class="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors {% if user_liked %}bg-blue-50 text-primary-blue border border-blue-100{% else %}bg-gray-50 text-gray-600 hover:bg-gray-100 border border-transparent{% endif %}">
-                            <i class="fas fa-thumbs-up {% if user_liked %}scale-110{% endif %} transition-transform"></i> 
+                                class="forum-post-action-btn {% if user_liked %}liked{% endif %}">
+                            <i class="fas fa-thumbs-up"></i> 
                             <span>{{ post.likes|length }}</span>
                         </button>
                         
                         <a href="{{ url_for('forum.post_detail', post_id=post.id) }}#comments" 
-                           class="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-gray-50 text-gray-600 hover:bg-gray-100 transition-colors">
+                           class="forum-post-action-btn">
                             <i class="fas fa-comment"></i> 
                             <span>{{ post.comments|length }}</span>
                         </a>
                         
-                        <a href="{{ url_for('forum.post_detail', post_id=post.id) }}" class="ml-auto text-sm font-medium text-primary-blue hover:text-blue-dark hover:underline flex items-center gap-1 whitespace-nowrap">
-                            Read More <i class="fas fa-arrow-right text-xs"></i>
+                        <a href="{{ url_for('forum.post_detail', post_id=post.id) }}" class="forum-post-read-more">
+                            Read More <i class="fas fa-arrow-right"></i>
                         </a>
                     </div>
                 </div>
@@ -119,12 +120,12 @@
 
             {% if not posts %}
             <div class="card">
-                <div class="card-body text-center" style="padding: 60px 20px;">
-                    <div style="font-size: 4rem; color: var(--text-muted); margin-bottom: 20px;">
+                <div class="card-body forum-empty-state">
+                    <div class="forum-empty-icon">
                         <i class="fas fa-comments"></i>
                     </div>
-                    <h3 style="color: var(--text-secondary); margin-bottom: 10px;">No Discussions Found</h3>
-                    <p style="color: var(--text-muted); margin-bottom: 20px;">
+                    <h3 class="forum-empty-title">No Discussions Found</h3>
+                    <p class="forum-empty-text">
                         {% if search or selected_category %}
                         No discussions match your search criteria. Try different keywords or categories.
                         {% else %}
@@ -143,6 +144,7 @@
                 </div>
             </div>
             {% endif %}
+        </div>
         </div>
     </div>
 </section>

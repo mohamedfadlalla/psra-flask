@@ -3,69 +3,69 @@
 {% block title %}Manage Projects - PSRA{% endblock %}
 
 {% block content %}
-<div class="container mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold text-primary-blue mb-8">Manage Research Projects</h1>
+<div class="hub-container">
+    <h1 class="hub-title hub-manage-page-title">Manage Research Projects</h1>
 
     {% if current_user.is_authenticated and current_user.role.value in ['researcher', 'admin'] %}
-    <div class="mb-12">
-        <div class="flex justify-between items-center mb-6 border-b pb-2">
-            <h2 class="text-2xl font-semibold text-gray-800">My Projects (As Researcher)</h2>
-            <a href="{{ url_for('hub.create_project') }}" class="text-sm bg-primary-blue hover:bg-blue-dark text-white px-4 py-2 rounded-lg transition-colors">
-                <i class="fas fa-plus mr-1"></i> New Project
+    <div class="hub-manage-section">
+        <div class="hub-manage-header">
+            <h2 class="hub-manage-title">My Projects (As Researcher)</h2>
+            <a href="{{ url_for('hub.create_project') }}" class="btn btn-secondary btn-sm">
+                <i class="fas fa-plus"></i> New Project
             </a>
         </div>
         
         {% if my_projects %}
-            <div class="space-y-8">
+            <div class="hub-project-list">
             {% for project in my_projects %}
-                <div class="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden">
-                    <div class="bg-gray-50 p-4 border-b border-gray-200 flex flex-col sm:flex-row justify-between sm:items-center gap-4">
+                <div class="hub-project-item">
+                    <div class="hub-project-header">
                         <div>
-                            <h3 class="font-bold text-lg text-primary-blue">{{ project.title }}</h3>
-                            <div class="text-sm text-gray-500 mt-1 flex gap-4">
-                                <span>Status: <span class="font-semibold {% if project.status.value == 'open' %}text-green-600{% else %}text-red-600{% endif %}">{{ project.status.value|upper }}</span></span>
+                            <h3 class="hub-project-title">{{ project.title }}</h3>
+                            <div class="hub-project-meta">
+                                <span>Status: <span class="hub-project-status-text {% if project.status.value == 'open' %}hub-project-status-open{% else %}hub-project-status-closed{% endif %}">{{ project.status.value|upper }}</span></span>
                                 <span>Positions: {{ project.applications|selectattr('status.value', 'equalto', 'accepted')|list|length }} / {{ project.required_positions }}</span>
                             </div>
                         </div>
-                        <a href="{{ url_for('hub.project_detail', project_id=project.id) }}" class="text-sm text-gray-600 hover:text-primary-blue font-medium"><i class="fas fa-external-link-alt mr-1"></i> View Project</a>
+                        <a href="{{ url_for('hub.project_detail', project_id=project.id) }}" class="hub-project-link"><i class="fas fa-external-link-alt"></i> View Project</a>
                     </div>
                     
-                    <div class="p-6">
-                        <h4 class="text-md font-semibold text-gray-700 mb-4">Applications ({{ project.applications|length }})</h4>
+                    <div class="hub-project-body">
+                        <h4 class="hub-project-subtitle">Applications ({{ project.applications|length }})</h4>
                         
                         {% if project.applications %}
-                            <div class="grid grid-cols-1 gap-4">
+                            <div class="hub-app-list">
                             {% for app in project.applications %}
-                                <div class="border {% if app.status.value == 'pending' %}border-yellow-200 bg-yellow-50{% elif app.status.value == 'accepted' %}border-green-200 bg-green-50{% else %}border-gray-200 bg-gray-50{% endif %} p-4 rounded-lg">
-                                    <div class="flex flex-col md:flex-row justify-between gap-4">
-                                        <div class="flex-1">
-                                            <div class="flex items-center gap-2 mb-2">
-                                                <span class="font-bold text-gray-800">{{ app.student.name }}</span>
-                                                <span class="text-xs px-2 py-1 rounded-full 
-                                                    {% if app.status.value == 'pending' %}bg-yellow-200 text-yellow-800
-                                                    {% elif app.status.value == 'accepted' %}bg-green-200 text-green-800
-                                                    {% else %}bg-gray-300 text-gray-800{% endif %} uppercase tracking-wider font-bold">
+                                <div class="hub-app-card {% if app.status.value == 'pending' %}hub-app-pending{% elif app.status.value == 'accepted' %}hub-app-accepted{% endif %}">
+                                    <div class="hub-app-layout">
+                                        <div class="hub-app-content">
+                                            <div class="hub-app-header">
+                                                <span class="hub-app-name">{{ app.student.name }}</span>
+                                                <span class="hub-app-badge 
+                                                    {% if app.status.value == 'pending' %}hub-app-badge-pending
+                                                    {% elif app.status.value == 'accepted' %}hub-app-badge-accepted
+                                                    {% else %}hub-app-badge-rejected{% endif %}">
                                                     {{ app.status.value }}
                                                 </span>
                                             </div>
-                                            <div class="text-sm text-gray-700 bg-white p-3 rounded border border-gray-100 whitespace-pre-line">
+                                            <div class="hub-app-text">
                                                 {{ app.motivation_letter }}
                                             </div>
                                         </div>
                                         
                                         {% if app.status.value == 'pending' %}
-                                        <div class="flex md:flex-col gap-2 shrink-0 justify-center">
-                                            <form method="POST" action="{{ url_for('hub.respond_application', app_id=app.id, action='accept') }}">
-                                                <button type="submit" class="w-full bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded font-medium transition-colors text-sm"><i class="fas fa-check mr-1"></i> Accept</button>
+                                        <div class="hub-app-actions">
+                                            <form method="POST" action="{{ url_for('hub.respond_application', app_id=app.id, action='accept') }}" class="hub-app-action-form">
+                                                <button type="submit" class="btn btn-success btn-sm hub-app-action-btn"><i class="fas fa-check"></i> Accept</button>
                                             </form>
-                                            <form method="POST" action="{{ url_for('hub.respond_application', app_id=app.id, action='reject') }}">
-                                                <button type="submit" class="w-full bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded font-medium transition-colors text-sm"><i class="fas fa-times mr-1"></i> Reject</button>
+                                            <form method="POST" action="{{ url_for('hub.respond_application', app_id=app.id, action='reject') }}" class="hub-app-action-form">
+                                                <button type="submit" class="btn btn-danger btn-sm hub-app-action-btn"><i class="fas fa-times"></i> Reject</button>
                                             </form>
-                                            <a href="{{ url_for('forum.user_profile', user_id=app.student.id) }}" class="w-full text-center bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded font-medium transition-colors text-sm">View Profile</a>
+                                            <a href="{{ url_for('forum.user_profile', user_id=app.student.id) }}" class="btn btn-ghost btn-sm hub-app-action-btn hub-btn-profile">View Profile</a>
                                         </div>
                                         {% else %}
-                                        <div class="flex items-center justify-center shrink-0">
-                                             <a href="{{ url_for('forum.user_profile', user_id=app.student.id) }}" class="text-primary-blue hover:underline text-sm font-medium">View Applicant Profile</a>
+                                        <div class="hub-app-action-center">
+                                             <a href="{{ url_for('forum.user_profile', user_id=app.student.id) }}" class="hub-app-view-link">View Applicant Profile</a>
                                         </div>
                                         {% endif %}
                                     </div>
@@ -73,55 +73,55 @@
                             {% endfor %}
                             </div>
                         {% else %}
-                            <p class="text-gray-500 italic">No applications received yet.</p>
+                            <p class="hub-empty-msg">No applications received yet.</p>
                         {% endif %}
                     </div>
                 </div>
             {% endfor %}
             </div>
         {% else %}
-            <div class="bg-gray-50 border border-dashed border-gray-300 rounded-xl p-8 text-center">
-                <p class="text-gray-500 mb-4">You haven't created any research projects yet.</p>
-                <a href="{{ url_for('hub.create_project') }}" class="inline-block bg-primary-blue hover:bg-blue-dark text-white px-6 py-2 rounded-lg transition-colors font-medium">Create First Project</a>
+            <div class="hub-empty">
+                <p class="hub-empty-text">You haven't created any research projects yet.</p>
+                <a href="{{ url_for('hub.create_project') }}" class="btn btn-secondary">Create First Project</a>
             </div>
         {% endif %}
     </div>
     {% endif %}
 
     <div>
-        <h2 class="text-2xl font-semibold text-gray-800 border-b pb-2 mb-6">My Applications (As Student)</h2>
+        <h2 class="hub-manage-title">My Applications (As Student)</h2>
         
         {% if my_applications %}
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="hub-grid">
             {% for app in my_applications %}
-                <div class="bg-white rounded-xl shadow border border-gray-200 p-6 flex flex-col h-full">
-                    <div class="flex justify-between items-start mb-4">
-                        <h3 class="font-bold text-lg text-gray-800 line-clamp-2">
-                            <a href="{{ url_for('hub.project_detail', project_id=app.project.id) }}" class="hover:text-primary-blue">{{ app.project.title }}</a>
+                <div class="hub-my-app-card">
+                    <div class="hub-my-app-header">
+                        <h3 class="hub-my-app-title">
+                            <a href="{{ url_for('hub.project_detail', project_id=app.project.id) }}" class="hub-my-app-link">{{ app.project.title }}</a>
                         </h3>
-                        <span class="text-xs px-2.5 py-1 rounded-full font-bold uppercase tracking-wider
-                            {% if app.status.value == 'pending' %}bg-yellow-100 text-yellow-800
-                            {% elif app.status.value == 'accepted' %}bg-green-100 text-green-800
-                            {% else %}bg-red-100 text-red-800{% endif %}">
+                        <span class="hub-app-badge 
+                            {% if app.status.value == 'pending' %}hub-app-badge-pending
+                            {% elif app.status.value == 'accepted' %}hub-app-badge-accepted
+                            {% else %}hub-app-badge-rejected{% endif %}">
                             {{ app.status.value }}
                         </span>
                     </div>
                     
-                    <p class="text-sm text-gray-600 mb-4 flex-grow"><i class="fas fa-user-tie mr-2 text-gray-400"></i>Led by {{ app.project.researcher.name }}</p>
+                    <p class="hub-my-app-lead"><i class="fas fa-user-tie"></i>Led by {{ app.project.researcher.name }}</p>
                     
-                    <div class="text-xs text-gray-500 border-t border-gray-100 pt-4 flex justify-between items-center mt-auto">
+                    <div class="hub-my-app-footer">
                         <span>Applied on {{ app.applied_at.strftime('%b %d, %Y') }}</span>
                         {% if app.status.value == 'accepted' %}
-                            <a href="{{ url_for('forum.conversation', user_id=app.project.researcher.id) }}" class="text-primary-blue font-semibold hover:underline">Message Researcher</a>
+                            <a href="{{ url_for('forum.conversation', user_id=app.project.researcher.id) }}" class="hub-msg-link">Message Researcher</a>
                         {% endif %}
                     </div>
                 </div>
             {% endfor %}
             </div>
         {% else %}
-            <div class="bg-gray-50 border border-dashed border-gray-300 rounded-xl p-8 text-center">
-                <p class="text-gray-500">You haven't applied to any research projects.</p>
-                <a href="{{ url_for('hub.browse_projects') }}" class="inline-block mt-4 text-primary-blue font-medium hover:underline">Browse Open Projects</a>
+            <div class="hub-empty">
+                <p class="hub-empty-text">You haven't applied to any research projects.</p>
+                <a href="{{ url_for('hub.browse_projects') }}" class="hub-browse-link">Browse Open Projects</a>
             </div>
         {% endif %}
     </div>

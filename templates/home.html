@@ -26,10 +26,10 @@
         </div>
     </div>
     <div class="hero-particles">
-        <div class="hero-particle" style="top: 15%; left: 8%;"></div>
-        <div class="hero-particle" style="top: 60%; right: 10%;"></div>
-        <div class="hero-particle" style="top: 80%; left: 15%;"></div>
-        <div class="hero-particle" style="top: 30%; right: 20%;"></div>
+        <div class="hero-particle particle-1"></div>
+        <div class="hero-particle particle-2"></div>
+        <div class="hero-particle particle-3"></div>
+        <div class="hero-particle particle-4"></div>
     </div>
     <a href="#features" class="hero-scroll-indicator" aria-label="Scroll down">
         <i class="fas fa-chevron-down"></i>
@@ -110,9 +110,9 @@
 </section>
 
 <!-- Upcoming Events Preview -->
-<section class="events-preview-section py-20 bg-white">
+<section class="events-preview-section">
     <div class="container">
-        <div class="section-header-home text-center mb-12">
+        <div class="section-header-home">
             <span class="section-label">What's Coming</span>
             <h2 class="section-title-home">Upcoming Events</h2>
             <p class="section-subtitle-home">Don't miss out on our upcoming workshops, seminars, and conferences</p>
@@ -135,7 +135,7 @@
             </div>
             {% endfor %}
         </div>
-        <div class="text-center mt-8">
+        <div class="section-footer-home">
             <a href="{{ url_for('events') }}" class="btn-view-all">
                 View All Events <i class="fas fa-arrow-right"></i>
             </a>
@@ -152,9 +152,9 @@
 </section>
 
 <!-- Our Goals Section -->
-<section class="goals-section-home py-20">
+<section class="goals-section-home">
     <div class="container">
-        <div class="section-header-home text-center mb-12">
+        <div class="section-header-home">
             <span class="section-label">Our Mission</span>
             <h2 class="section-title-home">What We Strive For</h2>
             <p class="section-subtitle-home">Building a stronger pharmaceutical research community</p>
@@ -186,9 +186,9 @@
 </section>
 
 <!-- Recent Forum Discussions Section -->
-<section class="forum-preview-section py-20 bg-white">
+<section class="forum-preview-section">
     <div class="container">
-        <div class="section-header-home text-center mb-12">
+        <div class="section-header-home">
             <span class="section-label">Community</span>
             <h2 class="section-title-home">Recent Discussions</h2>
             <p class="section-subtitle-home">Join the conversation with fellow researchers and students</p>
@@ -223,7 +223,7 @@
             </div>
             {% endfor %}
         </div>
-        <div class="text-center mt-8">
+        <div class="section-footer-home">
             <a href="{{ url_for('forum.forum_main') }}" class="btn-view-all btn-view-all-orange">
                 <i class="fas fa-comments"></i> View All Discussions
             </a>
@@ -240,9 +240,9 @@
 </section>
 
 <!-- Partners Section -->
-<section class="partners-section-home py-20">
+<section class="partners-section-home">
     <div class="container">
-        <div class="section-header-home text-center mb-12">
+        <div class="section-header-home">
             <span class="section-label">Collaboration</span>
             <h2 class="section-title-home">In Association With</h2>
         </div>

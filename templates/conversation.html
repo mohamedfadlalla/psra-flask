@@ -3,43 +3,43 @@
 {% block title %}Conversation with {{ other_user.name }} - PSRA{% endblock %}
 
 {% block content %}
-<section class="section bg-gray-50 h-[calc(100vh-64px)] overflow-hidden">
-    <div class="container mx-auto px-0 sm:px-4 max-w-3xl h-full flex flex-col relative" data-current-user-id="{{ current_user.id }}" data-other-user-id="{{ other_user.id }}">
+<section class="section conversation-page">
+    <div class="container" data-current-user-id="{{ current_user.id }}" data-other-user-id="{{ other_user.id }}">
         
         <!-- Header -->
-        <div class="bg-white border-b border-gray-200 px-4 py-3 sm:rounded-t-xl sm:border-x sm:border-t flex justify-between items-center shadow-sm z-10 shrink-0">
-            <div class="flex items-center">
-                <a href="{{ url_for('forum.messages') }}" class="mr-3 text-gray-500 hover:text-primary-blue"><i class="fas fa-chevron-left"></i></a>
-                <span class="font-bold text-gray-900">{{ other_user.name }}</span>
+        <div class="conversation-header">
+            <div class="conversation-header-user">
+                <a href="{{ url_for('forum.messages') }}" class="conversation-back-btn"><i class="fas fa-chevron-left"></i></a>
+                <span class="conversation-username">{{ other_user.name }}</span>
             </div>
-            <div class="flex items-center gap-2">
-                <button class="text-gray-400 hover:text-red-500 transition-colors p-2 rounded-full hover:bg-gray-100" data-user-id="{{ other_user.id }}" data-user-name="{{ other_user.name }}" onclick="deleteConversation(this)" title="Delete Conversation">
+            <div class="conversation-header-actions">
+                <button class="conversation-delete-btn" data-user-id="{{ other_user.id }}" data-user-name="{{ other_user.name }}" onclick="deleteConversation(this)" title="Delete Conversation">
                     <i class="fas fa-trash"></i>
                 </button>
             </div>
         </div>
 
         <!-- Messages Container -->
-        <div class="messages-container flex-1 overflow-y-auto p-4 sm:border-x sm:border-gray-200 bg-white scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent hover:scrollbar-thumb-gray-400" id="messages-container">
+        <div class="conversation-messages" id="messages-container">
             {% if grouped_messages %}
                 {% for date_key, messages in grouped_messages %}
-                <div class="text-center my-6">
-                    <span class="bg-gray-100 text-gray-500 text-xs font-medium px-3 py-1 rounded-full">{{ date_key.strftime('%B %d, %Y') if date_key != today else 'Today' }}</span>
+                <div class="message-date-separator">
+                    <span class="message-date-label">{{ date_key.strftime('%B %d, %Y') if date_key != today else 'Today' }}</span>
                 </div>
                 {% for message in messages %}
-                <div class="flex flex-col mb-4 group {% if message.sender_id == current_user.id %}items-end{% else %}items-start{% endif %}" data-message-id="{{ message.id }}">
-                    <div class="relative max-w-[85%] sm:max-w-[70%] px-4 py-2.5 rounded-2xl {% if message.sender_id == current_user.id %}chat-bubble-sent rounded-br-sm shadow-sm{% else %}chat-bubble-received rounded-bl-sm{% endif %}">
-                        <p class="whitespace-pre-wrap break-words leading-relaxed text-[15px] m-0">{{ message.content }}</p>
+                <div class="message-row {% if message.sender_id == current_user.id %}sent{% else %}received{% endif %}" data-message-id="{{ message.id }}">
+                    <div class="message-bubble {% if message.sender_id == current_user.id %}sent{% else %}received{% endif %}">
+                        <p class="message-text">{{ message.content }}</p>
                     </div>
                     
-                    <div class="flex items-center gap-1 mt-1 text-[11px] text-gray-400">
+                    <div class="message-meta">
                         <span>{{ message.created_at.strftime('%I:%M %p') }}</span>
                         {% if message.sender_id == current_user.id and message.is_read %}
-                        <i class="fas fa-check-double text-blue-400"></i>
+                        <i class="fas fa-check-double message-read-icon"></i>
                         {% endif %}
                         {% if message.sender_id == current_user.id %}
-                        <button onclick="deleteMessage({{ message.id }})" class="hidden group-hover:inline-block text-red-400 hover:text-red-600 transition-colors ml-2">
-                            <i class="fas fa-trash-alt text-[10px]"></i>
+                        <button onclick="deleteMessage({{ message.id }})" class="message-delete-btn">
+                            <i class="fas fa-trash-alt"></i>
                         </button>
                         {% endif %}
                     </div>
@@ -47,42 +47,39 @@
                 {% endfor %}
                 {% endfor %}
             {% else %}
-                <div class="text-center p-12 text-gray-500">
-                    <p class="mb-2">No messages in this conversation yet.</p>
-                    <p><a href="{{ url_for('forum.send_message', user_id=other_user.id) }}" class="text-primary-blue hover:underline">Send the first message</a></p>
+                <div class="conversation-empty">
+                    <p>No messages in this conversation yet.</p>
+                    <p><a href="{{ url_for('forum.send_message', user_id=other_user.id) }}">Send the first message</a></p>
                 </div>
             {% endif %}
 
             <!-- Typing indicator -->
-            <div class="typing-indicator text-gray-500 italic text-sm text-center py-2" id="typing-indicator" style="display: none;">
-                <span id="typing-user-name" class="font-bold"></span> is typing...
+            <div class="conversation-typing hidden" id="typing-indicator">
+                <span id="typing-user-name" class="typing-name"></span> is typing...
             </div>
         </div>
 
         <!-- Reply Form (Footer) -->
-        <div class="bg-white border-t border-gray-200 px-4 py-3 sm:rounded-b-xl sm:border-x sm:border-b shadow-sm shrink-0">
-            <form method="POST" action="{{ url_for('forum.reply_message', user_id=other_user.id) }}" class="flex items-center">
+        <div class="conversation-reply">
+            <form method="POST" action="{{ url_for('forum.reply_message', user_id=other_user.id) }}" class="conversation-reply-form">
                 {{ form.hidden_tag() }}
-                <div class="flex-1 mr-2 relative">
-                    {{ form.content(class="w-full bg-gray-100 border-0 rounded-full px-5 py-2.5 focus:ring-2 focus:ring-primary-blue focus:bg-white transition-all resize-none max-h-32", rows="1", placeholder="Message...") }}
+                <div class="conversation-reply-input-wrapper">
+                    {{ form.content(class="conversation-reply-input", rows="1", placeholder="Message...") }}
                     {% if form.content.errors %}
-                        <div class="absolute bottom-full left-0 mb-1 w-full text-center">
+                        <div class="conversation-reply-errors">
                             {% for error in form.content.errors %}
-                                <span class="text-red-500 text-xs block">{{ error }}</span>
+                                <span class="conversation-reply-error">{{ error }}</span>
                             {% endfor %}
                         </div>
                     {% endif %}
                 </div>
-                <button type="submit" class="bg-primary-blue hover:bg-blue-dark text-white rounded-full w-10 h-10 flex items-center justify-center shadow-md transition-transform transform hover:-translate-y-0.5 shrink-0">
+                <button type="submit" class="conversation-send-btn">
                     <i class="fas fa-paper-plane"></i>
                 </button>
             </form>
         </div>
     </div>
 </section>
-
-<!-- Tailwind Safelist for dynamic js classes -->
-<div class="hidden bg-primary-blue text-white px-4 py-2.5 rounded-2xl rounded-br-sm shadow-sm bg-gray-100 text-gray-800 rounded-bl-sm border border-gray-200 flex items-end items-start gap-1 mt-1 text-[11px] text-gray-400 fas fa-check-double text-blue-400"></div>
 
 <!-- Socket.IO (lazy-loaded only on chat pages) -->
 <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>

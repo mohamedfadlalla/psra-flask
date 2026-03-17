@@ -5,7 +5,7 @@
 {% block content %}
 <section class="section">
     <div class="container">
-        <div class="flex justify-between items-center mb-8">
+        <div class="admin-page-header">
             <h2>Admin Dashboard</h2>
             <span class="badge badge-primary">
                 <i class="fas fa-shield-alt"></i> Administrator
@@ -15,29 +15,29 @@
         <!-- Statistics Cards -->
         <div class="admin-stats">
             <div class="admin-stat-card">
-                <div class="flex items-center justify-center mb-2">
-                    <i class="fas fa-users text-2xl" style="color: var(--primary-blue);"></i>
+                <div class="admin-stat-icon-wrapper">
+                    <i class="fas fa-users admin-stat-icon" style="color: var(--primary-blue);"></i>
                 </div>
                 <h3>Total Users</h3>
                 <div class="admin-stat-number">{{ total_users }}</div>
             </div>
             <div class="admin-stat-card">
-                <div class="flex items-center justify-center mb-2">
-                    <i class="fas fa-file-alt text-2xl" style="color: var(--accent-orange);"></i>
+                <div class="admin-stat-icon-wrapper">
+                    <i class="fas fa-file-alt admin-stat-icon" style="color: var(--accent-orange);"></i>
                 </div>
                 <h3>Total Posts</h3>
                 <div class="admin-stat-number">{{ total_posts }}</div>
             </div>
             <div class="admin-stat-card">
-                <div class="flex items-center justify-center mb-2">
-                    <i class="fas fa-comments text-2xl" style="color: var(--accent-green);"></i>
+                <div class="admin-stat-icon-wrapper">
+                    <i class="fas fa-comments admin-stat-icon" style="color: var(--accent-green);"></i>
                 </div>
                 <h3>Total Comments</h3>
                 <div class="admin-stat-number">{{ total_comments }}</div>
             </div>
             <div class="admin-stat-card">
-                <div class="flex items-center justify-center mb-2">
-                    <i class="fas fa-calendar-alt text-2xl" style="color: var(--color-info);"></i>
+                <div class="admin-stat-icon-wrapper">
+                    <i class="fas fa-calendar-alt admin-stat-icon" style="color: var(--color-info);"></i>
                 </div>
                 <h3>Total Events</h3>
                 <div class="admin-stat-number">{{ total_events }}</div>
@@ -45,7 +45,7 @@
         </div>
 
         <!-- Quick Actions -->
-        <div class="card mb-8">
+        <div class="card admin-quick-actions-card">
             <div class="card-header">
                 <h3 class="card-title"><i class="fas fa-bolt"></i> Quick Actions</h3>
             </div>
@@ -86,7 +86,7 @@
         </div>
 
         <!-- Recent Activity -->
-        <div class="grid md:grid-cols-2">
+        <div class="admin-activity-grid">
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title"><i class="fas fa-clock"></i> Recent Posts</h3>
@@ -95,7 +95,7 @@
                     {% if recent_posts %}
                         <ul class="info-list">
                             {% for post in recent_posts %}
-                            <li class="flex justify-between items-start">
+                            <li class="activity-item">
                                 <div>
                                     <strong>
                                         <a href="{{ url_for('forum.post_detail', post_id=post.id) }}" class="text-primary">
@@ -123,7 +123,7 @@
                         <ul class="info-list">
                             {% for comment in recent_comments %}
                             <li>
-                                <div class="flex items-center gap-2 mb-1">
+                                <div class="activity-item-avatar">
                                     <div class="avatar avatar-sm">
                                         {% if comment.author.profile_picture_url %}
                                         <img src="{{ comment.author.profile_picture_url }}" alt="{{ comment.author.name }}">
@@ -136,7 +136,7 @@
                                 <a href="{{ url_for('forum.post_detail', post_id=comment.post.id) }}" class="text-primary">
                                     {{ comment.post.title }}
                                 </a>
-                                <p class="text-sm text-muted mt-1">{{ comment.content[:100] }}{% if comment.content|length > 100 %}...{% endif %}</p>
+                                <p class="activity-item-preview">{{ comment.content[:100] }}{% if comment.content|length > 100 %}...{% endif %}</p>
                                 <small class="text-muted">{{ comment.created_at.strftime('%B %d, %Y') }}</small>
                             </li>
                             {% endfor %}
@@ -150,29 +150,5 @@
     </div>
 </section>
 
-<style>
-/* Mobile Quick Actions Enhancement */
-@media (max-width: 768px) {
-    .quick-actions {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: var(--space-2);
-    }
-    
-    .quick-actions .btn {
-        width: 100%;
-        justify-content: center;
-        font-size: var(--font-size-sm);
-        padding: var(--space-3);
-    }
-}
 
-@media (max-width: 480px) {
-    .quick-actions {
-        grid-template-columns: 1fr;
-    }
-}
-</style>
-    </div>
-</section>
 {% endblock %}

@@ -3,50 +3,50 @@
 {% block title %}Manage Profile Claims - Admin Dashboard{% endblock %}
 
 {% block content %}
-<div class="admin-submissions-page">
-    <div class="page-header flex justify-between items-center mb-8">
+<div class="admin-claims-page">
+    <div class="admin-claims-header">
         <div>
-            <h1 class="text-3xl font-bold text-primary-blue" style="margin-bottom: 5px;">Profile Claims</h1>
-            <p class="text-gray-600">Review pending researcher profile claims from users.</p>
+            <h1>Profile Claims</h1>
+            <p class="text-secondary">Review pending researcher profile claims from users.</p>
         </div>
         <a href="{{ url_for('admin.admin_dashboard') }}" class="btn btn-outline">
             <i class="fas fa-arrow-left"></i> Back to Dashboard
         </a>
     </div>
 
-    <div class="submissions-list" style="display: flex; flex-direction: column; gap: 20px;">
+    <div class="claims-list">
         {% if claims %}
             {% for claim in claims %}
-            <div class="submission-card" style="background: white; border-radius: 10px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #eee; display: flex; flex-wrap: wrap; gap: 20px;">
-                <div style="flex: 1; min-width: 300px;">
-                    <h3 style="font-size: 1.25rem; font-weight: bold; color: var(--text); margin-bottom: 10px; margin-top: 0;">Claim for: {{ claim.researcher.name }}</h3>
+            <div class="claim-card">
+                <div class="claim-details">
+                    <h3>Claim for: {{ claim.researcher.name }}</h3>
                     
-                    <div style="display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 15px;">
-                        <div style="display: flex; align-items: center; gap: 10px; color: var(--text-secondary);">
-                            <i class="fas fa-user" style="color: var(--primary-blue); width: 20px; text-align: center;"></i>
+                    <div class="claim-info-grid">
+                        <div class="claim-info-item">
+                            <i class="fas fa-user"></i>
                             <span>Claimed by: <strong>{{ claim.user.name }}</strong> ({{ claim.user.email }})</span>
                         </div>
-                        <div style="display: flex; align-items: center; gap: 10px; color: var(--text-secondary);">
-                            <i class="fas fa-calendar-alt" style="color: var(--primary-blue); width: 20px; text-align: center;"></i>
+                        <div class="claim-info-item">
+                            <i class="fas fa-calendar-alt"></i>
                             <span>Submitted: {{ claim.created_at.strftime('%Y-%m-%d') }}</span>
                         </div>
                     </div>
 
                     {% if claim.message %}
-                    <div style="margin-top: 15px; padding: 15px; background: #f9fafb; border-radius: 8px; font-size: 14px; color: #4b5563; font-style: italic; border-left: 4px solid #d1d5db;">
+                    <div class="claim-message">
                         "{{ claim.message }}"
                     </div>
                     {% endif %}
                 </div>
                 
-                <div style="display: flex; flex-direction: column; gap: 10px; min-width: 150px; justify-content: center;">
-                    <form action="{{ url_for('admin.approve_claim', claim_id=claim.id) }}" method="POST" style="margin: 0;">
-                        <button type="submit" class="btn btn-approve" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;" onclick="return confirm('Are you sure you want to approve this claim? The user will gain ownership of the researcher profile.')">
+                <div class="claim-actions">
+                    <form action="{{ url_for('admin.approve_claim', claim_id=claim.id) }}" method="POST">
+                        <button type="submit" class="btn-approve" onclick="return confirm('Are you sure you want to approve this claim? The user will gain ownership of the researcher profile.')">
                             <i class="fas fa-check"></i> Approve
                         </button>
                     </form>
-                    <form action="{{ url_for('admin.reject_claim', claim_id=claim.id) }}" method="POST" style="margin: 0;">
-                        <button type="submit" class="btn btn-reject" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;" onclick="return confirm('Are you sure you want to reject this claim?')">
+                    <form action="{{ url_for('admin.reject_claim', claim_id=claim.id) }}" method="POST">
+                        <button type="submit" class="btn-reject" onclick="return confirm('Are you sure you want to reject this claim?')">
                             <i class="fas fa-times"></i> Reject
                         </button>
                     </form>
@@ -54,12 +54,12 @@
             </div>
             {% endfor %}
         {% else %}
-        <div style="text-align: center; padding: 50px 20px; background: white; border-radius: 10px; border: 1px solid #eee;">
-            <div style="width: 60px; height: 60px; background: #eff6ff; color: var(--primary-blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px auto; font-size: 24px;">
+        <div class="claims-empty">
+            <div class="claims-empty-icon">
                 <i class="fas fa-id-card"></i>
             </div>
-            <h3 style="font-size: 1.25rem; font-weight: bold; color: var(--text); margin-bottom: 10px;">No Pending Claims</h3>
-            <p style="color: var(--text-secondary);">There are currently no profile claims awaiting review.</p>
+            <h3>No Pending Claims</h3>
+            <p>There are currently no profile claims awaiting review.</p>
         </div>
         {% endif %}
     </div>
