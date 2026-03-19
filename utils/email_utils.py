@@ -797,10 +797,15 @@ def send_project_application_response_email(student, researcher, project, status
         subject = f"Your Application Has Been Accepted - {project.title} - PSRA"
         status_color = "#28a745"
         status_message = "Great news! Your application for the research project has been accepted."
-    else:
+    elif status == 'rejected' or status == ApplicationStatus.REJECTED:
         subject = f"Your Application Has Been Declined - {project.title} - PSRA"
         status_color = "#dc3545"
         status_message = "Unfortunately, your application for the research project has been declined."
+    else:
+        current_app.logger.warning(f"Invalid status '{status}' passed to send_project_application_response_email. Expected 'accepted' or 'rejected'. Treating as rejected.")
+        subject = f"Your Application Status Update - {project.title} - PSRA"
+        status_color = "#6c757d"
+        status_message = "Your application status has been updated."
     
     html_template = """
     <!DOCTYPE html>
@@ -841,7 +846,7 @@ def send_project_application_response_email(student, researcher, project, status
                 </div>
                 {% endif %}
                 
-                {% if status == 'accepted' or status == 'ApplicationStatus.ACCEPTED' %}
+                {% if status == 'accepted' %}
                 <p>You can now message the researcher through the PSRA messaging system.</p>
                 <p><a href="{{ message_url }}" class="btn">Message Researcher</a></p>
                 {% endif %}
@@ -859,7 +864,7 @@ def send_project_application_response_email(student, researcher, project, status
     """
     
     with current_app.app_context():
-        message_url = url_for('hub.messages', _external=True)
+        message_url = url_for('forum.conversation', user_id=researcher.user_id, _external=True)
         html_body = render_template_string(html_template, 
                                          student=student, 
                                          researcher=researcher, 

@@ -8,7 +8,7 @@ from .forms import MentorshipRequestForm, ResearchProjectForm, ApplicationForm
 from models import db, User, UserRole, Profile, AlumniProfile, MentorshipStatus, MentorRequest, ActiveMentorship
 from models import Skill, ResearchProject, ProjectStatus, ProjectRequiredSkill, ProjectApplication, ApplicationStatus
 from utils.constants import FLASH_SUCCESS, FLASH_ERROR
-from utils.email_utils import send_mentorship_request_email, send_mentorship_response_email
+from utils.email_utils import send_mentorship_request_email, send_mentorship_response_email, send_project_application_email, send_project_application_response_email
 
 def get_or_create_skills(skill_string):
     if not skill_string:
@@ -212,6 +212,14 @@ def apply_project(project_id):
         )
         db.session.add(application)
         db.session.commit()
+        
+        try:
+            success, error = send_project_application_email(project.researcher, current_user, project, form.motivation_letter.data)
+            if not success:
+                current_app.logger.warning(f"Failed to send application email: {error}")
+        except Exception as e:
+            current_app.logger.warning(f"Email exception: {e}")
+        
         flash('Application submitted successfully.', FLASH_SUCCESS)
         return redirect(url_for('hub.project_detail', project_id=project.id))
 
@@ -254,10 +262,17 @@ def respond_application(app_id, action):
         if (accepted_count + 1) >= project.required_positions:
             project.status = ProjectStatus.CLOSED
             flash('Required positions filled. Project is now closed.', FLASH_SUCCESS)
-            
+        
     elif action == 'reject':
         application.status = ApplicationStatus.REJECTED
         flash('Application rejected.', FLASH_SUCCESS)
         
+    try:
+        success, error = send_project_application_response_email(application.student, current_user, project, action)
+        if not success:
+            current_app.logger.warning(f"Failed to send {action} email: {error}")
+    except Exception as e:
+        current_app.logger.warning(f"Email exception: {e}")
+    
     db.session.commit()
     return redirect(url_for('hub.manage_projects'))
