@@ -79,7 +79,7 @@ class User(UserMixin, db.Model):
     researcher_profile = db.relationship('ResearcherProfile', back_populates='user', uselist=False, cascade='all, delete-orphan')
 
     posts = db.relationship('Post', backref='author', lazy=True, cascade='all, delete-orphan')
-    comments = db.relationship('Comment', backref='author', lazy=True, cascade='all, delete-orphan')
+    comments = db.relationship('Comment', back_populates='author', lazy=True, cascade='all, delete-orphan')
     likes = db.relationship('Like', backref='user', lazy=True, cascade='all, delete-orphan')
     events = db.relationship('Event', backref='creator', lazy=True, cascade='all, delete-orphan')
 
@@ -361,6 +361,8 @@ class Comment(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     content = db.Column(db.Text, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    author = db.relationship('User', back_populates='comments')
 
 class Like(db.Model):
     id = db.Column(db.Integer, primary_key=True)

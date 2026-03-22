@@ -5666,6 +5666,14 @@ img {
     object-fit: cover;
 }
 
+.discussion-avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: var(--radius-full);
+    display: block;
+}
+
 .discussion-avatar-home .avatar-placeholder {
     display: flex;
     align-items: center;

@@ -193,28 +193,28 @@
             <h2 class="section-title-home">Recent Discussions</h2>
             <p class="section-subtitle-home">Join the conversation with fellow researchers and students</p>
         </div>
-        {% if recent_comments %}
+        {% if recent_posts %}
         <div class="discussions-grid-home">
-            {% for comment in recent_comments %}
-            <div class="discussion-card-home animate-on-scroll discussion-card-{{ loop.index }}" onclick="window.location.href='{{ url_for('forum.post_detail', post_id=comment.post_id) }}'">
+            {% for post in recent_posts %}
+            <div class="discussion-card-home animate-on-scroll discussion-card-{{ loop.index }}" onclick="window.location.href='{{ url_for('forum.post_detail', post_id=post.id) }}'">
                 <div class="discussion-header-home">
                     <div class="discussion-avatar-home">
-                        {% if comment.author.profile_picture_url %}
-                        <img src="{{ comment.author.profile_picture_url }}" alt="{{ comment.author.name }}'s avatar">
+                        {% if post.author.profile_picture_url %}
+                        <img src="{{ post.author.profile_picture_url }}" alt="{{ post.author.name }}'s avatar" class="discussion-avatar-img">
                         {% else %}
-                        <span class="avatar-placeholder">{{ comment.author.name[0].upper() }}</span>
+                        <span class="avatar-placeholder">{{ post.author.name[0].upper() }}</span>
                         {% endif %}
                     </div>
                     <div class="discussion-meta-home">
-                        <h4 class="discussion-author">{{ comment.author.name }}</h4>
-                        <span class="discussion-date">{{ comment.created_at.strftime('%b %d, %Y') }}</span>
+                        <h4 class="discussion-author">{{ post.author.name }}</h4>
+                        <span class="discussion-date">{{ post.created_at.strftime('%b %d, %Y') }}</span>
                     </div>
                 </div>
-                <p class="discussion-content-home">{{ comment.content[:150] }}{% if comment.content|length > 150 %}...{% endif %}</p>
+                <p class="discussion-content-home">{{ post.content[:150] }}{% if post.content|length > 150 %}...{% endif %}</p>
                 <div class="discussion-footer-home">
                     <span class="discussion-topic-badge">
                         <i class="fas fa-comments"></i>
-                        {{ comment.post.title[:30] }}{% if comment.post.title|length > 30 %}...{% endif %}
+                        {{ post.title[:30] }}{% if post.title|length > 30 %}...{% endif %}
                     </span>
                     <span class="discussion-cta">
                         View <i class="fas fa-arrow-right"></i>
