@@ -104,10 +104,6 @@
                         <i class="fab fa-google"></i>
                         Google
                     </a>
-                    <button type="button" class="btn btn-outline social-btn" disabled>
-                        <i class="fab fa-linkedin-in"></i>
-                        LinkedIn
-                    </button>
                 </div>
                 
                 <div class="auth-footer">
@@ -262,10 +258,15 @@
 }
 
 .social-auth {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+    display: flex;
     gap: var(--space-3);
     margin-bottom: var(--space-6);
+}
+
+.social-auth .social-btn {
+    flex: 1;
+    max-width: 200px;
+    margin: 0 auto;
 }
 
 .social-btn {
