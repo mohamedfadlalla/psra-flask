@@ -1,0 +1,192 @@
+/* ===========================================
+   CSS VARIABLES (Design Tokens)
+   PSRA Design System
+   =========================================== */
+
+:root {
+    /* Primary Colors */
+    --primary-blue: #2D577B;
+    --primary-blue-light: #607D9B;
+    --primary-blue-dark: #1E3A5F;
+
+    /* Accent Colors */
+    --accent-orange: #F59E0B;
+    --accent-orange-hover: #D97706;
+    --accent-green: #4ADE80;
+    --accent-green-dark: #22C55E;
+
+    /* Semantic Colors */
+    --color-success: #22C55E;
+    --color-success-bg: #DCFCE7;
+    --color-warning: #F59E0B;
+    --color-warning-bg: #FEF3C7;
+    --color-error: #EF4444;
+    --color-error-bg: #FEE2E2;
+    --color-info: #3B82F6;
+    --color-info-bg: #DBEAFE;
+    --color-success-hover: #16A34A;
+    --color-error-hover: #DC2626;
+    --color-archived: #6B7280;
+    --color-success-text: #166534;
+    --color-error-text: #991B1B;
+    --color-warning-text: #92400E;
+    --color-info-text: #1E40AF;
+    --color-warning-light: #FEF3C7;
+    --color-success-light: #DCFCE7;
+
+    /* Admin/Feature Colors */
+    --color-admin-purple: #667eea;
+    --color-admin-purple-dark: #5a6fd6;
+    --color-admin-purple-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --color-admin-green: #10b981;
+    --color-admin-blue: #3b82f6;
+    --color-admin-amber: #f59e0b;
+
+    /* Researcher/Profile Colors */
+    --color-meta-bg: #e9ecef;
+    --color-meta-text: #495057;
+    --color-meta-department-bg: #e3f2fd;
+    --color-meta-department-text: #1565c0;
+    --color-meta-year-bg: #f3e5f5;
+    --color-meta-year-text: #7b1fa2;
+    --color-meta-doctor-bg: #d4edda;
+    --color-meta-doctor-text: #155724;
+    --color-meta-student-bg: #fff3cd;
+    --color-meta-student-text: #856404;
+    --color-meta-pending-bg: #ffebee;
+    --color-meta-pending-text: #c62828;
+    --color-placeholder-avatar: #adb5bd;
+    --color-placeholder-icon: #ddd;
+    --color-card-border-light: #eee;
+
+    /* Claims Colors */
+    --color-claims-message-bg: #f9fafb;
+    --color-claims-message-text: #4b5563;
+    --color-claims-message-border: #d1d5db;
+    --color-claims-empty-bg: #eff6ff;
+
+    /* Form Input Colors */
+    --color-input-border: #ddd;
+    --color-required: #dc3545;
+    --color-section-border: #e9ecef;
+
+    /* Gradients */
+    --gradient-avatar-purple: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+
+    /* Social Colors */
+    --color-facebook: #1877F2;
+    --color-twitter: #1DA1F2;
+    --color-linkedin: #0A66C2;
+    --color-telegram: #0088cc;
+    --color-instagram-bg: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+    --color-instagram-alt-bg: linear-gradient(to bottom right, #9333ea, #ec4899, #fb923c);
+
+    /* Text Colors */
+    --text-primary: #1E293B;
+    --text-secondary: #64748B;
+    --text-muted: #94A3B8;
+    --text-inverse: #FFFFFF;
+
+    /* Background Colors */
+    --bg-primary: #FFFFFF;
+    --bg-secondary: #F8FAFC;
+    --bg-tertiary: #F1F5F9;
+    --bg-overlay: rgba(0, 0, 0, 0.5);
+
+    /* Border Colors */
+    --border-color: #E2E8F0;
+    --border-color-dark: #CBD5E1;
+    --border-focus: #2D577B;
+
+    /* Spacing Scale */
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 20px;
+    --space-6: 24px;
+    --space-8: 32px;
+    --space-10: 40px;
+    --space-12: 48px;
+    --space-16: 64px;
+    --space-20: 80px;
+
+    /* Typography */
+    --font-family-heading: 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-family-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-family-mono: 'Fira Code', 'Consolas', monospace;
+
+    --font-size-xs: 0.75rem;
+    --font-size-sm: 0.875rem;
+    --font-size-base: 1rem;
+    --font-size-lg: 1.125rem;
+    --font-size-xl: 1.25rem;
+    --font-size-2xl: 1.5rem;
+    --font-size-3xl: 1.875rem;
+    --font-size-4xl: 2.25rem;
+    --font-size-5xl: 3rem;
+
+    --font-weight-normal: 400;
+    --font-weight-medium: 500;
+    --font-weight-semibold: 600;
+    --font-weight-bold: 700;
+
+    --line-height-tight: 1.25;
+    --line-height-normal: 1.5;
+    --line-height-relaxed: 1.75;
+
+    /* Border Radius */
+    --radius-sm: 4px;
+    --radius-md: 6px;
+    --radius-lg: 8px;
+    --radius-xl: 12px;
+    --radius-2xl: 16px;
+    --radius-full: 9999px;
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+
+    /* Transitions */
+    --transition-fast: 150ms ease;
+    --transition-normal: 200ms ease;
+    --transition-slow: 300ms ease;
+    --transition-bounce: 300ms cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+    /* Z-Index Scale */
+    --z-dropdown: 100;
+    --z-sticky: 200;
+    --z-fixed: 300;
+    --z-modal-backdrop: 400;
+    --z-modal: 500;
+    --z-toast: 600;
+    --z-tooltip: 700;
+}
+
+/* Dark Mode Variables */
+[data-theme="dark"] {
+    --primary-blue: #3B82F6;
+    --primary-blue-light: #60A5FA;
+    --primary-blue-dark: #2563EB;
+
+    --text-primary: #F1F5F9;
+    --text-secondary: #94A3B8;
+    --text-muted: #64748B;
+
+    --bg-primary: #0F172A;
+    --bg-secondary: #1E293B;
+    --bg-tertiary: #334155;
+
+    --border-color: #334155;
+    --border-color-dark: #475569;
+    --border-focus: #3B82F6;
+
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.4);
+}

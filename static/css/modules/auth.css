@@ -1,0 +1,487 @@
+/* ===========================================
+   AUTH MODULE
+   Login, Register, and Authentication pages
+   =========================================== */
+
+/* ===========================================
+   AUTH PAGE LAYOUT
+   =========================================== */
+
+.auth-page {
+    min-height: 100vh;
+    display: flex;
+    background-color: var(--bg-secondary);
+}
+
+.auth-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    background-color: var(--bg-primary);
+    box-shadow: var(--shadow-xl);
+    border-radius: 0;
+    overflow: hidden;
+}
+
+.auth-container-wide {
+    max-width: 1400px;
+}
+
+/* ===========================================
+   AUTH BRANDING SECTION
+   =========================================== */
+
+.auth-branding {
+    background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-light) 100%);
+    color: var(--text-inverse);
+    padding: var(--space-12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.auth-branding-content {
+    max-width: 400px;
+    text-align: center;
+}
+
+.auth-logo {
+    width: 80px;
+    height: auto;
+    margin-bottom: var(--space-6);
+    filter: brightness(0) invert(1);
+}
+
+.auth-branding h1 {
+    font-size: var(--font-size-3xl);
+    margin-bottom: var(--space-4);
+    color: var(--text-inverse);
+}
+
+.auth-branding p {
+    font-size: var(--font-size-base);
+    opacity: 0.9;
+    line-height: var(--line-height-relaxed);
+    margin-bottom: var(--space-8);
+}
+
+.auth-features {
+    text-align: left;
+}
+
+.auth-feature {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3) 0;
+    font-size: var(--font-size-sm);
+}
+
+.auth-feature i {
+    width: 24px;
+    font-size: var(--font-size-lg);
+    opacity: 0.9;
+}
+
+/* ===========================================
+   AUTH FORM SECTION
+   =========================================== */
+
+.auth-form-section {
+    padding: var(--space-12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--bg-primary);
+}
+
+.auth-form-scrollable {
+    overflow-y: auto;
+    max-height: 100vh;
+}
+
+.auth-form-container {
+    width: 100%;
+    max-width: 400px;
+}
+
+.auth-form-wide {
+    max-width: 600px;
+}
+
+.auth-form-header {
+    text-align: center;
+    margin-bottom: var(--space-8);
+}
+
+.auth-form-header h2 {
+    font-size: var(--font-size-2xl);
+    margin-bottom: var(--space-2);
+}
+
+.auth-form-header p {
+    color: var(--text-secondary);
+    margin-bottom: 0;
+}
+
+.auth-form {
+    margin-bottom: var(--space-6);
+}
+
+/* ===========================================
+   FORM SECTIONS (Register specific)
+   =========================================== */
+
+.form-section {
+    margin-bottom: var(--space-6);
+    padding-bottom: var(--space-6);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.form-section:last-of-type {
+    border-bottom: none;
+    margin-bottom: var(--space-4);
+}
+
+.form-section-title {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+    color: var(--primary-blue);
+    margin-bottom: var(--space-4);
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.form-section-title i {
+    font-size: var(--font-size-sm);
+}
+
+.form-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-6);
+}
+
+.form-row-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-4);
+}
+
+/* ===========================================
+   FILE UPLOAD (Register specific)
+   =========================================== */
+
+.file-upload-wrapper {
+    position: relative;
+}
+
+.file-upload-label {
+    display: block;
+    cursor: pointer;
+}
+
+.file-upload-input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+}
+
+.file-upload-preview {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    padding: var(--space-6);
+    background-color: var(--bg-secondary);
+    border: 2px dashed var(--border-color);
+    border-radius: var(--radius-lg);
+    text-align: center;
+    transition: all var(--transition-fast);
+}
+
+.file-upload-preview:hover {
+    border-color: var(--primary-blue);
+    background-color: rgba(45, 87, 123, 0.05);
+}
+
+.file-upload-preview i {
+    font-size: var(--font-size-4xl);
+    color: var(--text-muted);
+}
+
+.file-upload-preview span {
+    color: var(--text-secondary);
+    font-size: var(--font-size-sm);
+}
+
+.file-upload-preview.has-image {
+    padding: 0;
+    border-style: solid;
+}
+
+.file-upload-preview.has-image img {
+    width: 100%;
+    max-height: 150px;
+    object-fit: cover;
+    border-radius: var(--radius-md);
+}
+
+/* ===========================================
+   PASSWORD STRENGTH (Register specific)
+   =========================================== */
+
+.password-strength {
+    margin-top: var(--space-2);
+}
+
+.strength-bar {
+    height: 4px;
+    background-color: var(--bg-tertiary);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+    margin-bottom: var(--space-1);
+}
+
+.strength-fill {
+    height: 100%;
+    width: 0;
+    transition: all var(--transition-normal);
+    border-radius: var(--radius-full);
+}
+
+.strength-fill.weak { width: 25%; background-color: var(--color-error); }
+.strength-fill.fair { width: 50%; background-color: var(--color-warning); }
+.strength-fill.good { width: 75%; background-color: var(--color-info); }
+.strength-fill.strong { width: 100%; background-color: var(--color-success); }
+
+.strength-text {
+    font-size: var(--font-size-xs);
+    color: var(--text-muted);
+}
+
+/* ===========================================
+   MEMBERSHIP OPTION (Register specific)
+   =========================================== */
+
+.membership-option {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+    padding: var(--space-4);
+    background-color: var(--bg-secondary);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.membership-option:hover {
+    background-color: var(--bg-tertiary);
+}
+
+.membership-option input {
+    margin-top: var(--space-1);
+}
+
+.membership-label {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    cursor: pointer;
+}
+
+.membership-title {
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-primary);
+}
+
+.membership-desc {
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+}
+
+/* ===========================================
+   TERMS CHECKBOX (Register specific)
+   =========================================== */
+
+.terms-checkbox {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+}
+
+.terms-label {
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+    line-height: var(--line-height-relaxed);
+    cursor: pointer;
+}
+
+.terms-label a {
+    color: var(--primary-blue);
+    text-decoration: underline;
+}
+
+/* ===========================================
+   FORGOT PASSWORD LINK
+   =========================================== */
+
+.forgot-password {
+    font-size: var(--font-size-sm);
+    color: var(--primary-blue);
+    text-decoration: none;
+}
+
+.forgot-password:hover {
+    text-decoration: underline;
+}
+
+.w-full {
+    width: 100%;
+}
+
+/* ===========================================
+   SOCIAL AUTH
+   =========================================== */
+
+.auth-divider {
+    display: flex;
+    align-items: center;
+    margin: var(--space-6) 0;
+    color: var(--text-muted);
+    font-size: var(--font-size-sm);
+}
+
+.auth-divider::before,
+.auth-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background-color: var(--border-color);
+}
+
+.auth-divider span {
+    padding: 0 var(--space-4);
+}
+
+.social-auth {
+    display: flex;
+    gap: var(--space-3);
+    margin-bottom: var(--space-6);
+}
+
+.social-auth-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-3);
+}
+
+.social-auth .social-btn {
+    flex: 1;
+    max-width: 200px;
+    margin: 0 auto;
+}
+
+.social-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+}
+
+.social-btn i {
+    font-size: var(--font-size-lg);
+}
+
+/* ===========================================
+   AUTH FOOTER
+   =========================================== */
+
+.auth-footer {
+    text-align: center;
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--border-color);
+}
+
+.auth-footer p {
+    color: var(--text-secondary);
+    margin-bottom: 0;
+}
+
+.auth-footer a {
+    color: var(--primary-blue);
+    font-weight: var(--font-weight-semibold);
+}
+
+/* ===========================================
+   RESPONSIVE STYLES
+   =========================================== */
+
+@media (max-width: 1024px) {
+    .auth-container {
+        grid-template-columns: 1fr;
+    }
+
+    .auth-branding {
+        display: none;
+    }
+
+    .auth-form-section {
+        padding: var(--space-6) var(--space-4);
+        max-height: none;
+    }
+}
+
+@media (max-width: 768px) {
+    .auth-container {
+        grid-template-columns: 1fr;
+    }
+
+    .auth-branding {
+        display: none;
+    }
+
+    .auth-form-section {
+        padding: var(--space-8) var(--space-4);
+    }
+
+    .auth-form-container {
+        max-width: 100%;
+    }
+}
+
+@media (max-width: 640px) {
+    .form-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-2);
+    }
+
+    .form-row-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .social-auth {
+        grid-template-columns: 1fr;
+    }
+
+    .social-auth-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .social-auth .social-btn {
+        max-width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .social-auth {
+        grid-template-columns: 1fr;
+    }
+}

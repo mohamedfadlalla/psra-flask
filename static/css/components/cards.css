@@ -1,0 +1,190 @@
+/* ===========================================
+   CARDS COMPONENT
+   Reusable card container styles
+   =========================================== */
+
+/* Base Card */
+.card {
+    background-color: var(--bg-primary);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    transition: all var(--transition-normal);
+}
+
+.card:hover {
+    box-shadow: var(--shadow-md);
+}
+
+/* Elevated Card */
+.card-elevated {
+    border: none;
+    box-shadow: var(--shadow-lg);
+}
+
+.card-elevated:hover {
+    box-shadow: var(--shadow-xl);
+    transform: translateY(-4px);
+}
+
+/* Card Sections */
+.card-header {
+    padding: var(--space-4) var(--space-5);
+    border-bottom: 1px solid var(--border-color);
+    background-color: var(--bg-secondary);
+}
+
+.card-body {
+    padding: var(--space-5);
+}
+
+.card-body-empty {
+    padding: 60px 20px;
+    text-align: center;
+}
+
+.card-footer {
+    padding: var(--space-4) var(--space-5);
+    border-top: 1px solid var(--border-color);
+    background-color: var(--bg-secondary);
+}
+
+/* Card Content */
+.card-title {
+    margin: 0 0 var(--space-2);
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-primary);
+}
+
+.card-text {
+    color: var(--text-secondary);
+    line-height: var(--line-height-relaxed);
+}
+
+.card-subtitle {
+    font-size: var(--font-size-sm);
+    color: var(--text-muted);
+    margin-bottom: var(--space-3);
+}
+
+/* ===========================================
+   CARD VARIANTS
+   =========================================== */
+
+/* Interactive Card */
+.card-interactive {
+    cursor: pointer;
+    transition: all var(--transition-normal);
+}
+
+.card-interactive:hover {
+    border-color: var(--primary-blue);
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+}
+
+/* Clickable Card (for links inside) */
+.card-clickable {
+    position: relative;
+}
+
+.card-clickable::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+}
+
+/* Card with Image */
+.card-image {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
+
+.card-image-top {
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+
+/* Card with Badge */
+.card-badge {
+    position: absolute;
+    top: var(--space-3);
+    right: var(--space-3);
+    z-index: 2;
+}
+
+/* ===========================================
+   CARD LAYOUTS
+   =========================================== */
+
+/* Horizontal Card */
+.card-horizontal {
+    display: flex;
+    flex-direction: row;
+}
+
+.card-horizontal .card-image {
+    width: 200px;
+    height: auto;
+    border-radius: var(--radius-lg) 0 0 var(--radius-lg);
+}
+
+/* Card Group */
+.card-group {
+    display: flex;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+}
+
+/* Grid of Cards */
+.card-grid {
+    display: grid;
+    gap: var(--space-6);
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+}
+
+/* ===========================================
+   CARD UTILITY CLASSES
+   =========================================== */
+
+/* Card Padding Variants */
+.card-body-sm {
+    padding: var(--space-3);
+}
+
+.card-body-lg {
+    padding: var(--space-8);
+}
+
+/* Card Border Variants */
+.card-borderless {
+    border: none;
+    box-shadow: none;
+}
+
+.card-bordered {
+    border: 2px solid var(--border-color);
+}
+
+/* Card Background Variants */
+.card-primary {
+    background-color: var(--primary-blue);
+    color: var(--text-inverse);
+}
+
+.card-secondary {
+    background-color: var(--bg-secondary);
+}
+
+/* Card with Action Bar */
+.card-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--space-2);
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--border-color);
+    margin-top: var(--space-4);
+}

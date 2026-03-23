@@ -1,0 +1,213 @@
+/* ===========================================
+   MODALS COMPONENT
+   Modal dialog and overlay styles
+   =========================================== */
+
+/* ===========================================
+   MODAL BACKDROP
+   =========================================== */
+
+.modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background-color: var(--bg-overlay);
+    z-index: var(--z-modal-backdrop);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-4);
+    opacity: 0;
+    visibility: hidden;
+    transition: all var(--transition-normal);
+}
+
+.modal-backdrop.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* ===========================================
+   MODAL BASE
+   =========================================== */
+
+.modal {
+    background-color: var(--bg-primary);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-2xl);
+    max-width: 500px;
+    width: 100%;
+    max-height: 90vh;
+    overflow: hidden;
+    transform: scale(0.9);
+    transition: transform var(--transition-normal);
+}
+
+.modal-backdrop.active .modal {
+    transform: scale(1);
+}
+
+/* ===========================================
+   MODAL SECTIONS
+   =========================================== */
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-5);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.modal-title {
+    margin: 0;
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-semibold);
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: var(--font-size-xl);
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: var(--space-1);
+    transition: color var(--transition-fast);
+}
+
+.modal-close:hover {
+    color: var(--text-primary);
+}
+
+.modal-body {
+    padding: var(--space-5);
+    overflow-y: auto;
+}
+
+.modal-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--space-3);
+    padding: var(--space-4) var(--space-5);
+    border-top: 1px solid var(--border-color);
+    background-color: var(--bg-secondary);
+}
+
+/* ===========================================
+   MODAL SIZES
+   =========================================== */
+
+.modal-sm {
+    max-width: 400px;
+}
+
+.modal-md {
+    max-width: 500px;
+}
+
+.modal-lg {
+    max-width: 768px;
+}
+
+.modal-xl {
+    max-width: 1024px;
+}
+
+.modal-full {
+    max-width: 100%;
+    max-height: 100vh;
+    border-radius: 0;
+}
+
+/* ===========================================
+   MODAL VARIANTS
+   =========================================== */
+
+/* Centered Modal */
+.modal-centered {
+    text-align: center;
+}
+
+.modal-centered .modal-body {
+    text-align: center;
+}
+
+/* Modal without Footer */
+.modal-no-footer .modal-footer {
+    display: none;
+}
+
+/* Modal without Header */
+.modal-no-header .modal-header {
+    display: none;
+}
+
+/* Full Height Modal */
+.modal-full-height {
+    max-height: 100vh;
+    height: 100vh;
+}
+
+/* ===========================================
+   MODAL ANIMATIONS
+   =========================================== */
+
+/* Fade In Animation */
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.modal-animate {
+    animation: modalFadeIn 0.3s ease-out;
+}
+
+/* Slide Up Animation */
+@keyframes modalSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.modal-animate-slide {
+    animation: modalSlideUp 0.3s ease-out;
+}
+
+/* ===========================================
+   MODAL UTILITY CLASSES
+   =========================================== */
+
+/* Modal with Sticky Footer */
+.modal-sticky-footer .modal-body {
+    overflow-y: auto;
+}
+
+.modal-sticky-footer .modal-footer {
+    position: sticky;
+    bottom: 0;
+}
+
+/* Modal Scrollable Content */
+.modal-scrollable {
+    max-height: calc(100vh - 200px);
+    overflow-y: auto;
+}
+
+/* Modal with Close Button in Corner */
+.modal-close-corner {
+    position: absolute;
+    top: var(--space-4);
+    right: var(--space-4);
+    z-index: 10;
+}
