@@ -6,145 +6,200 @@
 <section class="section forum-page">
     <div class="container">
         <div class="forum-layout">
-        <!-- Mobile Filter Toggle Button -->
-        <button class="forum-filter-toggle-btn" id="forum-filter-toggle" aria-label="Toggle filters">
-            <i class="fas fa-filter"></i> Show Filters
-        </button>
-        
-        <!-- Mobile Overlay -->
-        <div class="forum-overlay" id="forum-overlay"></div>
-        
-        <!-- Left Sidebar -->
-        <div class="forum-sidebar" id="forum-sidebar">
-            <div class="card">
-                <div class="card-body">
-                    <h3><i class="fas fa-search"></i> Search Discussion</h3>
-                    <input type="text" id="search-input" value="{{ search or '' }}" placeholder="Search..." class="form-input">
-                </div>
-            </div>
-            <div class="card">
-                <div class="card-body">
-                    <h3><i class="fas fa-tags"></i> Categories</h3>
-                    <select id="category-select" class="form-select">
-                        <option value="">All Discussions</option>
-                        <option value="Pharmacology" {% if selected_category == 'Pharmacology' %}selected{% endif %}>Pharmacology</option>
-                        <option value="Clinical Pharmacy" {% if selected_category == 'Clinical Pharmacy' %}selected{% endif %}>Clinical Pharmacy</option>
-                        <option value="Research Skills" {% if selected_category == 'Research Skills' %}selected{% endif %}>Research Skills</option>
-                    </select>
-                </div>
-            </div>
-            
-            {% if current_user.is_authenticated %}
-            <div class="card">
-                <div class="card-body">
-                    <h3><i class="fas fa-plus-circle"></i> Quick Actions</h3>
-                    <a href="{{ url_for('forum.create_post') }}" class="btn btn-primary btn-block">
-                        <i class="fas fa-pen"></i> New Discussion
-                    </a>
-                </div>
-            </div>
-            {% endif %}
-        </div>
+            <!-- Mobile Filter Toggle Button (Mobile Only) -->
+            <button class="forum-filter-toggle-btn" id="forum-filter-toggle" aria-label="Toggle filters">
+                <i class="fas fa-filter"></i>
+                <span>Filters</span>
+            </button>
 
-        <!-- Main Content -->
-        <div class="forum-main-content">
-            <div class="forum-page-header">
-                <h2 class="forum-page-title">Forum <span>› {{ selected_category or 'All Discussions' }}</span></h2>
+            <!-- Mobile Overlay -->
+            <div class="forum-overlay" id="forum-overlay"></div>
+
+            <!-- Left Sidebar -->
+            <aside class="forum-sidebar" id="forum-sidebar">
+                <!-- Search Card -->
+                <div class="card forum-filter-card">
+                    <div class="card-body">
+                        <h3 class="forum-filter-title">
+                            <i class="fas fa-search"></i> Search
+                        </h3>
+                        <div class="forum-search-wrapper">
+                            <input 
+                                type="text" 
+                                id="search-input" 
+                                value="{{ search or '' }}" 
+                                placeholder="Search discussions..." 
+                                class="form-input forum-search-input"
+                                autocomplete="off"
+                            >
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Categories Card -->
+                <div class="card forum-filter-card">
+                    <div class="card-body">
+                        <h3 class="forum-filter-title">
+                            <i class="fas fa-tags"></i> Categories
+                        </h3>
+                        <div class="forum-select-wrapper">
+                            <select id="category-select" class="form-select forum-category-select">
+                                <option value="">All Discussions</option>
+                                <option value="Pharmacology" {% if selected_category == 'Pharmacology' %}selected{% endif %}>Pharmacology</option>
+                                <option value="Clinical Pharmacy" {% if selected_category == 'Clinical Pharmacy' %}selected{% endif %}>Clinical Pharmacy</option>
+                                <option value="Research Skills" {% if selected_category == 'Research Skills' %}selected{% endif %}>Research Skills</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions Card (Authenticated Users) -->
                 {% if current_user.is_authenticated %}
-                <div class="forum-page-actions">
-                    <a href="{{ url_for('forum.create_post') }}" class="btn btn-sm btn-primary">
-                        <i class="fas fa-pen"></i> New Discussion
-                    </a>
+                <div class="card forum-filter-card">
+                    <div class="card-body">
+                        <h3 class="forum-filter-title">
+                            <i class="fas fa-plus-circle"></i> Quick Actions
+                        </h3>
+                        <a href="{{ url_for('forum.create_post') }}" class="btn btn-primary btn-block forum-create-btn">
+                            <i class="fas fa-pen"></i> New Discussion
+                        </a>
+                    </div>
                 </div>
                 {% endif %}
-            </div>
+            </aside>
 
-            <div class="forum-posts-list">
-            {% for post in posts %}
-            <article class="forum-post-card">
-                <div class="forum-post-card-body">
-                    <div class="forum-post-author">
-                        {% if post.author.profile_picture_url %}
-                        <img src="{{ post.author.profile_picture_url }}" alt="{{ post.author.name }}" class="forum-post-avatar-img">
-                        {% else %}
-                        <div class="forum-post-avatar-placeholder">
-                            {{ post.author.name[0].upper() }}
-                        </div>
+            <!-- Main Content -->
+            <main class="forum-main-content">
+                <div class="forum-page-header">
+                    <div class="forum-header-left">
+                        <h2 class="forum-page-title">
+                            Forum 
+                            <span class="forum-category-breadcrumb">› {{ selected_category or 'All Discussions' }}</span>
+                        </h2>
+                        {% if posts %}
+                        <p class="forum-posts-count">{{ posts|length }} discussion{{ 's' if posts|length != 1 else '' }}</p>
                         {% endif %}
-                        <div class="forum-post-author-info">
-                            <h4 class="forum-post-author-name">
-                                <a href="{{ url_for('forum.user_profile', user_id=post.author.id) }}">{{ post.author.name }}</a>
-                            </h4>
-                            <div class="forum-post-date">
-                                <time datetime="{{ post.created_at.isoformat() }}">{{ post.created_at.strftime('%B %d, %Y %I:%M %p') }}</time>
-                            </div>
-                        </div>
                     </div>
-                    
-                    <h3 class="forum-post-title">
-                        <a href="{{ url_for('forum.post_detail', post_id=post.id) }}">{{ post.title }}</a>
-                    </h3>
-                    <p class="forum-post-excerpt">{{ post.content[:300] }}{% if post.content|length > 300 %}...{% endif %}</p>
-                    
-                    <div class="forum-post-meta">
-                        {% set user_liked = false %}
-                        {% if current_user.is_authenticated %}
-                            {% for like in post.likes %}
-                                {% if like.user_id == current_user.id %}
-                                    {% set user_liked = true %}
-                                {% endif %}
-                            {% endfor %}
-                        {% endif %}
-                        
-                        <button id="like-btn-{{ post.id }}" 
-                                onclick="toggleLike({{ post.id }}, this)" 
-                                class="forum-post-action-btn {% if user_liked %}liked{% endif %}">
-                            <i class="fas fa-thumbs-up"></i> 
-                            <span>{{ post.likes|length }}</span>
-                        </button>
-                        
-                        <a href="{{ url_for('forum.post_detail', post_id=post.id) }}#comments" 
-                           class="forum-post-action-btn">
-                            <i class="fas fa-comment"></i> 
-                            <span>{{ post.comments|length }}</span>
-                        </a>
-                        
-                        <a href="{{ url_for('forum.post_detail', post_id=post.id) }}" class="forum-post-read-more">
-                            Read More <i class="fas fa-arrow-right"></i>
-                        </a>
-                    </div>
-                </div>
-            </article>
-            {% endfor %}
-            </div>
-
-            {% if not posts %}
-            <div class="card">
-                <div class="card-body forum-empty-state">
-                    <div class="forum-empty-icon">
-                        <i class="fas fa-comments"></i>
-                    </div>
-                    <h3 class="forum-empty-title">No Discussions Found</h3>
-                    <p class="forum-empty-text">
-                        {% if search or selected_category %}
-                        No discussions match your search criteria. Try different keywords or categories.
-                        {% else %}
-                        Be the first to start a discussion!
-                        {% endif %}
-                    </p>
                     {% if current_user.is_authenticated %}
-                    <a href="{{ url_for('forum.create_post') }}" class="btn btn-primary">
-                        <i class="fas fa-pen"></i> Start First Discussion
-                    </a>
-                    {% else %}
-                    <a href="{{ url_for('forum.login') }}" class="btn btn-primary">
-                        <i class="fas fa-sign-in-alt"></i> Sign In to Post
-                    </a>
+                    <div class="forum-page-actions">
+                        <a href="{{ url_for('forum.create_post') }}" class="btn btn-sm btn-primary forum-create-post-btn">
+                            <i class="fas fa-pen"></i>
+                            <span>New Discussion</span>
+                        </a>
+                    </div>
                     {% endif %}
                 </div>
-            </div>
-            {% endif %}
-        </div>
+
+                <!-- Posts List -->
+                <div class="forum-posts-list">
+                    {% for post in posts %}
+                    <article class="forum-post-card" data-post-id="{{ post.id }}">
+                        <div class="forum-post-card-body">
+                            <!-- Author & Date -->
+                            <div class="forum-post-header-row">
+                                <div class="forum-post-author">
+                                    {% if post.author.profile_picture_url %}
+                                    <img src="{{ post.author.profile_picture_url }}" alt="{{ post.author.name }}" class="forum-post-avatar-img">
+                                    {% else %}
+                                    <div class="forum-post-avatar-placeholder">
+                                        {{ post.author.name[0].upper() }}
+                                    </div>
+                                    {% endif %}
+                                    <div class="forum-post-author-info">
+                                        <h4 class="forum-post-author-name">
+                                            <a href="{{ url_for('forum.user_profile', user_id=post.author.id) }}">{{ post.author.name }}</a>
+                                        </h4>
+                                        <div class="forum-post-meta-inline">
+                                            <span class="forum-post-category-badge">{{ post.category }}</span>
+                                            <time datetime="{{ post.created_at.isoformat() }}" class="forum-post-date">
+                                                {{ post.created_at.strftime('%B %d, %Y at %I:%M %p') }}
+                                            </time>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Post Content -->
+                            <h3 class="forum-post-title">
+                                <a href="{{ url_for('forum.post_detail', post_id=post.id) }}">{{ post.title }}</a>
+                            </h3>
+                            <p class="forum-post-excerpt">{{ post.content[:300] }}{% if post.content|length > 300 %}...{% endif %}</p>
+
+                            <!-- Action Buttons -->
+                            <div class="forum-post-footer">
+                                <div class="forum-post-actions-left">
+                                    {% set user_liked = false %}
+                                    {% if current_user.is_authenticated %}
+                                        {% for like in post.likes %}
+                                            {% if like.user_id == current_user.id %}
+                                                {% set user_liked = true %}
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% endif %}
+
+                                    <button 
+                                        id="like-btn-{{ post.id }}"
+                                        onclick="toggleLike({{ post.id }}, this)"
+                                        class="forum-post-action-btn {% if user_liked %}liked{% endif %}"
+                                        title="{{ 'Unlike' if user_liked else 'Like' }}"
+                                    >
+                                        <i class="fas fa-thumbs-up"></i>
+                                        <span class="forum-action-count">{{ post.likes|length }}</span>
+                                    </button>
+
+                                    <a href="{{ url_for('forum.post_detail', post_id=post.id) }}#comments" 
+                                       class="forum-post-action-btn"
+                                       title="Comments">
+                                        <i class="fas fa-comment"></i>
+                                        <span class="forum-action-count">{{ post.comments|length }}</span>
+                                    </a>
+                                </div>
+
+                                <a href="{{ url_for('forum.post_detail', post_id=post.id) }}" class="forum-post-read-more">
+                                    <span>Read Discussion</span>
+                                    <i class="fas fa-arrow-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </article>
+                    {% endfor %}
+                </div>
+
+                <!-- Empty State -->
+                {% if not posts %}
+                <div class="card forum-empty-state-card">
+                    <div class="card-body forum-empty-state">
+                        <div class="forum-empty-icon">
+                            <i class="fas fa-comments"></i>
+                        </div>
+                        <h3 class="forum-empty-title">No Discussions Found</h3>
+                        <p class="forum-empty-text">
+                            {% if search or selected_category %}
+                            No discussions match your search criteria. Try different keywords or categories.
+                            {% else %}
+                            Be the first to start a discussion!
+                            {% endif %}
+                        </p>
+                        <div class="forum-empty-actions">
+                            {% if current_user.is_authenticated %}
+                            <a href="{{ url_for('forum.create_post') }}" class="btn btn-primary">
+                                <i class="fas fa-pen"></i> Start First Discussion
+                            </a>
+                            {% else %}
+                            <a href="{{ url_for('forum.login') }}" class="btn btn-primary">
+                                <i class="fas fa-sign-in-alt"></i> Sign In to Post
+                            </a>
+                            {% endif %}
+                            {% if search or selected_category %}
+                            <a href="{{ url_for('forum.forum_main') }}" class="btn btn-outline">
+                                <i class="fas fa-redo"></i> Clear Filters
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </main>
         </div>
     </div>
 </section>
@@ -158,61 +213,92 @@ const searchInput = document.getElementById('search-input');
 const categorySelect = document.getElementById('category-select');
 
 function applyFilters() {
-    const search = searchInput.value;
-    const category = categorySelect.value;
+    const search = searchInput ? searchInput.value.trim() : '';
+    const category = categorySelect ? categorySelect.value : '';
     const url = new URL(window.location.href);
-    
+
     if (search) {
         url.searchParams.set('search', search);
     } else {
         url.searchParams.delete('search');
     }
-    
+
     if (category) {
         url.searchParams.set('category', category);
     } else {
         url.searchParams.delete('category');
     }
-    
+
     window.location.href = url.toString();
 }
 
-searchInput.addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-        applyFilters();
-    }
-});
+if (searchInput) {
+    searchInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            applyFilters();
+        }
+    });
+}
 
-categorySelect.addEventListener('change', applyFilters);
+if (categorySelect) {
+    categorySelect.addEventListener('change', applyFilters);
+}
 
 // Mobile sidebar toggle
 const filterToggle = document.getElementById('forum-filter-toggle');
 const sidebar = document.getElementById('forum-sidebar');
 const overlay = document.getElementById('forum-overlay');
 
+function closeSidebar() {
+    if (sidebar) sidebar.classList.remove('active');
+    if (overlay) overlay.classList.remove('active');
+    document.body.style.overflow = '';
+}
+
+function openSidebar() {
+    if (sidebar) sidebar.classList.add('active');
+    if (overlay) overlay.classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
 if (filterToggle && sidebar && overlay) {
     filterToggle.addEventListener('click', () => {
-        sidebar.classList.toggle('active');
-        overlay.classList.toggle('active');
-        document.body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : '';
+        if (sidebar.classList.contains('active')) {
+            closeSidebar();
+        } else {
+            openSidebar();
+        }
     });
-    
-    overlay.addEventListener('click', () => {
-        sidebar.classList.remove('active');
-        overlay.classList.remove('active');
-        document.body.style.overflow = '';
-    });
-    
+
+    overlay.addEventListener('click', closeSidebar);
+
     // Close sidebar when a filter is applied on mobile
-    categorySelect.addEventListener('change', () => {
-        if (window.innerWidth < 768) {
-            sidebar.classList.remove('active');
-            overlay.classList.remove('active');
-            document.body.style.overflow = '';
+    if (categorySelect) {
+        categorySelect.addEventListener('change', () => {
+            if (window.innerWidth < 768) {
+                closeSidebar();
+            }
+        });
+    }
+
+    // Close on escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && sidebar.classList.contains('active')) {
+            closeSidebar();
         }
     });
 }
 
+// Handle window resize
+let resizeTimer;
+window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+        if (window.innerWidth >= 768) {
+            closeSidebar();
+        }
+    }, 250);
+});
 
 </script>
 {% endblock %}
