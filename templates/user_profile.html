@@ -86,14 +86,11 @@
             <div class="user-profile-section">
                 <h3>Contact Details</h3>
                 <ul class="user-profile-contact-list">
-                    {% if user.whatsapp_number %}
-                    <li><i class="fab fa-whatsapp"></i> <a href="https://wa.me/{{ user.whatsapp_number|replace('+', '')|replace(' ', '') }}" target="_blank">{{ user.whatsapp_number }}</a></li>
-                    {% endif %}
                     {% if user.location %}
                     <li><i class="fas fa-map-marker-alt"></i> {{ user.location }}</li>
                     {% endif %}
                 </ul>
-                <p class="user-profile-privacy-note"><i class="fas fa-shield-alt"></i> Email and phone number are kept private</p>
+                <p class="user-profile-privacy-note"><i class="fas fa-shield-alt"></i> Email, phone, and WhatsApp are kept private</p>
             </div>
 
         </div>
