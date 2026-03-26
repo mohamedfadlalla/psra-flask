@@ -56,9 +56,11 @@
                                         {% if app.status.value == 'pending' %}
                                         <div class="hub-app-actions">
                                             <form method="POST" action="{{ url_for('hub.respond_application', app_id=app.id, action='accept') }}" class="hub-app-action-form">
+                                                <textarea name="message" class="hub-app-message-textarea" rows="3" placeholder="Add a message (optional)"></textarea>
                                                 <button type="submit" class="btn btn-success btn-sm hub-app-action-btn"><i class="fas fa-check"></i> Accept</button>
                                             </form>
                                             <form method="POST" action="{{ url_for('hub.respond_application', app_id=app.id, action='reject') }}" class="hub-app-action-form">
+                                                <textarea name="message" class="hub-app-message-textarea" rows="3" placeholder="Add a message (optional)"></textarea>
                                                 <button type="submit" class="btn btn-danger btn-sm hub-app-action-btn"><i class="fas fa-times"></i> Reject</button>
                                             </form>
                                             <a href="{{ url_for('forum.user_profile', user_id=app.student.id) }}" class="btn btn-ghost btn-sm hub-app-action-btn hub-btn-profile">View Profile</a>

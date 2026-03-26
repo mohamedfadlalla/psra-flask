@@ -864,10 +864,10 @@ def send_project_application_response_email(student, researcher, project, status
     """
     
     with current_app.app_context():
-        message_url = url_for('forum.conversation', user_id=researcher.user_id, _external=True)
-        html_body = render_template_string(html_template, 
-                                         student=student, 
-                                         researcher=researcher, 
+        message_url = url_for('forum.conversation', user_id=researcher.id, _external=True)
+        html_body = render_template_string(html_template,
+                                         student=student,
+                                         researcher=researcher,
                                          project=project,
                                          status=status,
                                          status_color=status_color,

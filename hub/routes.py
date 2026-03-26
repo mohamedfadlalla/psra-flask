@@ -243,36 +243,42 @@ def respond_application(app_id, action):
     """Accept or reject a project application."""
     application = ProjectApplication.query.get_or_404(app_id)
     project = application.project
-    
+
     if project.researcher_id != current_user.id:
         flash('Unauthorized action.', FLASH_ERROR)
         return redirect(url_for('hub.manage_projects'))
 
+    # Get optional message from form
+    message = request.form.get('message', '').strip() or None
+
     if action == 'accept':
         application.status = ApplicationStatus.ACCEPTED
         flash('Application accepted.', FLASH_SUCCESS)
-        
+
         # Check if project should be closed
         accepted_count = ProjectApplication.query.filter_by(
             project_id=project.id,
             status=ApplicationStatus.ACCEPTED
         ).count()
-        
+
         # Include the newly accepted one
         if (accepted_count + 1) >= project.required_positions:
             project.status = ProjectStatus.CLOSED
             flash('Required positions filled. Project is now closed.', FLASH_SUCCESS)
-        
+
     elif action == 'reject':
         application.status = ApplicationStatus.REJECTED
         flash('Application rejected.', FLASH_SUCCESS)
-        
+
+    # Convert action to proper status for email function
+    email_status = 'accepted' if action == 'accept' else 'rejected'
+
     try:
-        success, error = send_project_application_response_email(application.student, current_user, project, action)
+        success, error = send_project_application_response_email(application.student, current_user, project, email_status, message)
         if not success:
-            current_app.logger.warning(f"Failed to send {action} email: {error}")
+            current_app.logger.warning(f"Failed to send {email_status} email: {error}")
     except Exception as e:
         current_app.logger.warning(f"Email exception: {e}")
-    
+
     db.session.commit()
     return redirect(url_for('hub.manage_projects'))
