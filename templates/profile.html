@@ -5,28 +5,30 @@
 {% block content %}
 <div class="container">
     <div class="profile-header">
-        <div class="cover-photo cover-photo-gradient-blue">
-            <div class="profile-content-wrapper">
-                <div class="profile-avatar">
-                    {% if current_user.profile_picture_url %}
-                    <img src="{{ current_user.profile_picture_url }}" alt="{{ current_user.name }}'s profile picture" class="avatar-image avatar-2xl">
-                    {% else %}
-                    <div class="avatar avatar-2xl avatar-placeholder">
-                        {{ current_user.name[0].upper() }}
-                    </div>
-                    {% endif %}
+        <div class="cover-photo cover-photo-gradient-blue"></div>
+        <div class="profile-content-wrapper">
+            <div class="profile-avatar">
+                {% if current_user.profile_picture_url %}
+                <img src="{{ current_user.profile_picture_url }}" alt="{{ current_user.name }}'s profile picture" class="avatar-image avatar-2xl">
+                {% else %}
+                <div class="avatar avatar-2xl avatar-placeholder">
+                    {{ current_user.name[0].upper() }}
                 </div>
-                <div class="profile-info">
-                    <h1>{{ current_user.name }}</h1>
+                {% endif %}
+            </div>
+            <div class="profile-info">
+                <div class="profile-identity-box">
+                    <h1 class="profile-name">{{ current_user.name }}</h1>
                     {% if current_user.headline %}
                     <p class="profile-headline">{{ current_user.headline }}</p>
                     {% endif %}
-                    {% if current_user.location %}
-                    <p class="profile-location"><i class="fas fa-map-marker-alt"></i> {{ current_user.location }}</p>
-                    {% endif %}
-                    <a href="{{ url_for('forum.edit_profile') }}" class="btn btn-primary edit-profile-btn">Edit Profile</a>
+                </div>
+                {% if current_user.location %}
+                <p class="profile-location"><i class="fas fa-map-marker-alt"></i> {{ current_user.location }}</p>
+                {% endif %}
+                <a href="{{ url_for('forum.edit_profile') }}" class="btn btn-primary edit-profile-btn">Edit Profile</a>
+            </div>
         </div>
-    </div>
     </div>
 
     <div class="profile-content">
