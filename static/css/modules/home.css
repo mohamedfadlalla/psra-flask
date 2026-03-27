@@ -701,17 +701,17 @@
 }
 
 .partner-card-home {
-    background-color: var(--bg-primary);
+    background-color: transparent;
     border-radius: var(--radius-xl);
-    border: 1px solid var(--border-color);
+    border: none;
     padding: var(--space-6);
     text-align: center;
     transition: all var(--transition-normal);
 }
 
 .partner-card-home:hover {
-    box-shadow: var(--shadow-lg);
-    transform: translateY(-4px);
+    box-shadow: none;
+    transform: translateY(0);
 }
 
 .partner-card-home a {
@@ -720,19 +720,21 @@
 }
 
 .partner-logo-home {
-    width: 100px;
-    height: 100px;
+    width: 180px;
+    height: 180px;
     margin: 0 auto var(--space-4);
     display: flex;
     align-items: center;
     justify-content: center;
+    background: transparent !important;
 }
 
 .partner-logo-home img {
     width: 100%;
     height: 100%;
     object-fit: contain;
-    border-radius: var(--radius-full);
+    border-radius: 0;
+    background: transparent !important;
 }
 
 .partner-name-home {

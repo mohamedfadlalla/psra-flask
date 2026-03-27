@@ -7526,7 +7526,22 @@
    =========================================== */
 
 .edit-profile-page {
-    max-width: 448px;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.edit-profile-page .edit-form-card {
+    text-align: center;
+}
+
+.edit-profile-page .form-group {
+    text-align: left;
+}
+
+@media (min-width: 768px) {
+    .edit-profile-page {
+        max-width: 900px;
+    }
 }
 
 /* ===========================================
