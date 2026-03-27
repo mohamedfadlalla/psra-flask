@@ -420,6 +420,95 @@
 }
 
 /* ===========================================
+   DASHBOARD DARK MODE
+   =========================================== */
+
+[data-theme="dark"] .dashboard-tile-events {
+    background-color: #14532D;
+    border-color: #166534;
+}
+
+[data-theme="dark"] .dashboard-tile-events:hover {
+    background-color: #166534;
+}
+
+[data-theme="dark"] .dashboard-tile-events .dashboard-tile-icon i {
+    color: #86EFAC;
+}
+
+[data-theme="dark"] .dashboard-tile-events .dashboard-tile-count {
+    color: #BBF7D0;
+}
+
+[data-theme="dark"] .dashboard-tile-projects {
+    background-color: #581C87;
+    border-color: #6B21A8;
+}
+
+[data-theme="dark"] .dashboard-tile-projects:hover {
+    background-color: #6B21A8;
+}
+
+[data-theme="dark"] .dashboard-tile-projects .dashboard-tile-icon i {
+    color: #D8B4FE;
+}
+
+[data-theme="dark"] .dashboard-tile-projects .dashboard-tile-count {
+    color: #E9D5FF;
+}
+
+[data-theme="dark"] .dashboard-tile-mentorships {
+    background-color: #7C2D12;
+    border-color: #9A3412;
+}
+
+[data-theme="dark"] .dashboard-tile-mentorships:hover {
+    background-color: #9A3412;
+}
+
+[data-theme="dark"] .dashboard-tile-mentorships .dashboard-tile-icon i {
+    color: #FDBA74;
+}
+
+[data-theme="dark"] .dashboard-tile-mentorships .dashboard-tile-count {
+    color: #FED7AA;
+}
+
+[data-theme="dark"] .dashboard-tile-research {
+    background-color: #115E59;
+    border-color: #134E4A;
+}
+
+[data-theme="dark"] .dashboard-tile-research:hover {
+    background-color: #134E4A;
+}
+
+[data-theme="dark"] .dashboard-tile-research .dashboard-tile-icon i {
+    color: #5EEAD4;
+}
+
+[data-theme="dark"] .dashboard-tile-research .dashboard-tile-count {
+    color: #99F6E4;
+}
+
+[data-theme="dark"] .dashboard-tile-announcements {
+    background-color: #7F1D1D;
+    border-color: #991B1B;
+}
+
+[data-theme="dark"] .dashboard-tile-announcements:hover {
+    background-color: #991B1B;
+}
+
+[data-theme="dark"] .dashboard-tile-announcements .dashboard-tile-icon i {
+    color: #FCA5A5;
+}
+
+[data-theme="dark"] .dashboard-tile-announcements .dashboard-tile-count {
+    color: #FECACA;
+}
+
+/* ===========================================
    DASHBOARD RESPONSIVE
    =========================================== */
 
