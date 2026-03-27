@@ -29,15 +29,6 @@
                     <input type="text" id="search" name="search" value="{{ search }}" placeholder="Search title or content" style="padding: 8px; border: 1px solid var(--border); border-radius: 4px;">
                 </div>
                 <div>
-                    <label for="category">Category:</label>
-                    <select id="category" name="category" style="padding: 8px; border: 1px solid var(--border); border-radius: 4px;">
-                        <option value="">All Categories</option>
-                        {% for cat in categories %}
-                        <option value="{{ cat }}" {% if category == cat %}selected{% endif %}>{{ cat }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div>
                     <label for="author">Author:</label>
                     <input type="text" id="author" name="author" value="{{ author }}" placeholder="Search by author" style="padding: 8px; border: 1px solid var(--border); border-radius: 4px;">
                 </div>
@@ -58,7 +49,6 @@
                             <tr style="background-color: var(--bg-secondary);">
                                 <th style="padding: 12px; text-align: left; border-bottom: 1px solid var(--border);">Title</th>
                                 <th style="padding: 12px; text-align: left; border-bottom: 1px solid var(--border);">Author</th>
-                                <th style="padding: 12px; text-align: left; border-bottom: 1px solid var(--border);">Category</th>
                                 <th style="padding: 12px; text-align: left; border-bottom: 1px solid var(--border);">Created</th>
                                 <th style="padding: 12px; text-align: left; border-bottom: 1px solid var(--border);">Comments</th>
                                 <th style="padding: 12px; text-align: left; border-bottom: 1px solid var(--border);">Actions</th>
@@ -74,7 +64,6 @@
                                     {% endif %}
                                 </td>
                                 <td style="padding: 12px;">{{ post.author.name }}</td>
-                                <td style="padding: 12px;">{{ post.category }}</td>
                                 <td style="padding: 12px;">{{ post.created_at.strftime('%B %d, %Y') }}</td>
                                 <td style="padding: 12px;">{{ post.comments|length }}</td>
                                 <td style="padding: 12px;">
@@ -93,7 +82,7 @@
                 {% if posts.pages > 1 %}
                 <div style="display: flex; justify-content: center; margin-top: 30px;">
                     {% if posts.has_prev %}
-                    <a href="{{ url_for('admin.manage_posts', page=posts.prev_num, search=search, category=category, author=author) }}" class="btn btn-outline">Previous</a>
+                    <a href="{{ url_for('admin.manage_posts', page=posts.prev_num, search=search, author=author) }}" class="btn btn-outline">Previous</a>
                     {% endif %}
 
                     {% for page_num in posts.iter_pages() %}
@@ -101,13 +90,13 @@
                             {% if page_num == posts.page %}
                             <span style="padding: 8px 12px; background-color: var(--text-secondary); color: var(--bg-primary); margin: 0 5px; border-radius: 4px;">{{ page_num }}</span>
                             {% else %}
-                            <a href="{{ url_for('admin.manage_posts', page=page_num, search=search, category=category, author=author) }}" style="padding: 8px 12px; margin: 0 5px; text-decoration: none; color: var(--text-primary); border: 1px solid var(--border); border-radius: 4px;">{{ page_num }}</a>
+                            <a href="{{ url_for('admin.manage_posts', page=page_num, search=search, author=author) }}" style="padding: 8px 12px; margin: 0 5px; text-decoration: none; color: var(--text-primary); border: 1px solid var(--border); border-radius: 4px;">{{ page_num }}</a>
                             {% endif %}
                         {% endif %}
                     {% endfor %}
 
                     {% if posts.has_next %}
-                    <a href="{{ url_for('admin.manage_posts', page=posts.next_num, search=search, category=category, author=author) }}" class="btn btn-outline">Next</a>
+                    <a href="{{ url_for('admin.manage_posts', page=posts.next_num, search=search, author=author) }}" class="btn btn-outline">Next</a>
                     {% endif %}
                 </div>
                 {% endif %}

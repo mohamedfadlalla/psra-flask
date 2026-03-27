@@ -128,12 +128,9 @@ def terms():
 @forum_bp.route('/')
 def forum_main():
     """Display main forum page with posts."""
-    category = request.args.get('category')
     search = request.args.get('search')
     
     query = Post.query
-    if category:
-        query = query.filter_by(category=category)
     if search:
         query = query.filter(Post.title.contains(search) | Post.content.contains(search))
     
@@ -148,12 +145,11 @@ def forum_main():
             'author': post.author.name,
             'created_at': post.created_at.strftime('%B %d, %Y at %I:%M %p'),
             'likes': len(post.likes),
-            'comments': len(post.comments),
-            'category': post.category
+            'comments': len(post.comments)
         } for post in posts]
-        return {'posts': posts_data, 'selected_category': category or 'All Discussions'}
+        return {'posts': posts_data}
 
-    return render_template('forum_main.html', posts=posts, selected_category=category, search=search)
+    return render_template('forum_main.html', posts=posts, search=search)
 
 
 @forum_bp.route('/create', methods=['GET', 'POST'])
@@ -164,7 +160,6 @@ def create_post():
     if form.validate_on_submit():
         post = Post(
             user_id=current_user.id,
-            category=form.category.data,
             title=form.title.data,
             content=form.content.data
         )

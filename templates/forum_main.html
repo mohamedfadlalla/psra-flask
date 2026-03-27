@@ -36,23 +36,6 @@
                     </div>
                 </div>
 
-                <!-- Categories Card -->
-                <div class="card forum-filter-card">
-                    <div class="card-body">
-                        <h3 class="forum-filter-title">
-                            <i class="fas fa-tags"></i> Categories
-                        </h3>
-                        <div class="forum-select-wrapper">
-                            <select id="category-select" class="form-select forum-category-select">
-                                <option value="">All Discussions</option>
-                                <option value="Pharmacology" {% if selected_category == 'Pharmacology' %}selected{% endif %}>Pharmacology</option>
-                                <option value="Clinical Pharmacy" {% if selected_category == 'Clinical Pharmacy' %}selected{% endif %}>Clinical Pharmacy</option>
-                                <option value="Research Skills" {% if selected_category == 'Research Skills' %}selected{% endif %}>Research Skills</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
                 <!-- Quick Actions Card (Authenticated Users) -->
                 {% if current_user.is_authenticated %}
                 <div class="card forum-filter-card">
@@ -73,8 +56,7 @@
                 <div class="forum-page-header">
                     <div class="forum-header-left">
                         <h2 class="forum-page-title">
-                            Forum 
-                            <span class="forum-category-breadcrumb">› {{ selected_category or 'All Discussions' }}</span>
+                            Forum
                         </h2>
                         {% if posts %}
                         <p class="forum-posts-count">{{ posts|length }} discussion{{ 's' if posts|length != 1 else '' }}</p>
@@ -110,7 +92,6 @@
                                             <a href="{{ url_for('forum.user_profile', user_id=post.author.id) }}">{{ post.author.name }}</a>
                                         </h4>
                                         <div class="forum-post-meta-inline">
-                                            <span class="forum-post-category-badge">{{ post.category }}</span>
                                             <time datetime="{{ post.created_at.isoformat() }}" class="forum-post-date">
                                                 {{ post.created_at.strftime('%B %d, %Y at %I:%M %p') }}
                                             </time>
@@ -173,28 +154,28 @@
                             <i class="fas fa-comments"></i>
                         </div>
                         <h3 class="forum-empty-title">No Discussions Found</h3>
-                        <p class="forum-empty-text">
-                            {% if search or selected_category %}
-                            No discussions match your search criteria. Try different keywords or categories.
-                            {% else %}
-                            Be the first to start a discussion!
-                            {% endif %}
-                        </p>
-                        <div class="forum-empty-actions">
-                            {% if current_user.is_authenticated %}
-                            <a href="{{ url_for('forum.create_post') }}" class="btn btn-primary">
-                                <i class="fas fa-pen"></i> Start First Discussion
-                            </a>
-                            {% else %}
-                            <a href="{{ url_for('forum.login') }}" class="btn btn-primary">
-                                <i class="fas fa-sign-in-alt"></i> Sign In to Post
-                            </a>
-                            {% endif %}
-                            {% if search or selected_category %}
-                            <a href="{{ url_for('forum.forum_main') }}" class="btn btn-outline">
-                                <i class="fas fa-redo"></i> Clear Filters
-                            </a>
-                            {% endif %}
+                            <p class="forum-empty-text">
+                                {% if search %}
+                                No discussions match your search criteria. Try different keywords.
+                                {% else %}
+                                Be the first to start a discussion!
+                                {% endif %}
+                            </p>
+                            <div class="forum-empty-actions">
+                                {% if current_user.is_authenticated %}
+                                <a href="{{ url_for('forum.create_post') }}" class="btn btn-primary">
+                                    <i class="fas fa-pen"></i> Start First Discussion
+                                </a>
+                                {% else %}
+                                <a href="{{ url_for('forum.login') }}" class="btn btn-primary">
+                                    <i class="fas fa-sign-in-alt"></i> Sign In to Post
+                                </a>
+                                {% endif %}
+                                {% if search %}
+                                <a href="{{ url_for('forum.forum_main') }}" class="btn btn-outline">
+                                    <i class="fas fa-redo"></i> Clear Filters
+                                </a>
+                                {% endif %}
                         </div>
                     </div>
                 </div>
@@ -208,25 +189,17 @@
 // Expose CSRF token for external scripts
 window.csrfToken = "{{ csrf_token() if csrf_token is defined else '' }}";
 
-// Search and filter functionality
+// Search functionality
 const searchInput = document.getElementById('search-input');
-const categorySelect = document.getElementById('category-select');
 
 function applyFilters() {
     const search = searchInput ? searchInput.value.trim() : '';
-    const category = categorySelect ? categorySelect.value : '';
     const url = new URL(window.location.href);
 
     if (search) {
         url.searchParams.set('search', search);
     } else {
         url.searchParams.delete('search');
-    }
-
-    if (category) {
-        url.searchParams.set('category', category);
-    } else {
-        url.searchParams.delete('category');
     }
 
     window.location.href = url.toString();
@@ -238,10 +211,6 @@ if (searchInput) {
             applyFilters();
         }
     });
-}
-
-if (categorySelect) {
-    categorySelect.addEventListener('change', applyFilters);
 }
 
 // Mobile sidebar toggle
@@ -271,15 +240,6 @@ if (filterToggle && sidebar && overlay) {
     });
 
     overlay.addEventListener('click', closeSidebar);
-
-    // Close sidebar when a filter is applied on mobile
-    if (categorySelect) {
-        categorySelect.addEventListener('change', () => {
-            if (window.innerWidth < 768) {
-                closeSidebar();
-            }
-        });
-    }
 
     // Close on escape key
     document.addEventListener('keydown', (e) => {

@@ -346,7 +346,6 @@ class ResearcherProfile(db.Model):
 class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    category = db.Column(db.String(50), nullable=False)  # e.g., 'Pharmacology'
     title = db.Column(db.String(200), nullable=False)
     content = db.Column(db.Text, nullable=False)
     image_url = db.Column(db.String(200), default=None)

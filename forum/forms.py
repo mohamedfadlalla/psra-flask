@@ -65,11 +65,6 @@ class RegisterForm(FlaskForm):
 class PostForm(FlaskForm):
     title = StringField('Title', validators=[DataRequired(), Length(min=1, max=200)])
     content = TextAreaField('Content', validators=[DataRequired()])
-    category = SelectField('Category', choices=[
-        ('Pharmacology', 'Pharmacology'),
-        ('Clinical Pharmacy', 'Clinical Pharmacy'),
-        ('Research Skills', 'Research Skills')
-    ], validators=[DataRequired()])
     submit = SubmitField('Post')
 
 class CommentForm(FlaskForm):

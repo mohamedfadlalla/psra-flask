@@ -69,33 +69,9 @@
 }
 
 .forum-search-input,
-.forum-category-select {
-    width: 100%;
-    padding: var(--space-3) var(--space-3);
-    font-size: var(--font-size-sm);
-    border: 2px solid var(--border-color);
-    border-radius: var(--radius-lg);
-    background-color: var(--bg-secondary);
-    color: var(--text-primary);
-    transition: all var(--transition-fast);
-}
 
 .forum-search-input:focus,
-.forum-category-select:focus {
-    outline: none;
-    border-color: var(--primary-blue);
-    background-color: var(--bg-primary);
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
 
-.forum-category-select {
-    cursor: pointer;
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right var(--space-3) center;
-    padding-right: var(--space-8);
-}
 
 .forum-create-btn,
 .forum-create-post-btn {
@@ -146,11 +122,6 @@
     font-size: var(--font-size-xl);
 }
 
-.forum-category-breadcrumb {
-    color: var(--text-secondary);
-    font-weight: var(--font-weight-normal);
-    font-size: var(--font-size-xl);
-}
 
 .forum-posts-count {
     font-size: var(--font-size-sm);
@@ -367,16 +338,6 @@
 }
 
 /* Post Category Badge */
-.forum-post-category-badge {
-    display: inline-block;
-    padding: var(--space-0-5) var(--space-2);
-    font-size: var(--font-size-xs);
-    font-weight: var(--font-weight-medium);
-    color: var(--primary-blue);
-    background-color: rgba(59, 130, 246, 0.1);
-    border-radius: var(--radius-full);
-    white-space: nowrap;
-}
 
 /* ===========================================
    FORUM EMPTY STATE
@@ -839,9 +800,6 @@
         font-size: var(--font-size-xl);
     }
 
-    .forum-category-breadcrumb {
-        font-size: var(--font-size-lg);
-    }
 
     .forum-page-actions {
         width: 100%;
@@ -916,9 +874,6 @@
         font-size: var(--font-size-lg);
     }
 
-    .forum-category-breadcrumb {
-        font-size: var(--font-size-base);
-    }
 
     .forum-posts-count {
         font-size: var(--font-size-xs);
@@ -934,8 +889,4 @@
         height: 36px;
     }
 
-    .forum-post-category-badge {
-        font-size: var(--font-size-xs);
-        padding: 2px var(--space-2);
-    }
 }

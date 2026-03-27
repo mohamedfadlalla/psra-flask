@@ -149,30 +149,22 @@ def manage_posts():
     """Display posts for management with filtering and pagination."""
     page = request.args.get('page', 1, type=int)
     search = request.args.get('search', '')
-    category = request.args.get('category', '')
     author = request.args.get('author', '')
 
     query = Post.query
 
     if search:
         query = query.filter(Post.title.contains(search) | Post.content.contains(search))
-    if category:
-        query = query.filter_by(category=category)
     if author:
         from models import Profile
         query = query.join(User).join(Profile).filter(Profile.full_name.contains(author))
 
     posts = paginate_query(query.order_by(Post.created_at.desc()), page)
 
-    # Get unique categories for filter dropdown
-    categories = [cat[0] for cat in db.session.query(Post.category).distinct().all()]
-
     return render_template('admin/posts.html',
                          posts=posts,
                          search=search,
-                         category=category,
-                         author=author,
-                         categories=categories)
+                         author=author)
 
 
 @admin_bp.route('/posts/<int:post_id>/edit', methods=['GET', 'POST'])
@@ -185,7 +177,6 @@ def edit_post(post_id):
     if request.method == 'POST':
         post.title = request.form.get('title')
         post.content = request.form.get('content')
-        post.category = request.form.get('category')
 
         try:
             db.session.commit()

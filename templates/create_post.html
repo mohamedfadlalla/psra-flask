@@ -18,15 +18,6 @@
                 {% endif %}
             </div>
             <div class="form-group">
-                {{ form.category.label(class="form-label") }}
-                {{ form.category(class="form-select") }}
-                {% if form.category.errors %}
-                    <div class="form-error">
-                        {% for error in form.category.errors %}{{ error }}{% endfor %}
-                    </div>
-                {% endif %}
-            </div>
-            <div class="form-group">
                 {{ form.content.label(class="form-label") }}
                 {{ form.content(rows=10, class="form-textarea") }}
                 {% if form.content.errors %}

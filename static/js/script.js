@@ -107,10 +107,9 @@ function toggleLike(postId, btnElement) {
 }
 
 /**
- * Filter posts by category and search term
+ * Filter posts by search term
  */
 function filterPosts() {
-    const category = document.getElementById('category-select')?.value || '';
     const search = document.getElementById('search-input')?.value || '';
 
     // Show skeleton loading
@@ -124,7 +123,7 @@ function filterPosts() {
         `;
     }
 
-    fetch(`/forum/?category=${encodeURIComponent(category)}&search=${encodeURIComponent(search)}`, {
+    fetch(`/forum/?search=${encodeURIComponent(search)}`, {
         headers: {
             'Accept': 'application/json'
         }
@@ -134,7 +133,7 @@ function filterPosts() {
         // Update the title
         const titleElement = document.querySelector('h2');
         if (titleElement) {
-            titleElement.innerHTML = `Forum <span class="text-secondary">› ${data.selected_category || 'All Discussions'}</span>`;
+            titleElement.innerHTML = `Forum`;
         }
 
         if (!postsContainer) return;
@@ -683,14 +682,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Forum search and filter
     const searchInput = document.getElementById('search-input');
-    const categorySelect = document.getElementById('category-select');
 
     if (searchInput) {
         searchInput.addEventListener('input', debounce(filterPosts, 300));
-    }
-
-    if (categorySelect) {
-        categorySelect.addEventListener('change', filterPosts);
     }
 
     // Initialize upcoming event section if on home page

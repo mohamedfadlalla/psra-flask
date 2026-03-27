@@ -5,26 +5,9 @@ Centralizes all application constants, enums, and configuration values
 to avoid magic strings and numbers throughout the codebase.
 """
 
-# User status options
-USER_STATUS_STUDENT = 'student'
-USER_STATUS_ALUMNI = 'alumni'
-USER_STATUS_UNDERGRADUATE = 'undergraduate'
-USER_STATUSES = [USER_STATUS_STUDENT, USER_STATUS_ALUMNI, USER_STATUS_UNDERGRADUATE]
-
-# Post categories for forum
-POST_CATEGORIES = [
-    ('Pharmacology', 'Pharmacology'),
-    ('Clinical Pharmacy', 'Clinical Pharmacy'),
-    ('Research Skills', 'Research Skills')
-]
-
 # Pagination defaults
 DEFAULT_PER_PAGE = 20
 MAX_PER_PAGE = 100
-
-# Batch number range (for pharmacy students)
-MIN_BATCH_NUMBER = 1
-MAX_BATCH_NUMBER = 58
 
 # Profile image settings
 PROFILE_PICTURE_SIZE = (150, 150)
