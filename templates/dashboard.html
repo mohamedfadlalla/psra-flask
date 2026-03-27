@@ -176,6 +176,15 @@
 </div>
 
 <script>
+    // Inject server-side badge counts into JS
+    const currentBadgeCounts = {
+        events: {{ badge_counts.events | default(0) }},
+        projects: {{ badge_counts.projects | default(0) }},
+        mentorships: {{ badge_counts.mentorships | default(0) }},
+        research: {{ badge_counts.research | default(0) }},
+        announcements: {{ badge_counts.announcements | default(0) }}
+    };
+
     document.addEventListener("DOMContentLoaded", function() {
         const feedItems = document.querySelectorAll('.dashboard-feed-item');
 
