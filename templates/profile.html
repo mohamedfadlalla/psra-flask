@@ -4,53 +4,75 @@
 
 {% block content %}
 <div class="container">
+    <!-- Banner + Card Overlay Profile Header -->
     <div class="profile-header">
-        <div class="profile-content-wrapper">
-            <div class="profile-avatar">
-                {% if current_user.profile_picture_url %}
-                <img src="{{ current_user.profile_picture_url }}" alt="{{ current_user.name }}'s profile picture" class="avatar-image avatar-2xl">
-                {% else %}
-                <div class="avatar avatar-2xl avatar-placeholder">
-                    {{ current_user.name[0].upper() }}
+        <div class="profile-banner"></div>
+        <div class="profile-card-overlay">
+            <div class="profile-content-wrapper">
+                <div class="profile-avatar">
+                    {% if current_user.profile_picture_url %}
+                    <img src="{{ current_user.profile_picture_url }}" alt="{{ current_user.name }}'s profile picture" class="avatar-image avatar-2xl">
+                    {% else %}
+                    <div class="avatar avatar-2xl avatar-placeholder">
+                        {{ current_user.name[0].upper() }}
+                    </div>
+                    {% endif %}
                 </div>
-                {% endif %}
-            </div>
-            <div class="profile-info">
-                <div class="profile-identity-box">
+                <div class="profile-info">
                     <h1 class="profile-name">{{ current_user.name }}</h1>
                     {% if current_user.headline %}
                     <p class="profile-headline">{{ current_user.headline }}</p>
                     {% endif %}
+                    <div class="profile-meta-row">
+                        {% if current_user.location %}
+                        <span class="profile-location"><i class="fas fa-map-marker-alt"></i> {{ current_user.location }}</span>
+                        {% endif %}
+                        <span class="profile-status-badge"><i class="fas fa-circle" style="font-size: 6px;"></i> {{ current_user.status.title() }}</span>
+                    </div>
+                    <div class="profile-actions">
+                        <a href="{{ url_for('forum.edit_profile') }}" class="btn btn-primary edit-profile-btn">
+                            <i class="fas fa-pen"></i> Edit Profile
+                        </a>
+                    </div>
                 </div>
-                {% if current_user.location %}
-                <p class="profile-location"><i class="fas fa-map-marker-alt"></i> {{ current_user.location }}</p>
-                {% endif %}
-                <a href="{{ url_for('forum.edit_profile') }}" class="btn btn-primary edit-profile-btn">Edit Profile</a>
             </div>
         </div>
     </div>
 
+    <!-- Profile Content Sections -->
     <div class="profile-content">
 
-        <div class="profile-section">
-            <h2>About</h2>
+        <!-- About -->
+        <div class="profile-section" id="profile-about">
+            <div class="profile-section-header">
+                <i class="fas fa-user"></i>
+                <h2>About</h2>
+            </div>
             {% if current_user.about %}
             <p>{{ current_user.about }}</p>
             {% else %}
-            <p class="no-info">No about information provided.</p>
+            <p class="no-info">No about information provided yet.</p>
             {% endif %}
         </div>
 
+        <!-- Professional Summary -->
         {% if current_user.professional_summary %}
-        <div class="profile-section">
-            <h2>Professional Summary</h2>
+        <div class="profile-section" id="profile-summary">
+            <div class="profile-section-header">
+                <i class="fas fa-file-alt"></i>
+                <h2>Professional Summary</h2>
+            </div>
             <p>{{ current_user.professional_summary }}</p>
         </div>
         {% endif %}
 
+        <!-- Skills -->
         {% if current_user.skills %}
-        <div class="profile-section">
-            <h2><i class="fas fa-tools"></i> Skills</h2>
+        <div class="profile-section" id="profile-skills">
+            <div class="profile-section-header">
+                <i class="fas fa-tools"></i>
+                <h2>Skills</h2>
+            </div>
             <div class="skills-tags">
                 {% for skill in current_user.skills.split(',') %}
                 <span class="skill-tag">{{ skill.strip() }}</span>
@@ -59,26 +81,37 @@
         </div>
         {% endif %}
 
+        <!-- Projects -->
         {% if current_user.projects %}
-        <div class="profile-section">
-            <h2><i class="fas fa-project-diagram"></i> Projects</h2>
+        <div class="profile-section" id="profile-projects">
+            <div class="profile-section-header">
+                <i class="fas fa-project-diagram"></i>
+                <h2>Projects</h2>
+            </div>
             <div class="projects-content preserve-whitespace">
                 {{ current_user.projects }}
             </div>
         </div>
         {% endif %}
 
+        <!-- Basic Info + Contact Grid -->
         <div class="profile-grid">
-            <div class="profile-section">
-                <h3>Basic Information</h3>
+            <div class="profile-section" id="profile-basic-info">
+                <div class="profile-section-header">
+                    <i class="fas fa-id-card"></i>
+                    <h3>Basic Information</h3>
+                </div>
                 <ul class="info-list">
                     <li><strong>Name:</strong> {{ current_user.name }}</li>
                     <li><strong>Status:</strong> {{ current_user.status.title() }}</li>
                 </ul>
             </div>
 
-            <div class="profile-section">
-                <h3>Contact Details</h3>
+            <div class="profile-section" id="profile-contact">
+                <div class="profile-section-header">
+                    <i class="fas fa-address-book"></i>
+                    <h3>Contact Details</h3>
+                </div>
                 <ul class="contact-list">
                     <li><i class="fas fa-envelope"></i> <a href="mailto:{{ current_user.email }}">{{ current_user.email }}</a></li>
                     {% if current_user.phone_number %}
@@ -92,12 +125,15 @@
                     {% endif %}
                 </ul>
             </div>
-
         </div>
 
+        <!-- Experience Timeline -->
         {% if experience_entries %}
-        <div class="profile-section">
-            <h2>Experience</h2>
+        <div class="profile-section" id="profile-experience">
+            <div class="profile-section-header">
+                <i class="fas fa-briefcase"></i>
+                <h2>Experience</h2>
+            </div>
             <div class="timeline">
                 {% for entry in experience_entries %}
                 <div class="timeline-item {% if entry.type == 'education' %}education{% else %}work{% endif %}">
@@ -113,6 +149,7 @@
                             {% endif %}
                         </div>
                         <p class="timeline-date">
+                            <i class="far fa-calendar-alt"></i>
                             {% if entry.start_date and entry.end_date %}
                                 {{ entry.start_date }} - {{ entry.end_date }}
                             {% elif entry.start_date %}
@@ -129,26 +166,52 @@
         </div>
         {% endif %}
 
+        <!-- Additional Information -->
         {% if current_user.languages or current_user.certifications or current_user.publications %}
-        <div class="profile-section">
-            <h3>Additional Information</h3>
-            <ul class="info-list">
+        <div class="profile-section" id="profile-additional">
+            <div class="profile-section-header">
+                <i class="fas fa-info-circle"></i>
+                <h3>Additional Information</h3>
+            </div>
+            <div class="additional-info-grid">
                 {% if current_user.languages %}
-                <li><strong>Languages:</strong> {{ current_user.languages }}</li>
+                <div class="additional-info-item">
+                    <i class="fas fa-language"></i>
+                    <div>
+                        <strong>Languages</strong>
+                        <span>{{ current_user.languages }}</span>
+                    </div>
+                </div>
                 {% endif %}
                 {% if current_user.certifications %}
-                <li><strong>Certifications:</strong> {{ current_user.certifications }}</li>
+                <div class="additional-info-item">
+                    <i class="fas fa-certificate"></i>
+                    <div>
+                        <strong>Certifications</strong>
+                        <span>{{ current_user.certifications }}</span>
+                    </div>
+                </div>
                 {% endif %}
                 {% if current_user.publications %}
-                <li><strong>Publications:</strong> {{ current_user.publications }}</li>
+                <div class="additional-info-item">
+                    <i class="fas fa-book"></i>
+                    <div>
+                        <strong>Publications</strong>
+                        <span>{{ current_user.publications }}</span>
+                    </div>
+                </div>
                 {% endif %}
-            </ul>
+            </div>
         </div>
         {% endif %}
 
+        <!-- Social Links -->
         {% if current_user.linkedin_url or current_user.website_url %}
-        <div class="profile-section">
-            <h3>Social Links</h3>
+        <div class="profile-section" id="profile-social">
+            <div class="profile-section-header">
+                <i class="fas fa-link"></i>
+                <h3>Social Links</h3>
+            </div>
             <div class="social-links">
                 {% if current_user.linkedin_url %}
                 <a href="{{ current_user.linkedin_url }}" target="_blank" class="social-link">
