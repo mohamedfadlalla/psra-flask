@@ -186,6 +186,46 @@
     };
 
     document.addEventListener("DOMContentLoaded", function() {
+        // Notification Auto-Clear Logic
+        const seenCountsJSON = localStorage.getItem('dashboard_seen_counts');
+        let seenCounts = {};
+        if (seenCountsJSON) {
+            try {
+                seenCounts = JSON.parse(seenCountsJSON);
+            } catch (e) {
+                console.error("Error parsing seen counts", e);
+            }
+        }
+
+        const badgeElements = {
+            events: document.querySelector('.dashboard-tile-events .dashboard-tile-badge'),
+            projects: document.querySelector('.dashboard-tile-projects .dashboard-tile-badge'),
+            mentorships: document.querySelector('.dashboard-tile-mentorships .dashboard-tile-badge'),
+            research: document.querySelector('.dashboard-tile-research .dashboard-tile-badge'),
+            announcements: document.querySelector('.dashboard-tile-announcements .dashboard-tile-badge')
+        };
+
+        // Compare current counts with seen counts
+        for (const [key, currentCount] of Object.entries(currentBadgeCounts)) {
+            const seenCount = seenCounts[key] || 0;
+            const badgeEl = badgeElements[key];
+            
+            if (badgeEl) {
+                if (currentCount <= seenCount) {
+                    // No new items, hide the badge
+                    badgeEl.style.display = 'none';
+                } else {
+                    // Show only the difference (number of NEW items)
+                    const newItemsCount = currentCount - seenCount;
+                    badgeEl.textContent = newItemsCount;
+                    badgeEl.style.display = 'inline-block';
+                }
+            }
+        }
+
+        // Update localStorage with current counts to mark them as seen
+        localStorage.setItem('dashboard_seen_counts', JSON.stringify(currentBadgeCounts));
+
         const feedItems = document.querySelectorAll('.dashboard-feed-item');
 
         feedItems.forEach(item => {
