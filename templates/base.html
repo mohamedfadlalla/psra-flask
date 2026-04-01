@@ -107,6 +107,11 @@
                             <a href="{{ url_for('forum.edit_profile') }}" class="nav-dropdown-item">
                                 <i class="fas fa-cog"></i> Edit Profile
                             </a>
+                            {% if current_user.role.value in ['alumni', 'researcher'] %}
+                            <a href="{{ url_for('forum.mentorship_settings') }}" class="nav-dropdown-item">
+                                <i class="fas fa-chalkboard-teacher me-2"></i>Mentorship Settings
+                            </a>
+                            {% endif %}
                             <div class="dropdown-divider"></div>
                             <a href="{{ url_for('hub.manage_projects') }}" class="nav-dropdown-item">
                                 <i class="fas fa-microscope"></i> My Projects

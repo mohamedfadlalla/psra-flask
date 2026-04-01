@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}Mentorship Settings - PSRA{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+    <div class="profile-header text-center mb-4">
+        <h1>Mentorship Settings</h1>
+        <p class="text-muted">Configure your mentorship preferences and offerings.</p>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <form method="POST" action="">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="mb-4 form-check form-switch">
+                            {{ form.open_to_mentor(class="form-check-input", id="openToMentorSwitch") }}
+                            {{ form.open_to_mentor.label(class="form-check-label fw-bold") }}
+                            <div class="form-text">Enable this to appear in the mentor directory and accept mentorship requests.</div>
+                        </div>
+
+                        <div id="mentorshipDetailsContainer" style="display: none;">
+                            <div class="mb-3">
+                                {{ form.mentorship_program.label(class="form-label") }}
+                                {{ form.mentorship_program(class="form-control", placeholder="e.g. Clinical Research, Data Analysis, Career Advice") }}
+                                {% if form.mentorship_program.errors %}
+                                    {% for error in form.mentorship_program.errors %}
+                                        <div class="text-danger small mt-1">{{ error }}</div>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-4">
+                                {{ form.mentorship_duration.label(class="form-label") }}
+                                {{ form.mentorship_duration(class="form-control", placeholder="e.g. 3 months, 1 hour weekly, One-time call") }}
+                                {% if form.mentorship_duration.errors %}
+                                    {% for error in form.mentorship_duration.errors %}
+                                        <div class="text-danger small mt-1">{{ error }}</div>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{{ url_for('forum.profile') }}" class="btn btn-outline-secondary me-md-2">Cancel</a>
+                            {{ form.submit(class="btn btn-primary") }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const mentorSwitch = document.getElementById('openToMentorSwitch');
+    const detailsContainer = document.getElementById('mentorshipDetailsContainer');
+
+    function toggleDetails() {
+        if (mentorSwitch.checked) {
+            detailsContainer.style.display = 'block';
+            // Slight delay to allow display block to apply before adding opacity
+            setTimeout(() => {
+                detailsContainer.style.opacity = '1';
+                detailsContainer.style.transform = 'translateY(0)';
+            }, 10);
+        } else {
+            detailsContainer.style.opacity = '0';
+            detailsContainer.style.transform = 'translateY(-10px)';
+            setTimeout(() => {
+                detailsContainer.style.display = 'none';
+            }, 300); // match transition duration
+        }
+    }
+
+    // Set initial state
+    detailsContainer.style.transition = 'all 0.3s ease-in-out';
+    if(mentorSwitch.checked) {
+        detailsContainer.style.display = 'block';
+        detailsContainer.style.opacity = '1';
+        detailsContainer.style.transform = 'translateY(0)';
+    } else {
+        detailsContainer.style.opacity = '0';
+        detailsContainer.style.transform = 'translateY(-10px)';
+    }
+
+    mentorSwitch.addEventListener('change', toggleDetails);
+});
+</script>
+{% endblock %}

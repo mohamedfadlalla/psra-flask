@@ -89,11 +89,6 @@
                         <small class="form-hint">Tell us about yourself</small>
                     </div>
 
-                    <div class="form-check" id="mentor-container">
-                        {{ profile_form.open_to_mentor(class="form-check-input") }}
-                        <label for="open_to_mentor">Open to Mentorship Requests (for alumni/researchers)</label>
-                    </div>
-
                     <div class="form-group">
                         {{ profile_form.email.label(class="form-label") }}
                         {{ profile_form.email(class="form-input") }}
@@ -471,25 +466,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Function to update hidden fields on form submit
     document.querySelector('form').addEventListener('submit', updateHiddenFields);
-
-    // Toggle mentorship container visibility based on account type
-    const accountTypeSelect = document.getElementById('account_type');
-    const mentorContainer = document.getElementById('mentor-container');
-
-    function updateMentorVisibility() {
-        if (!accountTypeSelect || !mentorContainer) return;
-        const value = accountTypeSelect.value;
-        if (value === 'alumni' || value === 'graduate' || value === 'researcher') {
-            mentorContainer.style.display = 'block';
-        } else {
-            mentorContainer.style.display = 'none';
-        }
-    }
-
-    if (accountTypeSelect) {
-        accountTypeSelect.addEventListener('change', updateMentorVisibility);
-        updateMentorVisibility(); // initialize state on page load
-    }
 });
 </script>
 {% endblock %}
