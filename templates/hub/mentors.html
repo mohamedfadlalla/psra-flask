@@ -26,9 +26,9 @@
                         </h3>
                         <span class="hub-mentor-title">
                             {% if mentor.role.value == 'alumni' and mentor.alumni_profile %}
-                                {{ mentor.alumni_profile.job_title }} at {{ mentor.alumni_profile.company }}
+                                {% if mentor.alumni_profile.job_title and mentor.alumni_profile.job_title != 'None' %}{{ mentor.alumni_profile.job_title }}{% endif %}{% if mentor.alumni_profile.job_title and mentor.alumni_profile.job_title != 'None' and mentor.alumni_profile.company and mentor.alumni_profile.company != 'None' %} at {% endif %}{% if mentor.alumni_profile.company and mentor.alumni_profile.company != 'None' %}{{ mentor.alumni_profile.company }}{% endif %}
                             {% elif mentor.role.value == 'researcher' and mentor.researcher_profile %}
-                                {{ mentor.researcher_profile.academic_rank }} at {{ mentor.researcher_profile.lab_name }}
+                                {% if mentor.researcher_profile.academic_rank and mentor.researcher_profile.academic_rank != 'None' %}{{ mentor.researcher_profile.academic_rank }}{% endif %}{% if mentor.researcher_profile.academic_rank and mentor.researcher_profile.academic_rank != 'None' and mentor.researcher_profile.lab_name and mentor.researcher_profile.lab_name != 'None' %} at {% endif %}{% if mentor.researcher_profile.lab_name and mentor.researcher_profile.lab_name != 'None' %}{{ mentor.researcher_profile.lab_name }}{% endif %}
                             {% endif %}
                         </span>
                     </div>
@@ -48,21 +48,18 @@
                 {% set duration = mentor.alumni_profile.mentorship_duration if mentor.role.value == 'alumni' else mentor.researcher_profile.mentorship_duration %}
 
                 {% if program or duration %}
-                <div class="hub-mentor-details mt-3 mb-3 p-3 bg-light rounded" style="font-size: 0.9em; border-left: 3px solid var(--primary-color);">
+                <div class="hub-mentor-details mt-2 mb-2 p-2 rounded" style="font-size: 0.85em; background: var(--bg-secondary, #f8f9fa); border-left: 3px solid var(--primary-color); color: var(--text-primary);">
                     {% if program %}
-                    <div class="mb-1"><i class="fas fa-book-reader text-muted me-2" style="width: 16px;"></i> <strong>Program/Field:</strong> {{ program }}</div>
+                    <div class="mb-1" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><i class="fas fa-book-reader text-muted me-2" style="width: 16px;"></i> <strong>Program/Field:</strong> {{ program }}</div>
                     {% endif %}
                     {% if duration %}
-                    <div class="mb-0"><i class="far fa-clock text-muted me-2" style="width: 16px;"></i> <strong>Duration:</strong> {{ duration }}</div>
+                    <div class="mb-0" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><i class="far fa-clock text-muted me-2" style="width: 16px;"></i> <strong>Duration:</strong> {{ duration }}</div>
                     {% endif %}
                 </div>
                 {% endif %}
                 
-                <div class="d-flex gap-2 w-100 mt-auto pt-3">
-                    <a href="{{ url_for('forum.user_profile', user_id=mentor.id) }}" class="btn btn-outline-primary flex-grow-1 hub-mentor-action">
-                        View Profile
-                    </a>
-                    <a href="{{ url_for('hub.request_mentorship', alumni_id=mentor.id) }}" class="btn btn-secondary flex-grow-1 hub-mentor-action">
+                <div class="w-100 mt-auto pt-2">
+                    <a href="{{ url_for('hub.request_mentorship', alumni_id=mentor.id) }}" class="btn btn-secondary w-100 hub-mentor-action" style="padding: 0.5rem 1rem; font-size: 0.95rem;">
                         Request Mentorship
                     </a>
                 </div>
