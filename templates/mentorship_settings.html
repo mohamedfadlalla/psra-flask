@@ -3,57 +3,64 @@
 {% block title %}Mentorship Settings - PSRA{% endblock %}
 
 {% block content %}
-<div class="profile-container">
-    <div class="profile-header text-center mb-4">
-        <h1>Mentorship Settings</h1>
-        <p class="text-muted">Configure your mentorship preferences and offerings.</p>
-    </div>
-
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow-sm">
-                <div class="card-body p-4">
-                    <form method="POST" action="">
-                        {{ form.hidden_tag() }}
-                        
-                        <div class="mb-4 form-check form-switch">
-                            {{ form.open_to_mentor(class="form-check-input", id="openToMentorSwitch") }}
-                            {{ form.open_to_mentor.label(class="form-check-label fw-bold") }}
-                            <div class="form-text">Enable this to appear in the mentor directory and accept mentorship requests.</div>
+<section class="section">
+    <div class="container">
+        <div class="edit-profile-page">
+            <h1>Mentorship Settings</h1>
+            
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            {{ message }}
                         </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
 
-                        <div id="mentorshipDetailsContainer" style="display: none;">
-                            <div class="mb-3">
-                                {{ form.mentorship_program.label(class="form-label") }}
-                                {{ form.mentorship_program(class="form-control", placeholder="e.g. Clinical Research, Data Analysis, Career Advice") }}
-                                {% if form.mentorship_program.errors %}
-                                    {% for error in form.mentorship_program.errors %}
-                                        <div class="text-danger small mt-1">{{ error }}</div>
-                                    {% endfor %}
-                                {% endif %}
-                            </div>
-                            
-                            <div class="mb-4">
-                                {{ form.mentorship_duration.label(class="form-label") }}
-                                {{ form.mentorship_duration(class="form-control", placeholder="e.g. 3 months, 1 hour weekly, One-time call") }}
-                                {% if form.mentorship_duration.errors %}
-                                    {% for error in form.mentorship_duration.errors %}
-                                        <div class="text-danger small mt-1">{{ error }}</div>
-                                    {% endfor %}
-                                {% endif %}
-                            </div>
+            <div class="edit-form-card">
+                <h2 class="edit-form-title">Configure your mentorship preferences and offerings</h2>
+                
+                <form method="POST" action="" class="edit-form">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="form-group mentorship-toggle-group" style="display: flex; align-items: center; gap: 10px; margin-bottom: 0.5rem;">
+                        {{ form.open_to_mentor(id="openToMentorSwitch", style="width: 20px; height: 20px; margin: 0; cursor: pointer;") }}
+                        {{ form.open_to_mentor.label(class="form-label", style="margin: 0; font-weight: bold; cursor: pointer;") }}
+                    </div>
+                    <small class="form-hint" style="display: block; margin-bottom: 2rem;">Enable this to appear in the mentor directory and accept mentorship requests.</small>
+
+                    <div id="mentorshipDetailsContainer" style="display: none;">
+                        <div class="form-group">
+                            {{ form.mentorship_program.label(class="form-label") }}
+                            {{ form.mentorship_program(class="form-input", placeholder="e.g. Clinical Research, Data Analysis, Career Advice") }}
+                            {% if form.mentorship_program.errors %}
+                                <div class="form-error">
+                                    {% for error in form.mentorship_program.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
                         </div>
                         
-                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                            <a href="{{ url_for('forum.profile') }}" class="btn btn-outline-secondary me-md-2">Cancel</a>
-                            {{ form.submit(class="btn btn-primary") }}
+                        <div class="form-group">
+                            {{ form.mentorship_duration.label(class="form-label") }}
+                            {{ form.mentorship_duration(class="form-input", placeholder="e.g. 3 months, 1 hour weekly, One-time call") }}
+                            {% if form.mentorship_duration.errors %}
+                                <div class="form-error">
+                                    {% for error in form.mentorship_duration.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
                         </div>
-                    </form>
-                </div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                        {{ form.submit(class="btn btn-primary") }}
+                        <a href="{{ url_for('forum.profile') }}" class="btn btn-outline" style="text-decoration: none; text-align: center; line-height: normal; display: inline-flex; align-items: center; justify-content: center;">Cancel</a>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
-</div>
+</section>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -63,7 +70,6 @@ document.addEventListener('DOMContentLoaded', function() {
     function toggleDetails() {
         if (mentorSwitch.checked) {
             detailsContainer.style.display = 'block';
-            // Slight delay to allow display block to apply before adding opacity
             setTimeout(() => {
                 detailsContainer.style.opacity = '1';
                 detailsContainer.style.transform = 'translateY(0)';
@@ -73,7 +79,7 @@ document.addEventListener('DOMContentLoaded', function() {
             detailsContainer.style.transform = 'translateY(-10px)';
             setTimeout(() => {
                 detailsContainer.style.display = 'none';
-            }, 300); // match transition duration
+            }, 300);
         }
     }
 
