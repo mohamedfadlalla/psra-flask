@@ -77,15 +77,15 @@
                 <form method="POST" action="" class="edit-form">
                     {{ form.hidden_tag() }}
                     
-                    <div class="form-group mentorship-toggle-group" style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 2.5rem; padding: 2rem 1.5rem; background: var(--bg-color, #ffffff); border-radius: 12px; border: 1px solid var(--border-color, #e5e7eb); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);">
+                    <div class="form-group mentorship-toggle-group" style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 2.5rem; padding: 2rem 1.5rem; background: var(--bg-secondary); border-radius: 12px; border: 1px solid var(--border-color); box-shadow: var(--shadow-md);">
                         <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 10px;">
-                            {{ form.open_to_mentor.label(class="form-label", style="margin: 0; font-size: 1.15rem; font-weight: 600; cursor: pointer; color: var(--text-color);") }}
+                            {{ form.open_to_mentor.label(class="form-label", style="margin: 0; font-size: 1.15rem; font-weight: 600; cursor: pointer; color: var(--text-primary);") }}
                             <label class="elegant-switch">
                                 {{ form.open_to_mentor(id="openToMentorSwitch") }}
                                 <span class="elegant-switch-slider"></span>
                             </label>
                         </div>
-                        <small class="form-hint" style="margin: 0; font-size: 0.95rem; text-align: center; max-width: 400px;">Enable this to appear in the mentor directory and accept mentorship requests.</small>
+                        <small class="form-hint" style="margin: 0; font-size: 0.95rem; text-align: center; max-width: 400px; color: var(--text-secondary);">Enable this to appear in the mentor directory and accept mentorship requests.</small>
                     </div>
 
                     <div id="mentorshipDetailsContainer" style="display: none;">
