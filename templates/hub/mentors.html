@@ -13,16 +13,24 @@
         <div class="hub-card">
             <div class="hub-card-content">
                 <div class="hub-card-author">
-                    <div class="hub-card-avatar-lg">
+                    <a href="{{ url_for('forum.user_profile', user_id=mentor.id) }}" class="hub-card-avatar-lg text-decoration-none" style="color: inherit;">
                         {% if mentor.profile_picture_url %}
                         <img src="{{ mentor.profile_picture_url }}" alt="{{ mentor.name }}">
                         {% else %}
                         {{ mentor.name[0].upper() }}
                         {% endif %}
-                    </div>
+                    </a>
                     <div>
-                        <h3 class="hub-card-title hub-mentor-name">{{ mentor.name }}</h3>
-                        <span class="hub-mentor-title">{{ mentor.alumni_profile.job_title }} at {{ mentor.alumni_profile.company }}</span>
+                        <h3 class="hub-card-title hub-mentor-name">
+                            <a href="{{ url_for('forum.user_profile', user_id=mentor.id) }}" class="text-decoration-none" style="color: inherit;">{{ mentor.name }}</a>
+                        </h3>
+                        <span class="hub-mentor-title">
+                            {% if mentor.role.value == 'alumni' and mentor.alumni_profile %}
+                                {{ mentor.alumni_profile.job_title }} at {{ mentor.alumni_profile.company }}
+                            {% elif mentor.role.value == 'researcher' and mentor.researcher_profile %}
+                                {{ mentor.researcher_profile.academic_rank }} at {{ mentor.researcher_profile.lab_name }}
+                            {% endif %}
+                        </span>
                     </div>
                 </div>
                 
@@ -50,9 +58,14 @@
                 </div>
                 {% endif %}
                 
-                <a href="{{ url_for('hub.request_mentorship', alumni_id=mentor.id) }}" class="btn btn-secondary hub-mentor-action">
-                    Request Mentorship
-                </a>
+                <div class="d-flex gap-2 w-100 mt-auto pt-3">
+                    <a href="{{ url_for('forum.user_profile', user_id=mentor.id) }}" class="btn btn-outline-primary flex-grow-1 hub-mentor-action">
+                        View Profile
+                    </a>
+                    <a href="{{ url_for('hub.request_mentorship', alumni_id=mentor.id) }}" class="btn btn-secondary flex-grow-1 hub-mentor-action">
+                        Request Mentorship
+                    </a>
+                </div>
             </div>
         </div>
         {% else %}

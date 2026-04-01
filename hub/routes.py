@@ -5,7 +5,7 @@ import json
 
 from . import hub_bp
 from .forms import MentorshipRequestForm, ResearchProjectForm, ApplicationForm
-from models import db, User, UserRole, Profile, AlumniProfile, MentorshipStatus, MentorRequest, ActiveMentorship
+from models import db, User, UserRole, Profile, AlumniProfile, ResearcherProfile, MentorshipStatus, MentorRequest, ActiveMentorship
 from models import Skill, ResearchProject, ProjectStatus, ProjectRequiredSkill, ProjectApplication, ApplicationStatus
 from utils.constants import FLASH_SUCCESS, FLASH_ERROR
 from utils.email_utils import send_mentorship_request_email, send_mentorship_response_email, send_project_application_email, send_project_application_response_email
@@ -34,21 +34,28 @@ def mentorship_info():
 @hub_bp.route('/mentors')
 @login_required
 def browse_mentors():
-    """Browse alumni mentors."""
-    query = User.query.join(AlumniProfile).filter(
+    """Browse alumni and researcher mentors."""
+    alumni_mentors = User.query.join(AlumniProfile).filter(
         User.role == UserRole.ALUMNI,
         AlumniProfile.open_to_mentor == True,
         User.id != current_user.id
-    )
-    mentors = query.all()
+    ).all()
+    
+    researcher_mentors = User.query.join(ResearcherProfile).filter(
+        User.role == UserRole.RESEARCHER,
+        ResearcherProfile.open_to_mentor == True,
+        User.id != current_user.id
+    ).all()
+    
+    mentors = alumni_mentors + researcher_mentors
     return render_template('hub/mentors.html', mentors=mentors)
 
 @hub_bp.route('/mentors/request/<int:alumni_id>', methods=['GET', 'POST'])
 @login_required
 def request_mentorship(alumni_id):
-    """Send a mentorship request to an alumni."""
+    """Send a mentorship request to a mentor."""
     alumni = User.query.get_or_404(alumni_id)
-    if alumni.role != UserRole.ALUMNI or not alumni.alumni_profile.open_to_mentor:
+    if not alumni.can_offer_mentorship:
         flash('This user is not open to mentorship.', FLASH_ERROR)
         return redirect(url_for('hub.browse_mentors'))
 
