@@ -222,8 +222,7 @@ class UserService:
             'certifications': user.certifications,
             'projects': user.projects,
             'publications': user.publications,
-            'professional_summary': user.professional_summary,
-            'open_to_mentor': UserService.get_open_to_mentor(user)
+            'professional_summary': user.professional_summary
         }
 
     @staticmethod

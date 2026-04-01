@@ -10,7 +10,7 @@ from datetime import datetime
 import json
 
 from . import forum_bp
-from .forms import LoginForm, RegisterForm, PostForm, CommentForm, ProfileForm, PasswordChangeForm, MessageForm
+from .forms import LoginForm, RegisterForm, PostForm, CommentForm, ProfileForm, PasswordChangeForm, MessageForm, MentorshipSettingsForm
 from models import db, User, UserRole, Profile, StudentProfile, AlumniProfile, ResearcherProfile, Post, Comment, Like, Message
 from utils import get_user_timeline, safe_json_parse, FLASH_SUCCESS, FLASH_ERROR
 from utils.image_utils import process_profile_picture
@@ -248,7 +248,6 @@ def edit_profile():
         profile_form.projects.data = form_data['projects']
         profile_form.publications.data = form_data['publications']
         profile_form.professional_summary.data = form_data['professional_summary']
-        profile_form.open_to_mentor.data = form_data['open_to_mentor']
 
     # Handle profile form submission
     if profile_form.submit.data and profile_form.validate_on_submit():
@@ -287,13 +286,11 @@ def edit_profile():
             if not alumni_profile:
                 alumni_profile = AlumniProfile(user_id=current_user.id, open_to_mentor=True)
                 db.session.add(alumni_profile)
-            alumni_profile.open_to_mentor = bool(profile_form.open_to_mentor.data)
         elif role == UserRole.RESEARCHER:
             researcher_profile = current_user.researcher_profile
             if not researcher_profile:
                 researcher_profile = ResearcherProfile(user_id=current_user.id)
                 db.session.add(researcher_profile)
-            researcher_profile.open_to_mentor = bool(profile_form.open_to_mentor.data)
 
         # Handle profile picture upload
         if profile_form.profile_picture.data:
@@ -324,6 +321,52 @@ def edit_profile():
             flash(error, FLASH_ERROR)
 
     return render_template('edit_profile.html', profile_form=profile_form, password_form=password_form)
+
+
+@forum_bp.route('/profile/mentorship', methods=['GET', 'POST'])
+@login_required
+def mentorship_settings():
+    if current_user.role not in [UserRole.ALUMNI, UserRole.RESEARCHER]:
+        flash('Mentorship settings are only available for Alumni and Researchers.', FLASH_ERROR)
+        return redirect(url_for('forum.profile'))
+
+    form = MentorshipSettingsForm()
+    
+    # Pre-populate
+    if request.method == 'GET':
+        if current_user.role == UserRole.ALUMNI and current_user.alumni_profile:
+            form.open_to_mentor.data = current_user.alumni_profile.open_to_mentor
+            form.mentorship_program.data = current_user.alumni_profile.mentorship_program
+            form.mentorship_duration.data = current_user.alumni_profile.mentorship_duration
+        elif current_user.role == UserRole.RESEARCHER and current_user.researcher_profile:
+            form.open_to_mentor.data = current_user.researcher_profile.open_to_mentor
+            form.mentorship_program.data = current_user.researcher_profile.mentorship_program
+            form.mentorship_duration.data = current_user.researcher_profile.mentorship_duration
+
+    # Handle submit
+    if form.validate_on_submit():
+        if current_user.role == UserRole.ALUMNI:
+            profile = current_user.alumni_profile
+            if not profile:
+                profile = AlumniProfile(user_id=current_user.id)
+                db.session.add(profile)
+            profile.open_to_mentor = form.open_to_mentor.data
+            profile.mentorship_program = form.mentorship_program.data
+            profile.mentorship_duration = form.mentorship_duration.data
+        elif current_user.role == UserRole.RESEARCHER:
+            profile = current_user.researcher_profile
+            if not profile:
+                profile = ResearcherProfile(user_id=current_user.id)
+                db.session.add(profile)
+            profile.open_to_mentor = form.open_to_mentor.data
+            profile.mentorship_program = form.mentorship_program.data
+            profile.mentorship_duration = form.mentorship_duration.data
+            
+        db.session.commit()
+        flash('Mentorship settings updated successfully.', FLASH_SUCCESS)
+        return redirect(url_for('forum.mentorship_settings'))
+
+    return render_template('mentorship_settings.html', form=form)
 
 
 # ==================== Messaging Routes ====================
