@@ -3,6 +3,59 @@
 {% block title %}Mentorship Settings - PSRA{% endblock %}
 
 {% block content %}
+<style>
+.elegant-switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 28px;
+  flex-shrink: 0;
+  margin: 0;
+}
+.elegant-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+.elegant-switch-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--border-color, #cbd5e1);
+  transition: .3s;
+  border-radius: 34px;
+}
+.elegant-switch-slider:before {
+  position: absolute;
+  content: "";
+  height: 22px;
+  width: 22px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: .3s;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+.elegant-switch input:checked + .elegant-switch-slider {
+  background-color: var(--primary-color, #2563eb);
+}
+.elegant-switch input:focus + .elegant-switch-slider {
+  box-shadow: 0 0 1px var(--primary-color, #2563eb);
+}
+.elegant-switch input:checked + .elegant-switch-slider:before {
+  transform: translateX(22px);
+}
+[data-theme="dark"] .elegant-switch-slider {
+  background-color: #4b5563;
+}
+[data-theme="dark"] .elegant-switch-slider:before {
+  background-color: #e5e7eb;
+}
+</style>
 <section class="section">
     <div class="container">
         <div class="edit-profile-page">
@@ -24,11 +77,16 @@
                 <form method="POST" action="" class="edit-form">
                     {{ form.hidden_tag() }}
                     
-                    <div class="form-group mentorship-toggle-group" style="display: flex; align-items: center; gap: 10px; margin-bottom: 0.5rem;">
-                        {{ form.open_to_mentor(id="openToMentorSwitch", style="width: 20px; height: 20px; margin: 0; cursor: pointer;") }}
-                        {{ form.open_to_mentor.label(class="form-label", style="margin: 0; font-weight: bold; cursor: pointer;") }}
+                    <div class="form-group mentorship-toggle-group" style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 2.5rem; padding: 2rem 1.5rem; background: var(--bg-color, #ffffff); border-radius: 12px; border: 1px solid var(--border-color, #e5e7eb); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);">
+                        <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 10px;">
+                            {{ form.open_to_mentor.label(class="form-label", style="margin: 0; font-size: 1.15rem; font-weight: 600; cursor: pointer; color: var(--text-color);") }}
+                            <label class="elegant-switch">
+                                {{ form.open_to_mentor(id="openToMentorSwitch") }}
+                                <span class="elegant-switch-slider"></span>
+                            </label>
+                        </div>
+                        <small class="form-hint" style="margin: 0; font-size: 0.95rem; text-align: center; max-width: 400px;">Enable this to appear in the mentor directory and accept mentorship requests.</small>
                     </div>
-                    <small class="form-hint" style="display: block; margin-bottom: 2rem;">Enable this to appear in the mentor directory and accept mentorship requests.</small>
 
                     <div id="mentorshipDetailsContainer" style="display: none;">
                         <div class="form-group">
