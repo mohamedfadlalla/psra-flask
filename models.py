@@ -330,6 +330,8 @@ class AlumniProfile(db.Model):
     company = db.Column(db.String(200), nullable=True)
     industry = db.Column(db.String(200), nullable=True)
     open_to_mentor = db.Column(db.Boolean, default=True)
+    mentorship_program = db.Column(db.String(200), nullable=True)
+    mentorship_duration = db.Column(db.String(100), nullable=True)
     
     user = db.relationship('User', back_populates='alumni_profile')
 
@@ -340,6 +342,8 @@ class ResearcherProfile(db.Model):
     lab_name = db.Column(db.String(150), nullable=True)
     office_location = db.Column(db.String(150), nullable=True)
     open_to_mentor = db.Column(db.Boolean, default=False)
+    mentorship_program = db.Column(db.String(200), nullable=True)
+    mentorship_duration = db.Column(db.String(100), nullable=True)
     
     user = db.relationship('User', back_populates='researcher_profile')
 
