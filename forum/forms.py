@@ -98,7 +98,6 @@ class ProfileForm(FlaskForm):
     projects = TextAreaField('Projects/Portfolio', validators=[Length(max=1000)])
     publications = TextAreaField('Publications/Research', validators=[Length(max=1000)])
     professional_summary = TextAreaField('Professional Summary', validators=[Length(max=1000)])
-    open_to_mentor = BooleanField('Open to Mentorship Requests')
     profile_picture = FileField('Profile Picture', validators=[FileAllowed(['jpg', 'jpeg', 'png', 'gif'], 'Images only!')])
     submit = SubmitField('Update Profile')
 
@@ -146,3 +145,9 @@ class ResearchSubmissionForm(FlaskForm):
         ('student', 'Student')
     ])
     submit = SubmitField('Submit Research')
+
+class MentorshipSettingsForm(FlaskForm):
+    open_to_mentor = BooleanField('Open to Mentorship Requests')
+    mentorship_program = StringField('Mentorship Program/Field', validators=[Optional(), Length(max=200)])
+    mentorship_duration = StringField('Duration', validators=[Optional(), Length(max=100)])
+    submit = SubmitField('Save Settings')
